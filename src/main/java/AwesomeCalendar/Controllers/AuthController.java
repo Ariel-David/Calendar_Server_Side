@@ -4,11 +4,9 @@ import AwesomeCalendar.Entities.User;
 import AwesomeCalendar.Services.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+@CrossOrigin
 @RestController
 public class AuthController {
     @Autowired
@@ -51,26 +49,26 @@ public class AuthController {
      * @param user - the user's data
      * @return user with response body
      */
-//    @RequestMapping(value = "login", method = RequestMethod.POST)
-//    public ResponseEntity<CustomResponse<UserDTO>> login(@RequestBody User user) {
+    @RequestMapping(value = "login", method = RequestMethod.POST)
+    public ResponseEntity<String> login(@RequestBody User user) {
 //        CustomResponse<UserDTO> response = new CustomResponse<>(null, emptyString);
-//        try {
+        try {
 //            Optional<CustomResponse<UserDTO>> isValid = checkValidEmail(user.getEmail(), response);
 //            if(isValid.isPresent()){ return ResponseEntity.badRequest().body(isValid.get());}
 //            isValid = checkValidPassword(user.getPassword(), response);
 //            if(isValid.isPresent()){ return ResponseEntity.badRequest().body(isValid.get());}
 //
 //            logger.info(beforeAnAction(user.getEmail(), "login"));
-//            User loginUser = authService.login(user);
+            String result = authService.login(user);
 //            response.setResponse(UserDTO.userToUserDTO(loginUser));
 //            response.setMessage(loginSuccessfulMessage);
 //            response.setHeaders(authService.getKeyEmailsValTokens().get(loginUser.getEmail()));
 //            logger.info(loginSuccessfulMessage);
-//            return ResponseEntity.ok().body(response);
-//        } catch (IllegalArgumentException e) {
+            return ResponseEntity.ok().body(result);
+        } catch (IllegalArgumentException e) {
 //            logger.error(e.getMessage());
 //            response.setMessage(e.getMessage());
-//            return ResponseEntity.badRequest().body(response);
-//        }
-//    }
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
 }
