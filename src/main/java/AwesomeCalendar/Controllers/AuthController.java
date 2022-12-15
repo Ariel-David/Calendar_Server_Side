@@ -1,5 +1,6 @@
 package AwesomeCalendar.Controllers;
 
+import AwesomeCalendar.CustomEntities.UserDTO;
 import AwesomeCalendar.Entities.User;
 import AwesomeCalendar.Services.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,18 +9,19 @@ import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin
 @RestController
+@RequestMapping("/auth")
 public class AuthController {
     @Autowired
     private AuthService authService;
 
     /**
-     * checks if the email, name, password is valid, and send the user to the addUser method in AuthService
+     * checks if the email, password is valid, and send the user to the addUser method in AuthService
      *
      * @param user - the user's data
      * @return a saved user with response body
      */
     @RequestMapping(value = "register", method = RequestMethod.POST)
-    public ResponseEntity<User> registerUser(@RequestBody User user) {
+    public ResponseEntity<UserDTO> registerUser(@RequestBody User user) {
 //        CustomResponse<UserDTO> response = new CustomResponse<>(null, emptyString);
         try {
 //            Optional<CustomResponse<UserDTO>> isValid = checkValidEmail(user.getEmail(), response);
@@ -30,12 +32,12 @@ public class AuthController {
 //            if(isValid.isPresent()){ return ResponseEntity.badRequest().body(isValid.get());}
 
 //            logger.info(beforeAnAction(user.getEmail(), "register"));
-            User registerUser = authService.addUser(user);
+            UserDTO registerUserDTO = UserDTO.convertUserToUserDTO(authService.addUser(user));
 //            response.setResponse(UserDTO.userToUserDTO(registerUser));
 //            response.setMessage(registrationSuccessfulMessage);
 //            EmailUtilityFacade.sendMessage(registerUser.getEmail(), registerUser.getVerifyCode());
 //            logger.info(registrationSuccessfulMessage);
-            return ResponseEntity.ok().body(registerUser);
+            return ResponseEntity.ok().body(registerUserDTO);
         } catch (IllegalArgumentException e) {
 //            logger.error(e.getMessage());
 //            response.setMessage(e.getMessage());
@@ -60,6 +62,7 @@ public class AuthController {
 //
 //            logger.info(beforeAnAction(user.getEmail(), "login"));
             String result = authService.login(user);
+//            UserDTO loginUserDTO = UserDTO.convertUserToUserDTO(authService.login(user));
 //            response.setResponse(UserDTO.userToUserDTO(loginUser));
 //            response.setMessage(loginSuccessfulMessage);
 //            response.setHeaders(authService.getKeyEmailsValTokens().get(loginUser.getEmail()));
