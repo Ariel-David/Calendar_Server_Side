@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.Objects;
 
 @Service
 public class AuthService {
@@ -31,6 +32,39 @@ public class AuthService {
 //            User registeredUser = User.registeredUser(user);
 //            logger.info(saveInDbWaitToActivate);
             return userRepository.save(user);
+        } catch (RuntimeException e) {
+//            logger.error(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
+        }
+    }
+
+    public String login(User user) {
+        try {
+//            logger.debug(checkIfExistsAlready);
+            if (userRepository.findByEmail(user.getEmail()) == null) {
+//                logger.error(loginFailedMessage);
+                throw new IllegalArgumentException("failed login");
+            }
+//            User dbUser = User.dbUser(userRepository.findByEmail(user.getEmail()));
+
+//            logger.debug(checkPassword);
+//            BCryptPasswordEncoder bEncoder = new BCryptPasswordEncoder();
+//            if (!bEncoder.matches(user.getPassword(), dbUser.getPassword())) {
+//                logger.error(loginFailedMessage);
+//                throw new IllegalArgumentException(loginFailedMessage);
+//            }
+//            logger.info(createToken);
+//            logger.info(userLogged);
+//            String sessionToken = randomString();
+//            keyTokensValEmails.put(sessionToken, dbUser.getEmail());
+//            keyEmailsValTokens.put(dbUser.getEmail(), sessionToken);
+//            dbUser.setUserStatus(UserStatuses.ONLINE);
+//            return userRepository.save(dbUser);
+            User byEmail = userRepository.findByEmail(user.getEmail());
+            if (!Objects.equals(byEmail.getPassword(), user.getPassword())) {
+                throw new IllegalArgumentException("password incorrect");
+            }
+            return "token";
         } catch (RuntimeException e) {
 //            logger.error(e.getMessage());
             throw new IllegalArgumentException(e.getMessage());
