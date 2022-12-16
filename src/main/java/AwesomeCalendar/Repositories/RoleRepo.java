@@ -1,4 +1,7 @@
 package AwesomeCalendar.Repositories;
 
-public class RoleRepo {
+import AwesomeCalendar.Entities.Role;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface RoleRepo extends JpaRepository<Role, Long> {
 }
