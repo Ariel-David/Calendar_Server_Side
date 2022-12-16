@@ -61,13 +61,13 @@ public class AuthController {
 //            if(isValid.isPresent()){ return ResponseEntity.badRequest().body(isValid.get());}
 //
 //            logger.info(beforeAnAction(user.getEmail(), "login"));
-            String result = authService.login(user);
+            String token = authService.login(user);
 //            UserDTO loginUserDTO = UserDTO.convertUserToUserDTO(authService.login(user));
 //            response.setResponse(UserDTO.userToUserDTO(loginUser));
 //            response.setMessage(loginSuccessfulMessage);
 //            response.setHeaders(authService.getKeyEmailsValTokens().get(loginUser.getEmail()));
 //            logger.info(loginSuccessfulMessage);
-            return ResponseEntity.ok().body(result);
+            return ResponseEntity.ok().body(token);
         } catch (IllegalArgumentException e) {
 //            logger.error(e.getMessage());
 //            response.setMessage(e.getMessage());
