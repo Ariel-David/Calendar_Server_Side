@@ -5,8 +5,11 @@ import AwesomeCalendar.Repositories.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+
+import static AwesomeCalendar.Utilities.Utility.*;
 
 @Service
 public class AuthService {
@@ -14,6 +17,25 @@ public class AuthService {
     private UserRepo userRepository;
 
     private Map<String, String> keyTokensValEmails;
+
+    /**
+     * AuthService constructor
+     * Initializes keyTokensValEmails new Map
+     * Initializes keyEmailsValTokens new Map
+     */
+    AuthService() {
+        this.keyTokensValEmails = getTokensInstance();
+    }
+
+    /**
+     * Initializes the keyTokensValEmails if the keyTokensValEmails is null
+     */
+    Map<String, String> getTokensInstance() {
+        if (this.keyTokensValEmails == null)
+            this.keyTokensValEmails = new HashMap<>();
+        return this.keyTokensValEmails;
+    }
+
     /**
      * Adds a user to the database if it has a unique email
      *
@@ -23,50 +45,29 @@ public class AuthService {
      */
     public User addUser(User user) {
         try {
-//            logger.debug(checkIfExistsAlready);
             if (userRepository.findByEmail(user.getEmail()) != null) {
-//                logger.error(emailExistsInSystemMessage(user.getEmail()));
-                throw new IllegalArgumentException("null");
+                throw new IllegalArgumentException("email exist");
             }
-//            logger.info(userValid);
-//            User registeredUser = User.registeredUser(user);
-//            logger.info(saveInDbWaitToActivate);
+            user.setPassword(encryptPassword(user.getPassword()));
             return userRepository.save(user);
         } catch (RuntimeException e) {
-//            logger.error(e.getMessage());
             throw new IllegalArgumentException(e.getMessage());
         }
     }
 
     public String login(User user) {
         try {
-//            logger.debug(checkIfExistsAlready);
-            if (userRepository.findByEmail(user.getEmail()) == null) {
-//                logger.error(loginFailedMessage);
+            User dbUser = userRepository.findByEmail(user.getEmail());
+            if (dbUser == null) {
                 throw new IllegalArgumentException("failed login");
             }
-//            User dbUser = User.dbUser(userRepository.findByEmail(user.getEmail()));
-
-//            logger.debug(checkPassword);
-//            BCryptPasswordEncoder bEncoder = new BCryptPasswordEncoder();
-//            if (!bEncoder.matches(user.getPassword(), dbUser.getPassword())) {
-//                logger.error(loginFailedMessage);
-//                throw new IllegalArgumentException(loginFailedMessage);
-//            }
-//            logger.info(createToken);
-//            logger.info(userLogged);
-//            String sessionToken = randomString();
-//            keyTokensValEmails.put(sessionToken, dbUser.getEmail());
-//            keyEmailsValTokens.put(dbUser.getEmail(), sessionToken);
-//            dbUser.setUserStatus(UserStatuses.ONLINE);
-//            return userRepository.save(dbUser);
-            User byEmail = userRepository.findByEmail(user.getEmail());
-            if (!Objects.equals(byEmail.getPassword(), user.getPassword())) {
-                throw new IllegalArgumentException("password incorrect");
+            if (!matchesPasswords(user.getPassword(), dbUser.getPassword())) {
+                throw new IllegalArgumentException("wrong password");
             }
-            return "token";
+            String sessionToken = generateToken();
+            keyTokensValEmails.put(sessionToken, dbUser.getEmail());
+            return sessionToken;
         } catch (RuntimeException e) {
-//            logger.error(e.getMessage());
             throw new IllegalArgumentException(e.getMessage());
         }
     }
