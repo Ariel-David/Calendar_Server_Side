@@ -3,6 +3,8 @@ package AwesomeCalendar.Entities;
 import javax.persistence.*;
 import java.util.Objects;
 
+import static AwesomeCalendar.Utilities.Utility.encryptPassword;
+
 
 @Entity
 @Table(name = "user")
@@ -24,6 +26,13 @@ public class User {
         this.id = id;
         this.email = email;
         this.password = password;
+    }
+
+    public static User registeredUser(User user) {
+        User currUser = new User();
+        currUser.setEmail(user.getEmail());
+        currUser.setPassword(encryptPassword(user.getPassword()));
+        return currUser;
     }
 
     public Long getId() {

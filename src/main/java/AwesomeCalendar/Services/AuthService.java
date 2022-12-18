@@ -48,8 +48,8 @@ public class AuthService {
             if (userRepository.findByEmail(user.getEmail()) != null) {
                 throw new IllegalArgumentException("email exist");
             }
-            user.setPassword(encryptPassword(user.getPassword()));
-            return userRepository.save(user);
+            User registeredUser = User.registeredUser(user);
+            return userRepository.save(registeredUser);
         } catch (RuntimeException e) {
             throw new IllegalArgumentException(e.getMessage());
         }
