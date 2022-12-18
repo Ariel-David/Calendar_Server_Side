@@ -2,9 +2,12 @@ package AwesomeCalendar.Utilities;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import java.util.UUID;
+import java.util.*;
 
 public class Utility {
+
+    public static List<String> destinations = new ArrayList<>(List.of("/event"));
+
     /**
      * Random string: generate random string
      *
