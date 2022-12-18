@@ -12,6 +12,9 @@ public class Event {
     private Long id;
 
     @Column(nullable = false)
+    private EventAccess eventAccess;
+
+    @Column(nullable = false)
     private OffsetTime time;
 
     @Column(nullable = false)
@@ -33,6 +36,14 @@ public class Event {
 //    private List<File> attachments;
 
     public Event() {
+    }
+
+    public EventAccess getEventAccess() {
+        return eventAccess;
+    }
+
+    public void setEventAccess(EventAccess eventAccess) {
+        this.eventAccess = eventAccess;
     }
 
     public OffsetTime getTime() {
@@ -90,4 +101,8 @@ public class Event {
 //    public void setAttachments(List<File> attachments) {
 //        this.attachments = attachments;
 //    }
+
+    public enum EventAccess {
+        PUBLIC, PRIVATE
+    }
 }
