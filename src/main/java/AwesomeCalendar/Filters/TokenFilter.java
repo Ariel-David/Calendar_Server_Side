@@ -37,15 +37,11 @@ public class TokenFilter implements Filter {
         }
 
         String token = req.getHeader("token");
-        System.out.println(token);
         try {
             User user = authService.checkToken(token);
-            Gson gson = new Gson();
+            //Gson gson = new Gson();
             //req.putHeader("user", gson.toJson(user));
-            servletRequest.setAttribute("user", gson.toJson(user));
-            for (String name : Collections.list(servletRequest.getAttributeNames())) {
-                System.out.println(name);
-            }
+            //servletRequest.setAttribute("user", gson.toJson(user));
         } catch (IllegalArgumentException e) {
             res.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return;

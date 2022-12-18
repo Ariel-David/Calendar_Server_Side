@@ -20,11 +20,11 @@ public class EventController {
     private RoleService roleService;
 
     @GetMapping("/new")
-    public ResponseEntity<User> createEvent(/*@RequestBody Event event,*/ @RequestAttribute("user") String user) {
-        Gson gson = new Gson();
+    public ResponseEntity<Event> createEvent(@RequestBody Event event) {
+        /*Gson gson = new Gson();
         System.out.println(gson.fromJson(user ,User.class).toString());
         if (user != null) return ResponseEntity.ok().body(gson.fromJson(user ,User.class));
-        //return ResponseEntity.ok().body(eventService.createEvent(event));
-        return ResponseEntity.ok().body(null);
+        return ResponseEntity.ok().body(null);*/
+        return ResponseEntity.ok().body(eventService.createEvent(event));
     }
 }
