@@ -6,7 +6,7 @@ import java.util.*;
 
 public class Utility {
 
-    public static List<String> destinations = new ArrayList<>(List.of("/event"));
+    public static List<String> destinations = new ArrayList<>(List.of("/event/new"));
 
     /**
      * Random string: generate random string
