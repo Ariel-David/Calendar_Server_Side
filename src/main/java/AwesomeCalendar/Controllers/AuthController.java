@@ -3,9 +3,14 @@ package AwesomeCalendar.Controllers;
 import AwesomeCalendar.CustomEntities.UserDTO;
 import AwesomeCalendar.Entities.User;
 import AwesomeCalendar.Services.AuthService;
+import AwesomeCalendar.Utilities.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.google.gson.Gson;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @CrossOrigin
 @RestController
@@ -13,6 +18,9 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     @Autowired
     private AuthService authService;
+
+    private static final Gson gson = new Gson();
+
 
     /**
      * checks if the email, password is valid, and send the user to the addUser method in AuthService
@@ -22,25 +30,17 @@ public class AuthController {
      */
     @RequestMapping(value = "register", method = RequestMethod.POST)
     public ResponseEntity<UserDTO> registerUser(@RequestBody User user) {
-//        CustomResponse<UserDTO> response = new CustomResponse<>(null, emptyString);
+        if (!Validate.email(user.getEmail())) {
+            return ResponseEntity.badRequest().body(null);
+        }
+        if (!Validate.password(user.getPassword())) {
+            return ResponseEntity.badRequest().body(null);
+        }
         try {
-//            Optional<CustomResponse<UserDTO>> isValid = checkValidEmail(user.getEmail(), response);
-//            if(isValid.isPresent()){ return ResponseEntity.badRequest().body(isValid.get());}
-//            isValid = checkValidName(user.getName(), response);
-//            if(isValid.isPresent()){ return ResponseEntity.badRequest().body(isValid.get());}
-//            isValid = checkValidPassword(user.getPassword(), response);
-//            if(isValid.isPresent()){ return ResponseEntity.badRequest().body(isValid.get());}
-
-//            logger.info(beforeAnAction(user.getEmail(), "register"));
             UserDTO registerUserDTO = UserDTO.convertUserToUserDTO(authService.addUser(user));
-//            response.setResponse(UserDTO.userToUserDTO(registerUser));
-//            response.setMessage(registrationSuccessfulMessage);
-//            EmailUtilityFacade.sendMessage(registerUser.getEmail(), registerUser.getVerifyCode());
-//            logger.info(registrationSuccessfulMessage);
             return ResponseEntity.ok().body(registerUserDTO);
-        } catch (IllegalArgumentException e) {
-//            logger.error(e.getMessage());
-//            response.setMessage(e.getMessage());
+        }
+        catch (IllegalArgumentException e){
             return ResponseEntity.badRequest().body(null);
         }
     }
@@ -53,25 +53,23 @@ public class AuthController {
      */
     @RequestMapping(value = "login", method = RequestMethod.POST)
     public ResponseEntity<String> login(@RequestBody User user) {
-//        CustomResponse<UserDTO> response = new CustomResponse<>(null, emptyString);
-        try {
-//            Optional<CustomResponse<UserDTO>> isValid = checkValidEmail(user.getEmail(), response);
-//            if(isValid.isPresent()){ return ResponseEntity.badRequest().body(isValid.get());}
-//            isValid = checkValidPassword(user.getPassword(), response);
-//            if(isValid.isPresent()){ return ResponseEntity.badRequest().body(isValid.get());}
-//
-//            logger.info(beforeAnAction(user.getEmail(), "login"));
-            String token = authService.login(user);
-//            UserDTO loginUserDTO = UserDTO.convertUserToUserDTO(authService.login(user));
-//            response.setResponse(UserDTO.userToUserDTO(loginUser));
-//            response.setMessage(loginSuccessfulMessage);
-//            response.setHeaders(authService.getKeyEmailsValTokens().get(loginUser.getEmail()));
-//            logger.info(loginSuccessfulMessage);
-            return ResponseEntity.ok().body(token);
-        } catch (IllegalArgumentException e) {
-//            logger.error(e.getMessage());
-//            response.setMessage(e.getMessage());
+        if (!Validate.email(user.getEmail())) {
             return ResponseEntity.badRequest().body(null);
         }
+        if (!Validate.password(user.getPassword())) {
+            return ResponseEntity.badRequest().body(null);
+        }
+        try {
+            String token = authService.login(user);
+            if (token != null) {
+                Map<String, String> map = new HashMap<>();
+                map.put("token", token);
+                return ResponseEntity.ok(gson.toJson(map)); // 200
+            }
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+        return ResponseEntity.badRequest().body(null);
     }
 }
+
