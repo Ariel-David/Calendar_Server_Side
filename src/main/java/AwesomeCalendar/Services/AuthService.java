@@ -71,4 +71,11 @@ public class AuthService {
             throw new IllegalArgumentException(e.getMessage());
         }
     }
+
+    public User checkToken(String token) {
+        if (!keyTokensValEmails.containsKey(token)) {
+            throw new IllegalArgumentException("invalid token");
+        }
+        return userRepository.findByEmail(keyTokensValEmails.get(token));
+    }
 }

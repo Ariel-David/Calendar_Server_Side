@@ -1,17 +1,16 @@
 package AwesomeCalendar.Controllers;
 
 import AwesomeCalendar.Entities.Event;
+import AwesomeCalendar.Entities.User;
 import AwesomeCalendar.Services.EventService;
 import AwesomeCalendar.Services.RoleService;
+import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin
-@Controller
+@RestController
 @RequestMapping("/event")
 public class EventController {
 
@@ -20,8 +19,12 @@ public class EventController {
     @Autowired
     private RoleService roleService;
 
-    @RequestMapping("/new")
-    public ResponseEntity<Event> createEvent(@RequestBody Event event) {
-        return ResponseEntity.ok().body(eventService.createEvent(event));
+    @GetMapping("/new")
+    public ResponseEntity<User> createEvent(/*@RequestBody Event event,*/ @RequestAttribute("user") String user) {
+        Gson gson = new Gson();
+        System.out.println(gson.fromJson(user ,User.class).toString());
+        if (user != null) return ResponseEntity.ok().body(gson.fromJson(user ,User.class));
+        //return ResponseEntity.ok().body(eventService.createEvent(event));
+        return ResponseEntity.ok().body(null);
     }
 }
