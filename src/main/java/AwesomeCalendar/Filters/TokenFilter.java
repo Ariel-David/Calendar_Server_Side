@@ -10,9 +10,6 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 
 public class TokenFilter implements Filter {
     private final AuthService authService;
@@ -39,14 +36,15 @@ public class TokenFilter implements Filter {
         String token = req.getHeader("token");
         try {
             User user = authService.checkToken(token);
-            //Gson gson = new Gson();
-            //req.putHeader("user", gson.toJson(user));
+            Gson gson = new Gson();
+            req.setAttribute("theUser", user);
+            filterChain.doFilter(req, res);
             //servletRequest.setAttribute("user", gson.toJson(user));
         } catch (IllegalArgumentException e) {
             res.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return;
         }
-        filterChain.doFilter(servletRequest, servletResponse);
+//        filterChain.doFilter(servletRequest, servletResponse);
     }
 
     @Override
