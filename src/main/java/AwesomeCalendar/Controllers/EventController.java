@@ -11,6 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+
 @CrossOrigin
 @RestController
 @RequestMapping("/event")
@@ -22,7 +25,7 @@ public class EventController {
     private RoleService roleService;
 
     @GetMapping("/new")
-    public ResponseEntity<Event> createEvent(@RequestAttribute("theUser") User user, @RequestBody Event event) {
+    public ResponseEntity<Event> createEvent(@RequestAttribute("user") User user, @RequestBody Event event) {
         if (user == null) return ResponseEntity.badRequest().build();
 
         if (event.getTime() == null) {
@@ -32,10 +35,13 @@ public class EventController {
             return ResponseEntity.badRequest().build();
         }
         if (event.getDuration() == null) {
-            return ResponseEntity.badRequest().build();
+            event.setDuration(Duration.of(1, ChronoUnit.HOURS));
         }
         if (event.getTitle() == null) {
             return ResponseEntity.badRequest().build();
+        }
+        if (event.getEventAccess() == null) {
+            event.setEventAccess(Event.EventAccess.PRIVATE);
         }
 
         Event createdEvent = eventService.createEvent(event);
