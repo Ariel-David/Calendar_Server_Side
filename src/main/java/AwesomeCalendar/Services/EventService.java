@@ -22,6 +22,7 @@ public class EventService {
         return eventRepo.save(event);
     }
     public Event updateEvent(Event event) {
+        // filtr permissions
         Optional<Event> eventInDB = eventRepo.findById(event.getId());
         if (!eventInDB.isPresent()) {
             throw new IllegalArgumentException("Invalid event id");

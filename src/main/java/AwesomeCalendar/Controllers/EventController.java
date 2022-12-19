@@ -60,9 +60,9 @@ public class EventController {
         Role newRole = roleService.addGuestRole(eventId, userEmail);
         return ResponseEntity.ok().body(newRole);
     }
-    @RequestMapping(value = "update/role/status", method = RequestMethod.PATCH)
-    public ResponseEntity<Role> updateRoleStatus(@RequestAttribute("user") User user, @RequestParam("eventId") Long eventId, @RequestParam("userId") Long userId) {
-        Role newRole = roleService.updateStatusUserRole(user, eventId, userId);
+    @RequestMapping(value = "update/role/type", method = RequestMethod.PATCH)
+    public ResponseEntity<Role> updateRoleType(@RequestParam("eventId") Long eventId, @RequestParam("userId") Long userId) {
+        Role newRole = roleService.updateTypeUserRole(eventId, userId);
         return ResponseEntity.ok().body(newRole);
     }
 
