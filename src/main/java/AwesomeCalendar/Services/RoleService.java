@@ -20,10 +20,12 @@ public class RoleService {
     EventRepo eventRepository;
     @Autowired
     UserRepo userRepository;
+
     public Role addRole(Event event, User user, Role.RoleType role, Role.StatusType status) {
         return roleRepository.save(new Role(event, user, role, status));
     }
-    public Role addGuestRole(Long eventId, String userEmail){
+
+    public Role addGuestRole(Long eventId, String userEmail) {
         Optional<Event> eventInDB = eventRepository.findById(eventId);
         if (!eventInDB.isPresent()) {
             throw new IllegalArgumentException("Invalid event id");
@@ -37,5 +39,34 @@ public class RoleService {
             throw new IllegalArgumentException("Exist role");
         }
         return roleRepository.save(new Role(eventInDB.get(), userInDB, Role.RoleType.GUEST, Role.StatusType.TENTATIVE));
+    }
+
+    public Role updateStatusUserRole(User user, Long eventId, Long userId) {
+        Optional<User> userInDB = userRepository.findById(user.getId());
+        if (!userInDB.isPresent()) {
+            throw new IllegalArgumentException("Not exist");
+        }
+        Optional<Event> eventInDB = eventRepository.findById(eventId);
+        if (!eventInDB.isPresent()) {
+            throw new IllegalArgumentException("Invalid event id");
+        }
+        Role roleInDB = roleRepository.findByEventAndUser(eventInDB.get(), userInDB.get());
+        if (roleInDB == null) {
+            throw new IllegalArgumentException("You have not received an invitation to this event");
+        }
+        if (!roleInDB.getRoleType().equals(Role.RoleType.ORGANIZER)) {
+            throw new IllegalArgumentException("You are not an event`s organizer");
+        }
+        Optional<User> updatedUserInDB = userRepository.findById(userId);
+        Role updatedRoleInDB = roleRepository.findByEventAndUser(eventInDB.get(), updatedUserInDB.get());
+        if (updatedRoleInDB == null) {
+            throw new IllegalArgumentException("You have not received an invitation to this event");
+        }
+        if (updatedRoleInDB.getRoleType().equals(Role.RoleType.GUEST)) {
+            updatedRoleInDB.setRoleType(Role.RoleType.ADMIN);
+        } else if (updatedRoleInDB.getRoleType().equals(Role.RoleType.ADMIN)) {
+            updatedRoleInDB.setRoleType(Role.RoleType.GUEST);
+        }
+        return roleRepository.save(updatedRoleInDB);
     }
 }
