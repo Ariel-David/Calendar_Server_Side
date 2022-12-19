@@ -78,4 +78,11 @@ public class AuthService {
         }
         return userRepository.findByEmail(keyTokensValEmails.get(token));
     }
+
+    /**
+     * gets the KeyTokensValEmails Map
+     */
+    public Map<String, String> getKeyTokensValEmails() {
+        return this.keyTokensValEmails;
+    }
 }
