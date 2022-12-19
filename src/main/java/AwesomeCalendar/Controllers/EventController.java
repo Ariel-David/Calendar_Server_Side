@@ -2,11 +2,11 @@ package AwesomeCalendar.Controllers;
 
 import AwesomeCalendar.Entities.Event;
 import AwesomeCalendar.Entities.User;
-import AwesomeCalendar.Services.AuthService;
 import AwesomeCalendar.Services.EventService;
 import AwesomeCalendar.Services.RoleService;
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,12 +30,29 @@ public class EventController {
         return ResponseEntity.ok().body(eventService.createEvent(event));
     }
 
-    @RequestMapping(value = "update", method = RequestMethod.PUT)
-    public ResponseEntity<Event> updateEvent(@RequestBody Event event, @RequestParam String token) {
-        String userEmail = authService.getKeyTokensValEmails().get(token);
-        if (userEmail == null) {
-            throw new IllegalArgumentException("token Session Expired");
+    @DeleteMapping(value = "{event}")
+    public ResponseEntity<String> deleteEvent(@PathVariable Event event) {
+        if (event.getId() == null) {
+            return ResponseEntity.notFound().build();
         }
+        Event deleted_event = eventService.deleteEvent(event);
+        if (deleted_event == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return new ResponseEntity<>("Successful deleting event: " + deleted_event.getId(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/getEvent", method = RequestMethod.GET)
+    public ResponseEntity<Event> getEvent(@RequestParam("id") long id) {
+        Event found_event = eventService.getEvent(id);
+        if (found_event == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return new ResponseEntity<>(found_event, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "update", method = RequestMethod.PUT)
+    public ResponseEntity<Event> updateEvent(@RequestBody Event event) {
         Event updateEvent = eventService.updateEvent(event);
         return ResponseEntity.ok().body(updateEvent);
     }

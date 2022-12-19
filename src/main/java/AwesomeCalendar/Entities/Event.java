@@ -38,6 +38,10 @@ public class Event {
     public Event() {
     }
 
+    public Long getId() {
+        return id;
+    }
+
     public EventAccess getEventAccess() {
         return eventAccess;
     }
