@@ -61,6 +61,11 @@ public class EventController {
         Role newRole = roleService.addGuestRole(eventId, userEmail);
         return ResponseEntity.ok().body(newRole);
     }
+    @RequestMapping(value = "update/role/status", method = RequestMethod.PATCH)
+    public ResponseEntity<Role> updateRoleStatus(@RequestAttribute("user") User user, @RequestParam("eventId") Long eventId, @RequestParam("userId") Long userId) {
+        Role newRole = roleService.updateStatusUserRole(user, eventId, userId);
+        return ResponseEntity.ok().body(newRole);
+    }
 
     @DeleteMapping(value = "{event}")
     public ResponseEntity<String> deleteEvent(@PathVariable Event event) {
