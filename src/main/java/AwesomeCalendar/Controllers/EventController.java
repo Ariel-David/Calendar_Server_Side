@@ -6,6 +6,7 @@ import AwesomeCalendar.Entities.User;
 import AwesomeCalendar.Repositories.EventRepo;
 import AwesomeCalendar.Services.EventService;
 import AwesomeCalendar.Services.RoleService;
+import AwesomeCalendar.Utilities.Validate;
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -52,6 +53,15 @@ public class EventController {
         return ResponseEntity.ok().body(null);
     }
 
+    @RequestMapping(value = "new/role", method = RequestMethod.POST)
+    public ResponseEntity<Role> createRole(@RequestParam("eventId") Long eventId, @RequestParam("userEmail") String userEmail) {
+        if (!Validate.email(userEmail)) {
+            return ResponseEntity.badRequest().body(null);
+        }
+        Role newRole = roleService.addGuestRole(eventId, userEmail);
+        return ResponseEntity.ok().body(newRole);
+    }
+
     @DeleteMapping(value = "{event}")
     public ResponseEntity<String> deleteEvent(@PathVariable Event event) {
         if (event.getId() == null) {
@@ -78,4 +88,5 @@ public class EventController {
         Event updateEvent = eventService.updateEvent(event);
         return ResponseEntity.ok().body(updateEvent);
     }
+
 }
