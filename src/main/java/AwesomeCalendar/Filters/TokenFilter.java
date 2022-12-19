@@ -1,7 +1,6 @@
 package AwesomeCalendar.Filters;
 
 import AwesomeCalendar.Entities.User;
-import AwesomeCalendar.Filters.FilterObjects.MutableHttpServletRequest;
 import AwesomeCalendar.Services.AuthService;
 import AwesomeCalendar.Utilities.Utility;
 import com.google.gson.Gson;
@@ -25,7 +24,7 @@ public class TokenFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-        MutableHttpServletRequest req = new MutableHttpServletRequest((HttpServletRequest) servletRequest);
+        HttpServletRequest req = (HttpServletRequest) servletRequest;
         HttpServletResponse res = (HttpServletResponse) servletResponse;
         String path = req.getRequestURI();
 
@@ -37,14 +36,12 @@ public class TokenFilter implements Filter {
         try {
             User user = authService.checkToken(token);
             Gson gson = new Gson();
-            req.setAttribute("theUser", user);
+            req.setAttribute("user", user);
             filterChain.doFilter(req, res);
-            //servletRequest.setAttribute("user", gson.toJson(user));
         } catch (IllegalArgumentException e) {
             res.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return;
         }
-//        filterChain.doFilter(servletRequest, servletResponse);
     }
 
     @Override
