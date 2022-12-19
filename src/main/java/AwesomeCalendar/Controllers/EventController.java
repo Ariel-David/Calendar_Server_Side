@@ -3,8 +3,10 @@ package AwesomeCalendar.Controllers;
 import AwesomeCalendar.Entities.Event;
 import AwesomeCalendar.Entities.Role;
 import AwesomeCalendar.Entities.User;
+import AwesomeCalendar.Repositories.EventRepo;
 import AwesomeCalendar.Services.EventService;
 import AwesomeCalendar.Services.RoleService;
+import AwesomeCalendar.Utilities.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,11 +19,12 @@ import java.time.temporal.ChronoUnit;
 @RestController
 @RequestMapping("/event")
 public class EventController {
-
     @Autowired
     private EventService eventService;
     @Autowired
     private RoleService roleService;
+    @Autowired
+    private EventRepo eventRepo;
 
     @PostMapping("/new")
     public ResponseEntity<Event> createEvent(@RequestAttribute("user") User user, @RequestBody Event event) {
@@ -47,6 +50,15 @@ public class EventController {
 
         roleService.addRole(createdEvent, user, Role.RoleType.ORGANIZER, Role.StatusType.APPROVED);
         return ResponseEntity.ok().body(null);
+    }
+
+    @RequestMapping(value = "new/role", method = RequestMethod.POST)
+    public ResponseEntity<Role> createRole(@RequestParam("eventId") Long eventId, @RequestParam("userEmail") String userEmail) {
+        if (!Validate.email(userEmail)) {
+            return ResponseEntity.badRequest().body(null);
+        }
+        Role newRole = roleService.addGuestRole(eventId, userEmail);
+        return ResponseEntity.ok().body(newRole);
     }
 
     @DeleteMapping(value = "{event}")
@@ -82,4 +94,11 @@ public class EventController {
             return ResponseEntity.badRequest().build();
         }
     }
+
+    @RequestMapping(value = "update", method = RequestMethod.PUT)
+    public ResponseEntity<Event> updateEvent(@RequestBody Event event) {
+        Event updateEvent = eventService.updateEvent(event);
+        return ResponseEntity.ok().body(updateEvent);
+    }
+
 }
