@@ -69,4 +69,13 @@ public class RoleService {
         }
         return roleRepository.save(updatedRoleInDB);
     }
+
+    public Boolean deleteRole(Long eventId, String userEmail) {
+        Optional<Role> userRole = roleRepository.getByEventIdAndUserEmail(eventId, userEmail);
+        if (!userRole.isPresent() || userRole.get().getRoleType() == Role.RoleType.ORGANIZER) {
+            return false;
+        }
+        roleRepository.deleteById(userRole.get().getId());
+        return true;
+    }
 }

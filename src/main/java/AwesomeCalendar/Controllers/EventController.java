@@ -7,7 +7,6 @@ import AwesomeCalendar.Repositories.EventRepo;
 import AwesomeCalendar.Services.EventService;
 import AwesomeCalendar.Services.RoleService;
 import AwesomeCalendar.Utilities.Validate;
-import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +26,7 @@ public class EventController {
     @Autowired
     private EventRepo eventRepo;
 
-    @GetMapping("/new")
+    @PostMapping("/new")
     public ResponseEntity<Event> createEvent(@RequestAttribute("user") User user, @RequestBody Event event) {
         if (user == null) return ResponseEntity.badRequest().build();
 
@@ -86,6 +85,19 @@ public class EventController {
             return ResponseEntity.notFound().build();
         }
         return new ResponseEntity<>(found_event, HttpStatus.OK);
+    }
+
+    @PatchMapping("/removeUser")
+    public ResponseEntity<Void> removeUser(@RequestParam Long eventId, @RequestBody String userEmail) {
+        if (eventId == null || userEmail == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        Boolean isDeleted = roleService.deleteRole(eventId, userEmail);
+        if (isDeleted) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @RequestMapping(value = "update", method = RequestMethod.PUT)

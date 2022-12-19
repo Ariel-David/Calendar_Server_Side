@@ -32,6 +32,10 @@ public class Role {
         this.statusType = statusType;
     }
 
+    public Long getId() {
+        return id;
+    }
+
     public Event getEvent() {
         return event;
     }
