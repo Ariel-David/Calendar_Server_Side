@@ -3,6 +3,7 @@ package AwesomeCalendar.Controllers;
 import AwesomeCalendar.Entities.Event;
 import AwesomeCalendar.Entities.Role;
 import AwesomeCalendar.Entities.User;
+import AwesomeCalendar.Repositories.EventRepo;
 import AwesomeCalendar.Services.EventService;
 import AwesomeCalendar.Services.RoleService;
 import com.google.gson.Gson;
@@ -19,11 +20,11 @@ import java.time.temporal.ChronoUnit;
 @RequestMapping("/event")
 public class EventController {
     @Autowired
-    private AuthService authService;
-    @Autowired
     private EventService eventService;
     @Autowired
     private RoleService roleService;
+    @Autowired
+    private EventRepo eventRepo;
 
     @GetMapping("/new")
     public ResponseEntity<Event> createEvent(@RequestAttribute("user") User user, @RequestBody Event event) {
