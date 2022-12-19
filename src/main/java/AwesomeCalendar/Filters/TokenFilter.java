@@ -35,7 +35,6 @@ public class TokenFilter implements Filter {
         String token = req.getHeader("token");
         try {
             User user = authService.checkToken(token);
-            Gson gson = new Gson();
             req.setAttribute("user", user);
             filterChain.doFilter(req, res);
         } catch (IllegalArgumentException e) {
