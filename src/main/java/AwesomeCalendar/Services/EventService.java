@@ -1,6 +1,7 @@
 package AwesomeCalendar.Services;
 
 import AwesomeCalendar.Entities.Event;
+import AwesomeCalendar.Entities.User;
 import AwesomeCalendar.Repositories.EventRepo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

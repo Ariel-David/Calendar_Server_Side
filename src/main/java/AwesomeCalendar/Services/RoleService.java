@@ -41,32 +41,26 @@ public class RoleService {
         return roleRepository.save(new Role(eventInDB.get(), userInDB, Role.RoleType.GUEST, Role.StatusType.TENTATIVE));
     }
 
-    public Role updateStatusUserRole(User user, Long eventId, Long userId) {
-        Optional<User> userInDB = userRepository.findById(user.getId());
-        if (!userInDB.isPresent()) {
-            throw new IllegalArgumentException("Not exist");
-        }
+    public Role updateTypeUserRole(Long eventId, Long userId) {
         Optional<Event> eventInDB = eventRepository.findById(eventId);
         if (!eventInDB.isPresent()) {
             throw new IllegalArgumentException("Invalid event id");
         }
-        Role roleInDB = roleRepository.findByEventAndUser(eventInDB.get(), userInDB.get());
-        if (roleInDB == null) {
-            throw new IllegalArgumentException("You have not received an invitation to this event");
+        Optional<User> UserInDB = userRepository.findById(userId);
+        if (!UserInDB.isPresent()) {
+            throw new IllegalArgumentException("Invalid user id");
         }
-        if (!roleInDB.getRoleType().equals(Role.RoleType.ORGANIZER)) {
-            throw new IllegalArgumentException("You are not an event`s organizer");
-        }
-        Optional<User> updatedUserInDB = userRepository.findById(userId);
-        Role updatedRoleInDB = roleRepository.findByEventAndUser(eventInDB.get(), updatedUserInDB.get());
+        Role updatedRoleInDB = roleRepository.findByEventAndUser(eventInDB.get(), UserInDB.get());
         if (updatedRoleInDB == null) {
             throw new IllegalArgumentException("You have not received an invitation to this event");
         }
+
         if (updatedRoleInDB.getRoleType().equals(Role.RoleType.GUEST)) {
             updatedRoleInDB.setRoleType(Role.RoleType.ADMIN);
         } else if (updatedRoleInDB.getRoleType().equals(Role.RoleType.ADMIN)) {
             updatedRoleInDB.setRoleType(Role.RoleType.GUEST);
         }
+
         return roleRepository.save(updatedRoleInDB);
     }
 
