@@ -67,6 +67,6 @@ public class EventService {
         return eventInDB;
     }
     public List<Event> getEventsBetweenDates(LocalDate startDate , LocalDate endDate){
-        return eventRepository.findEventByDateBetween(startDate , endDate);
+        return eventRepository.findEventByStartBetween(startDate , endDate);
     }
 }
