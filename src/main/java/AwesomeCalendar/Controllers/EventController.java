@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
@@ -26,7 +27,7 @@ public class EventController {
     @Autowired
     private RoleService roleService;
     @Autowired
-    private EventRepo eventRepo;
+    private EventRepo eventRepository;
 
     @PostMapping("/new")
     public ResponseEntity<Event> createEvent(@RequestAttribute("user") User user, @RequestBody Event event) {
@@ -82,20 +83,20 @@ public class EventController {
 
     @RequestMapping(value = "/getEvent", method = RequestMethod.GET)
     public ResponseEntity<Event> getEvent(@RequestParam("id") long id) {
-        Event found_event = eventService.getEvent(id);
-        if (found_event == null) {
+        Optional<Event> found_event = eventService.getEvent(id);
+        if (!found_event.isPresent()) {
             return ResponseEntity.notFound().build();
         }
-        return new ResponseEntity<>(found_event, HttpStatus.OK);
+        return new ResponseEntity<>(found_event.get(), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/getAllEvent", method = RequestMethod.GET)
-    public ResponseEntity<List<Event>> getAllEvent(@RequestParam("userEmail") String userEmail) {
-        Optional<List<Event>> eventList = eventService.getAllEvent(userEmail);
+    @RequestMapping(value = "/getBetweenDates", method = RequestMethod.GET)
+    public ResponseEntity<List<Event>> getEventsBetweenDates(@RequestAttribute("user") User user, @RequestParam("startDate") LocalDate startDate, @RequestParam("endDate") LocalDate endDate) {
+        List<Event> eventList = eventService.getEventsBetweenDates(startDate,endDate);
         if (eventList == null) {
             return ResponseEntity.notFound().build();
         }
-        return new ResponseEntity<>(eventList.get(), HttpStatus.OK);
+        return new ResponseEntity<>(eventList, HttpStatus.OK);
     }
 
     @PatchMapping("/removeUser")
