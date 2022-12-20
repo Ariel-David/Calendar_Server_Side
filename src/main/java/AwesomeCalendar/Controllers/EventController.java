@@ -8,12 +8,17 @@ import AwesomeCalendar.Services.EventService;
 import AwesomeCalendar.Services.RoleService;
 import AwesomeCalendar.Utilities.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Optional;
 
 @CrossOrigin
 @RestController
@@ -23,21 +28,16 @@ public class EventController {
     private EventService eventService;
     @Autowired
     private RoleService roleService;
-    @Autowired
-    private EventRepo eventRepo;
 
     @PostMapping("/new")
     public ResponseEntity<Event> createEvent(@RequestAttribute("user") User user, @RequestBody Event event) {
         if (user == null) return ResponseEntity.badRequest().build();
 
-        if (event.getTime() == null) {
+        if (event.getStart() == null) {
             return ResponseEntity.badRequest().build();
         }
-        if (event.getDate() == null) {
+        if (event.getEnd() == null) {
             return ResponseEntity.badRequest().build();
-        }
-        if (event.getDuration() == null) {
-            event.setDuration(Duration.of(1, ChronoUnit.HOURS));
         }
         if (event.getTitle() == null) {
             return ResponseEntity.badRequest().build();
@@ -81,15 +81,24 @@ public class EventController {
 
     @RequestMapping(value = "/getEvent", method = RequestMethod.GET)
     public ResponseEntity<Event> getEvent(@RequestParam("id") long id) {
-        Event found_event = eventService.getEvent(id);
-        if (found_event == null) {
+        Optional<Event> found_event = eventService.getEvent(id);
+        if (!found_event.isPresent()) {
             return ResponseEntity.notFound().build();
         }
-        return new ResponseEntity<>(found_event, HttpStatus.OK);
+        return new ResponseEntity<>(found_event.get(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/getBetweenDates", method = RequestMethod.GET)
+    public ResponseEntity<List<Event>> getEventsBetweenDates(@RequestAttribute("user") User user, @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) ZonedDateTime startDate, @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("endDate") ZonedDateTime endDate) {
+        List<Event> eventList = eventService.getEventsBetweenDates(startDate,endDate);
+        if (eventList == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return new ResponseEntity<>(eventList, HttpStatus.OK);
     }
 
     @PatchMapping("/removeUser")
-    public ResponseEntity<Void> removeUser(@RequestParam("eventId") Long eventId, @RequestBody String userEmail) {
+    public ResponseEntity<Void> removeUser(@RequestParam("eventId") Long eventId, @RequestParam("userEmail") String userEmail) {
         if (eventId == null || userEmail == null) {
             return ResponseEntity.badRequest().build();
         }
