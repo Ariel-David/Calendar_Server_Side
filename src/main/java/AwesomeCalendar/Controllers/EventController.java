@@ -88,7 +88,7 @@ public class EventController {
     }
 
     @PatchMapping("/removeUser")
-    public ResponseEntity<Void> removeUser(@RequestParam Long eventId, @RequestBody String userEmail) {
+    public ResponseEntity<Void> removeUser(@RequestParam Long eventId, @RequestParam String userEmail) {
         if (eventId == null || userEmail == null) {
             return ResponseEntity.badRequest().build();
         }
