@@ -8,22 +8,23 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class EventService {
 
     @Autowired
-    private EventRepo eventRepo;
+    private EventRepo eventRepository;
 
     private static final Logger logger = LogManager.getLogger(EventService.class.getName());
 
     public Event createEvent(Event event) {
-        return eventRepo.save(event);
+        return eventRepository.save(event);
     }
     public Event updateEvent(Event event) {
-        // filtr permissions
-        Optional<Event> eventInDB = eventRepo.findById(event.getId());
+        Optional<Event> eventInDB = eventRepository.findById(event.getId());
         if (!eventInDB.isPresent()) {
             throw new IllegalArgumentException("Invalid event id");
         }
@@ -48,29 +49,28 @@ public class EventService {
         if (event.getDescription() != null && !event.getDescription().equals("")) {
             eventInDB.get().setDescription(event.getDescription());
         }
-        eventRepo.save(eventInDB.get());
+        eventRepository.save(eventInDB.get());
         return eventInDB.get();
     }
 
     public Event deleteEvent(Event event) {
         logger.debug("Check if the event exist in DB");
-        Optional<Event> eventInDB = eventRepo.findById(event.getId());
+        Optional<Event> eventInDB = eventRepository.findById(event.getId());
         if (!eventInDB.isPresent()) {
             throw new IllegalArgumentException("Invalid event id");
         }
         logger.debug("Delete the event from DB");
-        eventRepo.delete(eventInDB.get());
+        eventRepository.delete(eventInDB.get());
         return eventInDB.get();
     }
 
-    public Event getEvent(Long id){
+    public Optional<Event> getEvent(Long id){
         logger.debug("Check if the event exist in DB");
-        Optional<Event> eventInDB = eventRepo.findById(id);
-        if (!eventInDB.isPresent()) {
-            throw new IllegalArgumentException("Invalid event id");
-        }
+        Optional<Event> eventInDB = eventRepository.findById(id);
         logger.debug("Found the event");
-        eventRepo.delete(eventInDB.get());
-        return eventInDB.get();
+        return eventInDB;
+    }
+    public List<Event> getEventsBetweenDates(LocalDate startDate , LocalDate endDate){
+        return eventRepository.findEventBetween(startDate , endDate);
     }
 }
