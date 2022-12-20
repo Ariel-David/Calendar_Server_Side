@@ -60,6 +60,7 @@ public class EventController {
         Role newRole = roleService.addGuestRole(eventId, userEmail);
         return ResponseEntity.ok().body(newRole);
     }
+
     @RequestMapping(value = "update/role/type", method = RequestMethod.PATCH)
     public ResponseEntity<Role> updateRoleType(@RequestParam("eventId") Long eventId, @RequestParam("userId") Long userId) {
         Role newRole = roleService.updateTypeUserRole(eventId, userId);
@@ -88,7 +89,7 @@ public class EventController {
     }
 
     @PatchMapping("/removeUser")
-    public ResponseEntity<Void> removeUser(@RequestParam Long eventId, @RequestBody String userEmail) {
+    public ResponseEntity<Void> removeUser(@RequestParam("eventId") Long eventId, @RequestBody String userEmail) {
         if (eventId == null || userEmail == null) {
             return ResponseEntity.badRequest().build();
         }
@@ -101,8 +102,13 @@ public class EventController {
     }
 
     @RequestMapping(value = "update", method = RequestMethod.PUT)
-    public ResponseEntity<Event> updateEvent(@RequestBody Event event) {
-        Event updateEvent = eventService.updateEvent(event);
+    public ResponseEntity<Event> updateEvent(@RequestAttribute("userType") Role.RoleType userType, @RequestParam("eventId") Long eventId, @RequestBody Event event) {
+        if (userType != null && userType.equals(Role.RoleType.ADMIN)) {
+            if (event.getTitle() != null /*|| event.getStartDate() != null || event.getEndDate() != null*/) {
+                return ResponseEntity.badRequest().body(null);
+            }
+        }
+        Event updateEvent = eventService.updateEvent(eventId, event);
         return ResponseEntity.ok().body(updateEvent);
     }
 
