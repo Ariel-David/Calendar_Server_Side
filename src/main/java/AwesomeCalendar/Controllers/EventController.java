@@ -81,6 +81,7 @@ public class EventController {
         if (eventId == null) {
             return ResponseEntity.notFound().build();
         }
+        roleService.deleteRolesForEvent(eventId);
         Event deleted_event = eventService.deleteEvent(eventId);
         if (deleted_event == null) {
             return ResponseEntity.notFound().build();
