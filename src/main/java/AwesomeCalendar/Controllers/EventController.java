@@ -113,7 +113,7 @@ public class EventController {
     @RequestMapping(value = "update", method = RequestMethod.PUT)
     public ResponseEntity<Event> updateEvent(@RequestAttribute("userType") Role.RoleType userType, @RequestParam("eventId") Long eventId, @RequestBody Event event) {
         if (userType != null && userType.equals(Role.RoleType.ADMIN)) {
-            if (event.getTitle() != null /*|| event.getStartDate() != null || event.getEndDate() != null*/) {
+            if (event.getTitle() != null || event.getStart() != null || event.getEnd() != null) {
                 return ResponseEntity.badRequest().body(null);
             }
         }
