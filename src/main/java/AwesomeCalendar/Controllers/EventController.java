@@ -67,12 +67,12 @@ public class EventController {
         return ResponseEntity.ok().body(newRole);
     }
 
-    @DeleteMapping(value = "{event}")
-    public ResponseEntity<String> deleteEvent(@PathVariable Event event) {
-        if (event.getId() == null) {
+    @DeleteMapping(value = "delete")
+    public ResponseEntity<String> deleteEvent(@RequestParam("eventId") Long eventId) {
+        if (eventId == null) {
             return ResponseEntity.notFound().build();
         }
-        Event deleted_event = eventService.deleteEvent(event);
+        Event deleted_event = eventService.deleteEvent(eventId);
         if (deleted_event == null) {
             return ResponseEntity.notFound().build();
         }
