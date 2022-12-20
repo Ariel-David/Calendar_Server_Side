@@ -34,14 +34,11 @@ public class EventController {
     public ResponseEntity<Event> createEvent(@RequestAttribute("user") User user, @RequestBody Event event) {
         if (user == null) return ResponseEntity.badRequest().build();
 
-        if (event.getTime() == null) {
+        if (event.getStart() == null) {
             return ResponseEntity.badRequest().build();
         }
-        if (event.getDate() == null) {
+        if (event.getEnd() == null) {
             return ResponseEntity.badRequest().build();
-        }
-        if (event.getDuration() == null) {
-            event.setDuration(Duration.of(1, ChronoUnit.HOURS));
         }
         if (event.getTitle() == null) {
             return ResponseEntity.badRequest().build();
