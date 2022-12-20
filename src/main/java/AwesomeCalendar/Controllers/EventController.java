@@ -8,6 +8,7 @@ import AwesomeCalendar.Services.EventService;
 import AwesomeCalendar.Services.RoleService;
 import AwesomeCalendar.Utilities.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -91,7 +92,7 @@ public class EventController {
     }
 
     @RequestMapping(value = "/getBetweenDates", method = RequestMethod.GET)
-    public ResponseEntity<List<Event>> getEventsBetweenDates(@RequestAttribute("user") User user, @RequestParam("startDate") LocalDate startDate, @RequestParam("endDate") LocalDate endDate) {
+    public ResponseEntity<List<Event>> getEventsBetweenDates(@RequestAttribute("user") User user, @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate, @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("endDate") LocalDate endDate) {
         List<Event> eventList = eventService.getEventsBetweenDates(startDate,endDate);
         if (eventList == null) {
             return ResponseEntity.notFound().build();
