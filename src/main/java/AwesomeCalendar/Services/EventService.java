@@ -1,7 +1,6 @@
 package AwesomeCalendar.Services;
 
 import AwesomeCalendar.Entities.Event;
-import AwesomeCalendar.Entities.User;
 import AwesomeCalendar.Repositories.EventRepo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,14 +30,11 @@ public class EventService {
         if (event.getEventAccess() != null && !event.getEventAccess().equals("")) {
             eventInDB.get().setEventAccess(event.getEventAccess());
         }
-        if (event.getTime() != null && !event.getTime().equals("")) {
-            eventInDB.get().setTime(event.getTime());
+        if (event.getStart() != null) {
+            eventInDB.get().setStart(event.getStart());
         }
-        if (event.getDate() != null && !event.getDate().equals("")) {
-            eventInDB.get().setDate(event.getDate());
-        }
-        if (event.getDuration() != null && !event.getDuration().equals("")) {
-            eventInDB.get().setDuration(event.getDuration());
+        if (event.getEnd() != null) {
+            eventInDB.get().setEnd(event.getEnd());
         }
         if (event.getLocation() != null && !event.getLocation().equals("")) {
             eventInDB.get().setLocation(event.getLocation());

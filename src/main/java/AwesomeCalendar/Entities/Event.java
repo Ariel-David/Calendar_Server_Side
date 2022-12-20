@@ -4,6 +4,7 @@ import javax.persistence.*;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.OffsetTime;
+import java.time.ZonedDateTime;
 
 @Entity
 public class Event {
@@ -15,13 +16,10 @@ public class Event {
     private EventAccess eventAccess;
 
     @Column(nullable = false)
-    private OffsetTime time;
+    private ZonedDateTime start;
 
     @Column(nullable = false)
-    private LocalDate date;
-
-    @Column(nullable = false)
-    private Duration duration;
+    private ZonedDateTime end;
 
     @Column
     private String location;
@@ -50,28 +48,20 @@ public class Event {
         this.eventAccess = eventAccess;
     }
 
-    public OffsetTime getTime() {
-        return time;
+    public ZonedDateTime getStart() {
+        return start;
     }
 
-    public void setTime(OffsetTime time) {
-        this.time = time;
+    public void setStart(ZonedDateTime start) {
+        this.start = start;
     }
 
-    public LocalDate getDate() {
-        return date;
+    public ZonedDateTime getEnd() {
+        return end;
     }
 
-    public void setDate(LocalDate date) {
-        this.date = date;
-    }
-
-    public Duration getDuration() {
-        return duration;
-    }
-
-    public void setDuration(Duration duration) {
-        this.duration = duration;
+    public void setEnd(ZonedDateTime end) {
+        this.end = end;
     }
 
     public String getLocation() {
