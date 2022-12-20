@@ -2,10 +2,6 @@ package AwesomeCalendar.CustomEntities;
 
 import AwesomeCalendar.Entities.Event;
 
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
