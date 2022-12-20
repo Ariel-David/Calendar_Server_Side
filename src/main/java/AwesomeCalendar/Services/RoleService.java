@@ -64,6 +64,27 @@ public class RoleService {
         return roleRepository.save(updatedRoleInDB);
     }
 
+    public Role updateStatusUserRole(Long eventId, User user, String status) {
+        Optional<Event> eventInDB = eventRepository.findById(eventId);
+        if (!eventInDB.isPresent()) {
+            throw new IllegalArgumentException("Invalid event id");
+        }
+        Role updatedRoleInDB = roleRepository.findByEventAndUser(eventInDB.get(), user);
+        if (updatedRoleInDB == null) {
+            throw new IllegalArgumentException("You have not received an invitation to this event");
+        }
+
+        if (status.equals("APPROVED")) {
+            updatedRoleInDB.setStatusType(Role.StatusType.APPROVED);
+        } else if (status.equals("REJECTED")) {
+            updatedRoleInDB.setStatusType(Role.StatusType.REJECTED);
+        } else if (status.equals("TENTATIVE")) {
+            updatedRoleInDB.setStatusType(Role.StatusType.TENTATIVE);
+        }
+
+        return roleRepository.save(updatedRoleInDB);
+    }
+
     public Boolean deleteRole(Long eventId, String userEmail) {
         Optional<Role> userRole = roleRepository.getByEventIdAndUserEmail(eventId, userEmail);
         if (!userRole.isPresent() || userRole.get().getRoleType() == Role.RoleType.ORGANIZER) {

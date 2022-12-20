@@ -67,6 +67,15 @@ public class EventController {
         return ResponseEntity.ok().body(newRole);
     }
 
+    @RequestMapping(value = "update/role/status", method = RequestMethod.PATCH)
+    public ResponseEntity<Role> updateRoleStatus(@RequestAttribute("user") User user, @RequestParam("eventId") Long eventId,  @RequestParam("status") String status) {
+        if(status.equals("TENTATIVE") || status.equals("REJECTED") || status.equals("APPROVED")){
+            Role newRole = roleService.updateStatusUserRole(eventId, user, status);
+            return ResponseEntity.ok().body(newRole);
+        }
+        return ResponseEntity.badRequest().body(null);
+    }
+
     @DeleteMapping(value = "delete")
     public ResponseEntity<String> deleteEvent(@RequestParam("eventId") Long eventId) {
         if (eventId == null) {
@@ -120,5 +129,6 @@ public class EventController {
         Event updateEvent = eventService.updateEvent(eventId, event);
         return ResponseEntity.ok().body(updateEvent);
     }
+
 
 }
