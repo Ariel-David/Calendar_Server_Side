@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -69,7 +70,9 @@ public class EventService {
             throw new IllegalArgumentException("Invalid event id");
         }
         logger.debug("Found the event");
-        eventRepo.delete(eventInDB.get());
         return eventInDB.get();
+    }
+    public Optional<List<Event>> getAllEvent(String userEmail){
+        return eventRepo.getAllEvents(userEmail);
     }
 }

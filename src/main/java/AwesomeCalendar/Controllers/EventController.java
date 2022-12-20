@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Optional;
 
 @CrossOrigin
 @RestController
@@ -85,6 +87,15 @@ public class EventController {
             return ResponseEntity.notFound().build();
         }
         return new ResponseEntity<>(found_event, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/getAllEvent", method = RequestMethod.GET)
+    public ResponseEntity<List<Event>> getAllEvent(@RequestParam("userEmail") String userEmail) {
+        Optional<List<Event>> eventList = eventService.getAllEvent(userEmail);
+        if (eventList == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return new ResponseEntity<>(eventList.get(), HttpStatus.OK);
     }
 
     @PatchMapping("/removeUser")
