@@ -6,8 +6,9 @@ import java.util.*;
 
 public class Utility {
 
-    public static List<String> destinations = new ArrayList<>(List.of("/event/new", "/event/removeUser", "/event/update", "/event/new/role", "/event/update/role/type", "/event/getBetweenDates"));
-
+    public static List<String> destinations = new ArrayList<>(List.of("/event/new", "/event/removeUser", "/event/update", "/event/new/role", "/event/update/role/type", "/event/getEvent", "/event/delete", "/event/getBetweenDates"));
+    public static List<String> destinationsPermissionsOrganizer = new ArrayList<>(List.of("/event/update/role/type", "/event/delete"));
+    public static List<String> destinationsPermissionsNotGuest = new ArrayList<>(List.of("/event/new/role", "/event/removeUser", "/event/update"));
     /**
      * Random string: generate random string
      *

@@ -23,12 +23,12 @@ public class EventService {
     public Event createEvent(Event event) {
         return eventRepository.save(event);
     }
-    public Event updateEvent(Event event) {
-        Optional<Event> eventInDB = eventRepository.findById(event.getId());
+    public Event updateEvent(Long eventId, Event event) {
+        Optional<Event> eventInDB = eventRepository.findById(eventId);
         if (!eventInDB.isPresent()) {
             throw new IllegalArgumentException("Invalid event id");
         }
-        if (event.getEventAccess() != null && !event.getEventAccess().equals("")) {
+        if (event.getEventAccess() != null) {
             eventInDB.get().setEventAccess(event.getEventAccess());
         }
         if (event.getStart() != null) {
@@ -50,9 +50,9 @@ public class EventService {
         return eventInDB.get();
     }
 
-    public Event deleteEvent(Event event) {
+    public Event deleteEvent(Long eventId) {
         logger.debug("Check if the event exist in DB");
-        Optional<Event> eventInDB = eventRepository.findById(event.getId());
+        Optional<Event> eventInDB = eventRepository.findById(eventId);
         if (!eventInDB.isPresent()) {
             throw new IllegalArgumentException("Invalid event id");
         }
