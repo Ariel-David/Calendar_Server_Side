@@ -67,6 +67,15 @@ public class EventController {
         return ResponseEntity.ok().body(newRole);
     }
 
+    @RequestMapping(value = "update/role/status", method = RequestMethod.PATCH)
+    public ResponseEntity<Role> updateRoleStatus(@RequestAttribute("user") User user, @RequestParam("eventId") Long eventId,  @RequestParam("status") String status) {
+        if(status.equals("TENTATIVE") || status.equals("REJECTED") || status.equals("APPROVED")){
+            Role newRole = roleService.updateStatusUserRole(eventId, user, status);
+            return ResponseEntity.ok().body(newRole);
+        }
+        return ResponseEntity.badRequest().body(null);
+    }
+
     @DeleteMapping(value = "delete")
     public ResponseEntity<String> deleteEvent(@RequestParam("eventId") Long eventId) {
         if (eventId == null) {
@@ -114,12 +123,13 @@ public class EventController {
     @RequestMapping(value = "update", method = RequestMethod.PUT)
     public ResponseEntity<Event> updateEvent(@RequestAttribute("userType") Role.RoleType userType, @RequestParam("eventId") Long eventId, @RequestBody Event event) {
         if (userType != null && userType.equals(Role.RoleType.ADMIN)) {
-            if (event.getTitle() != null /*|| event.getStartDate() != null || event.getEndDate() != null*/) {
+            if (event.getTitle() != null || event.getStart() != null || event.getEnd() != null) {
                 return ResponseEntity.badRequest().body(null);
             }
         }
         Event updateEvent = eventService.updateEvent(eventId, event);
         return ResponseEntity.ok().body(updateEvent);
     }
+
 
 }
