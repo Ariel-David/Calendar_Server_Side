@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -66,7 +67,7 @@ public class EventService {
         logger.debug("Found the event");
         return eventInDB;
     }
-    public List<Event> getEventsBetweenDates(LocalDate startDate , LocalDate endDate){
+    public List<Event> getEventsBetweenDates(ZonedDateTime startDate , ZonedDateTime endDate){
         return eventRepository.findEventByStartBetween(startDate , endDate);
     }
 }
