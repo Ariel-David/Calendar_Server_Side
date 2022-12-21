@@ -131,5 +131,12 @@ public class EventController {
         return ResponseEntity.ok().body(updateEvent);
     }
 
+    @GetMapping("/getUsers")
+    public ResponseEntity<List<Role>> getRolesOfEvent(@RequestParam Long eventId) {
+        if (eventId == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok().body(roleService.getRolesForEvent(eventId));
+    }
 
 }
