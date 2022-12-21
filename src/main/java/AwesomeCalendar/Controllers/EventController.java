@@ -6,15 +6,20 @@ import AwesomeCalendar.CustomEntities.RoleDTO;
 import AwesomeCalendar.Entities.Event;
 import AwesomeCalendar.Entities.Role;
 import AwesomeCalendar.Entities.User;
+import AwesomeCalendar.Repositories.EventRepo;
 import AwesomeCalendar.Services.EventService;
 import AwesomeCalendar.Services.RoleService;
 import AwesomeCalendar.Utilities.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
@@ -163,4 +168,13 @@ public class EventController {
         cResponse = new CustomResponse<>(convertEventToEventDTO(updateEvent), null, updateEventSuccessfullyMessage);
         return ResponseEntity.ok().body(cResponse);
     }
+
+    @GetMapping("/getUsers")
+    public ResponseEntity<List<Role>> getRolesOfEvent(@RequestParam Long eventId) {
+        if (eventId == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok().body(roleService.getRolesForEvent(eventId));
+    }
+
 }
