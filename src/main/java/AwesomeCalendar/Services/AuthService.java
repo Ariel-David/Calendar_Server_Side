@@ -3,11 +3,10 @@ package AwesomeCalendar.Services;
 import AwesomeCalendar.Entities.User;
 import AwesomeCalendar.Repositories.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import static AwesomeCalendar.Utilities.Utility.*;
 
@@ -55,7 +54,7 @@ public class AuthService {
         }
     }
 
-    public String login(User user) {
+    public Pair<String, User> login(User user) {
         try {
             User dbUser = userRepository.findByEmail(user.getEmail());
             if (dbUser == null) {
@@ -66,7 +65,10 @@ public class AuthService {
             }
             String sessionToken = generateToken();
             keyTokensValEmails.put(sessionToken, dbUser.getEmail());
-            return sessionToken;
+//            Map<User, String> m = new HashMap<>();
+//            m.put(dbUser, sessionToken);
+            return Pair.of(sessionToken, dbUser);
+//            return Pair.of(1"")
         } catch (RuntimeException e) {
             throw new IllegalArgumentException(e.getMessage());
         }
