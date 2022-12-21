@@ -1,8 +1,11 @@
 package AwesomeCalendar.CustomEntities;
 
 import AwesomeCalendar.Entities.Event;
+import AwesomeCalendar.Entities.User;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class EventDTO {
@@ -16,7 +19,26 @@ public class EventDTO {
 
     private EventDTO() {
     }
+    public static EventDTO convertEventToEventDTO(Event event) {
+        EventDTO eventDTO = new EventDTO();
+        eventDTO.setId(event.getId());
+        eventDTO.setEventAccess(event.getEventAccess());
+        eventDTO.setStart(event.getStart());
+        eventDTO.setEnd(event.getEnd());
+        eventDTO.setLocation(event.getLocation());
+        eventDTO.setTitle(event.getTitle());
+        eventDTO.setDescription(event.getDescription());
 
+        return eventDTO;
+    }
+    public static List<EventDTO> convertEventListToEventDTOList(List<Event> events) {
+        List<EventDTO> listEvents = new ArrayList<>();
+        for (Event event: events) {
+            EventDTO eventDTO = EventDTO.convertEventToEventDTO(event);
+            listEvents.add(eventDTO);
+        }
+        return listEvents;
+    }
     public Long getId() {
         return id;
     }
