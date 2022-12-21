@@ -16,4 +16,6 @@ public interface RoleRepo extends JpaRepository<Role, Long> {
 
     @Transactional
     List<Role> deleteByEventId(Long eventId);
+
+    List<Role> getByEventId(Long eventId);
 }

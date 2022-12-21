@@ -98,4 +98,11 @@ public class RoleService {
     public List<Role> deleteRolesForEvent(Long eventId) {
         return roleRepository.deleteByEventId(eventId);
     }
+
+    public List<Role> getRolesForEvent(Long eventId) {
+        if (eventId == null) {
+            throw new IllegalArgumentException("event id cant bt null");
+        }
+        return roleRepository.getByEventId(eventId);
+    }
 }
