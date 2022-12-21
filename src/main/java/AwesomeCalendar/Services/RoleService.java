@@ -102,7 +102,7 @@ public class RoleService {
 
     public List<Role> getRolesForEvent(Long eventId) {
         if (eventId == null) {
-            throw new IllegalArgumentException("event id cant bt null");
+            throw new IllegalArgumentException("event id cant be null");
         }
         return roleRepository.getByEventId(eventId);
     }
