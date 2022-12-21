@@ -1,13 +1,12 @@
 package AwesomeCalendar.Services;
 
-import AwesomeCalendar.Entities.User;
 import AwesomeCalendar.Utilities.Email;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 @Service
-public class emailService {
+public class EmailService {
     @Autowired
     private JavaMailSender mailSender;
 
