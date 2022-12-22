@@ -1,8 +1,8 @@
 package AwesomeCalendar.Filters;
 
 import AwesomeCalendar.Repositories.EventRepo;
-import AwesomeCalendar.Repositories.RoleRepo;
 import AwesomeCalendar.Services.AuthService;
+import AwesomeCalendar.Services.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -12,15 +12,15 @@ import org.springframework.context.annotation.Configuration;
 public class AppConfig {
 
     private final AuthService authService;
-    private final RoleRepo roleRepo;
     private final EventRepo eventRepo;
+    private final EventService eventService;
 
     @Autowired
-    public AppConfig(AuthService authService, RoleRepo roleRepo, EventRepo eventRepo) {
+    public AppConfig(AuthService authService, EventRepo eventRepo, EventService eventService) {
         System.out.println("AppConfig is created");
         this.authService = authService;
-        this.roleRepo = roleRepo;
         this.eventRepo = eventRepo;
+        this.eventService = eventService;
     }
 
     @Bean
@@ -46,7 +46,7 @@ public class AppConfig {
     @Bean
     public FilterRegistrationBean<RoleFilter> roleFilterBean() {
         FilterRegistrationBean<RoleFilter> roleBean = new FilterRegistrationBean<>();
-        RoleFilter roleFilter = new RoleFilter(roleRepo, eventRepo);
+        RoleFilter roleFilter = new RoleFilter(eventRepo, eventService);
         roleBean.setFilter(roleFilter);
         roleBean.addUrlPatterns("/*");
         roleBean.setOrder(3);

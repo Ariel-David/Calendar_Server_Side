@@ -6,20 +6,14 @@ import AwesomeCalendar.CustomEntities.RoleDTO;
 import AwesomeCalendar.Entities.Event;
 import AwesomeCalendar.Entities.Role;
 import AwesomeCalendar.Entities.User;
-import AwesomeCalendar.Repositories.EventRepo;
 import AwesomeCalendar.Services.EventService;
-import AwesomeCalendar.Services.RoleService;
 import AwesomeCalendar.Utilities.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Duration;
-import java.time.LocalDate;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,8 +28,6 @@ import static AwesomeCalendar.Utilities.messages.SuccessMessages.*;
 public class EventController {
     @Autowired
     private EventService eventService;
-    @Autowired
-    private RoleService roleService;
 
     @PostMapping("/new")
     public ResponseEntity<CustomResponse<EventDTO>> createEvent(@RequestAttribute("user") User user, @RequestBody Event event) {
@@ -56,13 +48,12 @@ public class EventController {
         if (event.getEventAccess() == null) {
             event.setEventAccess(Event.EventAccess.PRIVATE);
         }
-        Event createdEvent = eventService.createEvent(event);
+        Event createdEvent = eventService.createEvent(event, user);
         if (createdEvent == null) {
             cResponse = new CustomResponse<>(null, null, somethingWrongMessage);
             return ResponseEntity.internalServerError().body(cResponse);
         }
         cResponse = new CustomResponse<>(convertEventToEventDTO(createdEvent), null, eventCreatedSuccessfullyMessage);
-        roleService.addRole(createdEvent, user, Role.RoleType.ORGANIZER, Role.StatusType.APPROVED);
         return ResponseEntity.ok().body(cResponse);
     }
 
@@ -73,14 +64,14 @@ public class EventController {
             cResponse = new CustomResponse<>(null, null, invalidEmailMessage);
             return ResponseEntity.badRequest().body(cResponse);
         }
-        Role newRole = roleService.addGuestRole(eventId, userEmail);
+        Role newRole = eventService.addGuestRole(eventId, userEmail);
         cResponse = new CustomResponse<>(convertRoleToRoleDTO(newRole), null, roleCreatedSuccessfullyMessage);
         return ResponseEntity.ok().body(cResponse);
     }
 
     @RequestMapping(value = "update/role/type", method = RequestMethod.PATCH)
     public ResponseEntity<CustomResponse<RoleDTO>> updateRoleType(@RequestParam("eventId") Long eventId, @RequestParam("userId") Long userId) {
-        Role newRole = roleService.updateTypeUserRole(eventId, userId);
+        Role newRole = eventService.updateTypeUserRole(eventId, userId);
         CustomResponse<RoleDTO> cResponse = new CustomResponse<>(convertRoleToRoleDTO(newRole), null, roleTypeChangedSuccessfullyMessage);
         return ResponseEntity.ok().body(cResponse);
     }
@@ -89,7 +80,7 @@ public class EventController {
     public ResponseEntity<CustomResponse<RoleDTO>> updateRoleStatus(@RequestAttribute("user") User user, @RequestParam("eventId") Long eventId, @RequestParam("status") String status) {
         CustomResponse<RoleDTO> cResponse;
         if (status.equals("TENTATIVE") || status.equals("REJECTED") || status.equals("APPROVED")) {
-            Role newRole = roleService.updateStatusUserRole(eventId, user, status);
+            Role newRole = eventService.updateStatusUserRole(eventId, user, status);
             cResponse = new CustomResponse<>(convertRoleToRoleDTO(newRole), null, roleStatusChangedSuccessfullyMessage);
             return ResponseEntity.ok().body(cResponse);
         }
@@ -104,7 +95,7 @@ public class EventController {
             cResponse = new CustomResponse<>(null, null, invalidEventIdMessage);
             return ResponseEntity.badRequest().body(cResponse);
         }
-        roleService.deleteRolesForEvent(eventId);
+        //roleService.deleteRolesForEvent(eventId);
         Event deleted_event = eventService.deleteEvent(eventId);
         if (deleted_event == null) {
             cResponse = new CustomResponse<>(null, null, somethingWrongMessage);
@@ -145,7 +136,7 @@ public class EventController {
             cResponse = new CustomResponse<>(null, null, somethingWrongMessage);
             return ResponseEntity.badRequest().body(cResponse);
         }
-        Role isDeleted = roleService.deleteRole(eventId, userEmail);
+        Role isDeleted = eventService.deleteRole(eventId, userEmail);
         if (isDeleted != null) {
             cResponse = new CustomResponse<>(convertRoleToRoleDTO(isDeleted), null, getEventsBetweenDatesSuccessfullyMessage);
             return ResponseEntity.ok().body(cResponse);
@@ -174,7 +165,7 @@ public class EventController {
         if (eventId == null) {
             return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.ok().body(roleService.getRolesForEvent(eventId));
+        return ResponseEntity.ok().body(eventService.getRolesForEvent(eventId));
     }
 
 }

@@ -4,8 +4,7 @@ import AwesomeCalendar.Entities.Event;
 import AwesomeCalendar.Entities.Role;
 import AwesomeCalendar.Entities.User;
 import AwesomeCalendar.Repositories.EventRepo;
-import AwesomeCalendar.Repositories.RoleRepo;
-import AwesomeCalendar.Services.AuthService;
+import AwesomeCalendar.Services.EventService;
 import AwesomeCalendar.Utilities.Utility;
 
 import javax.servlet.*;
@@ -15,12 +14,13 @@ import java.io.IOException;
 import java.util.Optional;
 
 public class RoleFilter implements Filter {
-    private final RoleRepo roleRepo;
     private final EventRepo eventRepo;
 
-    public RoleFilter(RoleRepo roleRepo, EventRepo eventRepo) {
-        this.roleRepo = roleRepo;
+    private final EventService eventService;
+
+    public RoleFilter(EventRepo eventRepo, EventService eventService) {
         this.eventRepo = eventRepo;
+        this.eventService = eventService;
     }
 
     @Override
@@ -42,7 +42,7 @@ public class RoleFilter implements Filter {
                 res.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 return;
             }
-            Role role = roleRepo.findByEventAndUser(event.get(), user);
+            Role role = eventService.getRoleByEventAndUSer(event.get().getId(), user);
             if (role.getRoleType().equals(Role.RoleType.ORGANIZER)) {
                 filterChain.doFilter(req, res);
             } else {
@@ -55,7 +55,7 @@ public class RoleFilter implements Filter {
                 res.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 return;
             }
-            Role role = roleRepo.findByEventAndUser(event.get(), user);
+            Role role = eventService.getRoleByEventAndUSer(event.get().getId(), user);
             if (!role.getRoleType().equals(Role.RoleType.GUEST)) {
                 if(path.equals("/event/update")){
                     req.setAttribute("userType", role.getRoleType());

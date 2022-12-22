@@ -8,7 +8,7 @@ import java.util.Objects;
 
 public class RoleDTO {
     private Long id;
-    private Event event;
+    //private Event event;
     private User user;
     private Role.RoleType roleType;
     private Role.StatusType statusType;
@@ -18,7 +18,6 @@ public class RoleDTO {
     public static RoleDTO convertRoleToRoleDTO(Role role) {
         RoleDTO roleDTO = new RoleDTO();
         roleDTO.setId(role.getId());
-        roleDTO.setEvent(role.getEvent());
         roleDTO.setUser(role.getUser());
         roleDTO.setRoleType(role.getRoleType());
         roleDTO.setStatusType(role.getStatusType());
@@ -33,13 +32,13 @@ public class RoleDTO {
         this.id = id;
     }
 
-    public Event getEvent() {
-        return event;
-    }
-
-    public void setEvent(Event event) {
-        this.event = event;
-    }
+//    public Event getEvent() {
+//        return event;
+//    }
+//
+//    public void setEvent(Event event) {
+//        this.event = event;
+//    }
 
     public User getUser() {
         return user;
@@ -73,7 +72,7 @@ public class RoleDTO {
         RoleDTO roleDTO = (RoleDTO) o;
 
         if (!Objects.equals(id, roleDTO.id)) return false;
-        if (!Objects.equals(event, roleDTO.event)) return false;
+        //if (!Objects.equals(event, roleDTO.event)) return false;
         if (!Objects.equals(user, roleDTO.user)) return false;
         if (roleType != roleDTO.roleType) return false;
         return statusType == roleDTO.statusType;
@@ -82,7 +81,7 @@ public class RoleDTO {
     @Override
     public int hashCode() {
         int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (event != null ? event.hashCode() : 0);
+        //result = 31 * result + (event != null ? event.hashCode() : 0);
         result = 31 * result + (user != null ? user.hashCode() : 0);
         result = 31 * result + (roleType != null ? roleType.hashCode() : 0);
         result = 31 * result + (statusType != null ? statusType.hashCode() : 0);
@@ -93,7 +92,7 @@ public class RoleDTO {
     public String toString() {
         return "RoleDTO{" +
                 "id=" + id +
-                ", event=" + event +
+                //", event=" + event +
                 ", user=" + user +
                 ", roleType=" + roleType +
                 ", statusType=" + statusType +
