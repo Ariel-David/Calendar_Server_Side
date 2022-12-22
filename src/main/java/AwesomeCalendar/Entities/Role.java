@@ -8,9 +8,9 @@ public class Role {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @JoinColumn(nullable = false)
+    /*@JoinColumn(nullable = false)
     @ManyToOne
-    private Event event;
+    private Event event;*/
 
     @JoinColumn(nullable = false)
     @ManyToOne
@@ -25,8 +25,7 @@ public class Role {
     public Role() {
     }
 
-    public Role(Event event, User user, RoleType roleType, StatusType statusType) {
-        this.event = event;
+    public Role(User user, RoleType roleType, StatusType statusType) {
         this.user = user;
         this.roleType = roleType;
         this.statusType = statusType;
@@ -34,14 +33,6 @@ public class Role {
 
     public Long getId() {
         return id;
-    }
-
-    public Event getEvent() {
-        return event;
-    }
-
-    public void setEvent(Event event) {
-        this.event = event;
     }
 
     public User getUser() {

@@ -5,6 +5,9 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.OffsetTime;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Entity
 public class Event {
@@ -33,7 +36,27 @@ public class Event {
 //    @Column
 //    private List<File> attachments;
 
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    List<Role> userRoles;
+
+    public List<Role> getUserRoles() {
+        return userRoles;
+    }
+
+    public Optional<Role> getUserRole(User user) {
+        return this.userRoles.stream().filter((role) -> role.getUser().equals(user)).findFirst();
+    }
+
+    public void AddUserRole(Role userRole) {
+        this.userRoles.add(userRole);
+    }
+
+    public void removeUserRole(Role role) {
+        this.userRoles.remove(role);
+    }
+
     public Event() {
+        this.userRoles = new ArrayList<>();
     }
 
     public Long getId() {
