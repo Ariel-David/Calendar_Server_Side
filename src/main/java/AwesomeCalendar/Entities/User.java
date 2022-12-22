@@ -1,6 +1,8 @@
 package AwesomeCalendar.Entities;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import static AwesomeCalendar.Utilities.Utility.encryptPassword;
@@ -19,7 +21,19 @@ public class User {
     @Column(nullable = false, length = 64)
     private String password;
 
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<User> sharedWithMeCalendars;
+
     public User() {
+        sharedWithMeCalendars = new ArrayList<>();
+    }
+
+    public List<User> getSharedWithMeCalendars() {
+        return sharedWithMeCalendars;
+    }
+
+    public void AddSharedCalendar(User user) {
+        sharedWithMeCalendars.add(user);
     }
 
     public User(Long id, String email, String password) {
