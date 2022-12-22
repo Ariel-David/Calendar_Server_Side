@@ -84,9 +84,11 @@ public class AuthController {
                 return ResponseEntity.ok(cResponse); // 200
             }
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(null);
+            cResponse = new CustomResponse<>(null, null, somethingWrongMessage);
+            return ResponseEntity.badRequest().body(cResponse);
         }
-        return ResponseEntity.badRequest().body(null);
+        cResponse = new CustomResponse<>(null, null, somethingWrongMessage);
+        return ResponseEntity.badRequest().body(cResponse);
     }
 
     private static class githubUser {
@@ -121,11 +123,9 @@ public class AuthController {
 //            ResponseEntity<githubUser> githubUser = rest.exchange("https://api.github.com/user/", HttpMethod.GET, entity, githubUser.class);
 
         } catch (IllegalArgumentException e) {
-            cResponse = new CustomResponse<>(null, null, somethingWrongMessage);
-            return ResponseEntity.badRequest().body(cResponse);
+            return ResponseEntity.badRequest().body(null);
         }
-        cResponse = new CustomResponse<>(null, null, somethingWrongMessage);
-        return ResponseEntity.badRequest().body(cResponse);
+        return ResponseEntity.badRequest().body(null);
     }
 }
 
