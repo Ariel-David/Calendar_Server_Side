@@ -6,10 +6,14 @@ import AwesomeCalendar.Entities.User;
 import AwesomeCalendar.Services.AuthService;
 import AwesomeCalendar.Utilities.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.data.util.Pair;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.google.gson.Gson;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -79,6 +83,43 @@ public class AuthController {
                 cResponse = new CustomResponse<>(convertUserToUserDTO(pair.getSecond()), pair.getFirst(), loginSuccessfullyMessage);
                 return ResponseEntity.ok(cResponse); // 200
             }
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+        return ResponseEntity.badRequest().body(null);
+    }
+
+    private static class githubUser {
+        public String getLogin() {
+            return Login;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getEmail() {
+            return email;
+        }
+
+        String Login;
+        String name;
+        String email;
+        githubUser(){
+
+        }
+    }
+
+    @RequestMapping(value = "gitHub", method = RequestMethod.POST)
+    public ResponseEntity<String> registerWithGitHub(@RequestBody String code) {
+        try {
+            RestTemplate rest = new RestTemplate();
+            rest.postForEntity("https://github.com/login/oauth/access_token?code=" + code + "&client_id=2298388bcf5985aa7bcb" + "&client_secret=c50b29b012b0b535aa7d2f20627b8ebf790b390a", null, String.class);
+//            HttpHeaders headers = new HttpHeaders();
+//            headers.set(HttpHeaders.AUTHORIZATION, "bearer " + token);
+//            HttpEntity<Void> entity = new HttpEntity<>(headers);
+//            ResponseEntity<githubUser> githubUser = rest.exchange("https://api.github.com/user/", HttpMethod.GET, entity, githubUser.class);
+
         } catch (IllegalArgumentException e) {
             cResponse = new CustomResponse<>(null, null, somethingWrongMessage);
             return ResponseEntity.badRequest().body(cResponse);
