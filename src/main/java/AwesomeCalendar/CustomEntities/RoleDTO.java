@@ -15,7 +15,16 @@ public class RoleDTO {
 
     private RoleDTO() {
     }
+    public static RoleDTO convertRoleToRoleDTO(Role role) {
+        RoleDTO roleDTO = new RoleDTO();
+        roleDTO.setId(role.getId());
+        roleDTO.setEvent(role.getEvent());
+        roleDTO.setUser(role.getUser());
+        roleDTO.setRoleType(role.getRoleType());
+        roleDTO.setStatusType(role.getStatusType());
 
+        return roleDTO;
+    }
     public Long getId() {
         return id;
     }

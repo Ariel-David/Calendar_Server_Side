@@ -7,6 +7,7 @@ import AwesomeCalendar.Repositories.EventRepo;
 import AwesomeCalendar.Repositories.RoleRepo;
 import AwesomeCalendar.Repositories.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -86,16 +87,23 @@ public class RoleService {
         return roleRepository.save(updatedRoleInDB);
     }
 
-    public Boolean deleteRole(Long eventId, String userEmail) {
+    public Role deleteRole(Long eventId, String userEmail) {
         Optional<Role> userRole = roleRepository.getByEventIdAndUserEmail(eventId, userEmail);
         if (!userRole.isPresent() || userRole.get().getRoleType() == Role.RoleType.ORGANIZER) {
-            return false;
+            throw new IllegalArgumentException("Trying to delete an organizer");
         }
         roleRepository.deleteById(userRole.get().getId());
-        return true;
+        return userRole.get();
     }
 
     public List<Role> deleteRolesForEvent(Long eventId) {
         return roleRepository.deleteByEventId(eventId);
+    }
+
+    public List<Role> getRolesForEvent(Long eventId) {
+        if (eventId == null) {
+            throw new IllegalArgumentException("event id cant be null");
+        }
+        return roleRepository.getByEventId(eventId);
     }
 }
