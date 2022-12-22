@@ -1,7 +1,7 @@
 package AwesomeCalendar.CustomEntities;
 
 import AwesomeCalendar.Entities.Event;
-import AwesomeCalendar.Entities.User;
+import AwesomeCalendar.Entities.Role;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -16,9 +16,11 @@ public class EventDTO {
     private String location;
     private String title;
     private String description;
+    private List<Role> userRoles;
 
     private EventDTO() {
     }
+
     public static EventDTO convertEventToEventDTO(Event event) {
         EventDTO eventDTO = new EventDTO();
         eventDTO.setId(event.getId());
@@ -28,17 +30,20 @@ public class EventDTO {
         eventDTO.setLocation(event.getLocation());
         eventDTO.setTitle(event.getTitle());
         eventDTO.setDescription(event.getDescription());
+        eventDTO.setUserRoles(event.getUserRoles());
 
         return eventDTO;
     }
+
     public static List<EventDTO> convertEventListToEventDTOList(List<Event> events) {
         List<EventDTO> listEvents = new ArrayList<>();
-        for (Event event: events) {
+        for (Event event : events) {
             EventDTO eventDTO = EventDTO.convertEventToEventDTO(event);
             listEvents.add(eventDTO);
         }
         return listEvents;
     }
+
     public Long getId() {
         return id;
     }
@@ -95,6 +100,14 @@ public class EventDTO {
         this.description = description;
     }
 
+    public List<Role> getUserRoles() {
+        return userRoles;
+    }
+
+    public void setUserRoles(List<Role> userRoles) {
+        this.userRoles = userRoles;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -108,7 +121,9 @@ public class EventDTO {
         if (!Objects.equals(end, eventDTO.end)) return false;
         if (!Objects.equals(location, eventDTO.location)) return false;
         if (!Objects.equals(title, eventDTO.title)) return false;
-        return Objects.equals(description, eventDTO.description);
+        if (!Objects.equals(description, eventDTO.description))
+            return false;
+        return Objects.equals(userRoles, eventDTO.userRoles);
     }
 
     @Override
@@ -120,6 +135,7 @@ public class EventDTO {
         result = 31 * result + (location != null ? location.hashCode() : 0);
         result = 31 * result + (title != null ? title.hashCode() : 0);
         result = 31 * result + (description != null ? description.hashCode() : 0);
+        result = 31 * result + (userRoles != null ? userRoles.hashCode() : 0);
         return result;
     }
 
@@ -133,6 +149,7 @@ public class EventDTO {
                 ", location='" + location + '\'' +
                 ", title='" + title + '\'' +
                 ", description='" + description + '\'' +
+                ", userRoles=" + userRoles +
                 '}';
     }
 }
