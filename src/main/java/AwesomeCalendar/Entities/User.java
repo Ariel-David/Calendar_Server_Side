@@ -1,5 +1,8 @@
 package AwesomeCalendar.Entities;
 
+import org.hibernate.Hibernate;
+import org.springframework.transaction.annotation.Transactional;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +36,7 @@ public class User {
     }
 
     public void AddSharedCalendar(User user) {
-        sharedWithMeCalendars.add(user);
+        this.sharedWithMeCalendars.add(user);
     }
 
     public User(Long id, String email, String password) {
