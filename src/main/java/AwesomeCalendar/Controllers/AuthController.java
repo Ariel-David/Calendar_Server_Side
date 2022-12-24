@@ -2,6 +2,7 @@ package AwesomeCalendar.Controllers;
 
 import AwesomeCalendar.CustomEntities.CustomResponse;
 import AwesomeCalendar.CustomEntities.UserDTO;
+import AwesomeCalendar.Entities.GitHubUser;
 import AwesomeCalendar.Entities.User;
 import AwesomeCalendar.Services.AuthService;
 import AwesomeCalendar.Utilities.Validate;
@@ -14,9 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.google.gson.Gson;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static AwesomeCalendar.CustomEntities.UserDTO.convertUserToUserDTO;
 import static AwesomeCalendar.Utilities.messages.ExceptionMessage.*;
@@ -91,41 +89,51 @@ public class AuthController {
         return ResponseEntity.badRequest().body(cResponse);
     }
 
-    private static class githubUser {
-        public String getLogin() {
-            return Login;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getEmail() {
-            return email;
-        }
-
-        String Login;
-        String name;
-        String email;
-        githubUser(){
-
-        }
-    }
+//    private static class githubUser {
+//        public String getName() {
+//            return name;
+//        }
+//
+//        public String getEmail() {
+//            return email;
+//        }
+//        String name;
+//        String email;
+//        githubUser(){
+//
+//        }
+//    }
 
     @RequestMapping(value = "gitHub", method = RequestMethod.POST)
-    public ResponseEntity<String> registerWithGitHub(@RequestBody String code) {
+    public ResponseEntity<CustomResponse<UserDTO>> registerWithGitHub(@RequestParam String code) {
+        System.out.println(code);
+        if(code.equals("undefined")){
+            return null;
+        }
         try {
             RestTemplate rest = new RestTemplate();
-            rest.postForEntity("https://github.com/login/oauth/access_token?code=" + code + "&client_id=2298388bcf5985aa7bcb" + "&client_secret=c50b29b012b0b535aa7d2f20627b8ebf790b390a", null, String.class);
-//            HttpHeaders headers = new HttpHeaders();
-//            headers.set(HttpHeaders.AUTHORIZATION, "bearer " + token);
-//            HttpEntity<Void> entity = new HttpEntity<>(headers);
-//            ResponseEntity<githubUser> githubUser = rest.exchange("https://api.github.com/user/", HttpMethod.GET, entity, githubUser.class);
+            ResponseEntity<String> res =  rest.postForEntity("https://github.com/login/oauth/access_token?code=" + code + "&client_id=2298388bcf5985aa7bcb" + "&client_secret=c50b29b012b0b535aa7d2f20627b8ebf790b390a"+"&scope=user:email", null, String.class);
+            HttpHeaders headers = new HttpHeaders();
+            System.out.println(res);
+            String token = res.getBody().split("&")[0].split("=")[1];
+            headers.set(HttpHeaders.AUTHORIZATION, "Bearer "+token);
+            HttpEntity<Void> entity = new HttpEntity<>(headers);
+            ResponseEntity<GitHubUser> exchange = rest.exchange("https://api.github.com/user", HttpMethod.GET, entity, GitHubUser.class);
+            GitHubUser githubUser = exchange.getBody();
+            githubUser.setAccessToken(token);
+            User user = new User(githubUser.getId(),githubUser.getName()+ githubUser.getId());
+            try{
+                authService.addUser(user);
+            }catch (IllegalArgumentException e){
 
+            }
+            Pair<String,User> login = authService.login(user);
+            String loginToken = login.getFirst();
+            return ResponseEntity.ok().body(new CustomResponse<UserDTO>(UserDTO.convertUserToUserDTO(login.getSecond()),loginToken,"GitHub user loged in"));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(null);
         }
-        return ResponseEntity.badRequest().body(null);
     }
+
 }
 
