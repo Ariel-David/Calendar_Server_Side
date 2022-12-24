@@ -24,6 +24,9 @@ public class User {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<User> sharedWithMeCalendars;
 
+    @Column(nullable = false)
+    private Notification notifications;
+
     public User() {
         sharedWithMeCalendars = new ArrayList<>();
     }
