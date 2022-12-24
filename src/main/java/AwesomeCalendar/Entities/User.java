@@ -19,6 +19,9 @@ public class User {
     @Column(nullable = false, length = 64)
     private String password;
 
+    @Column(nullable = false)
+    private Notification notifications;
+
     public User() {
     }
 
