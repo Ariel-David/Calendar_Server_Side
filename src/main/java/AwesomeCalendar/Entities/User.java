@@ -42,6 +42,11 @@ public class User {
         this.password = password;
     }
 
+    public User(Long id, String password) {
+        this.id = id;
+        this.password = password;
+    }
+
     public static User registeredUser(User user) {
         User currUser = new User();
         currUser.setEmail(user.getEmail());
