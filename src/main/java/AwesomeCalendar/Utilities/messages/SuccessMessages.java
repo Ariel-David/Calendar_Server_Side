@@ -13,4 +13,6 @@ public class SuccessMessages {
     public static String loginSuccessfullyMessage = "success login";
 
     public static String shareCalendarSuccessfullyMessage = "successfully shared calendar";
+
+    public static String getSharedCalendarsSuccessfullyMessage = "users list has returned successfully";
 }
