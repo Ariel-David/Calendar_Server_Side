@@ -46,11 +46,13 @@ public class User {
         this.id = id;
         this.email = email;
         this.password = password;
+        sharedWithMeCalendars = new ArrayList<>();
     }
 
     public User(String email, String password) {
         this.email = email;
         this.password = password;
+        sharedWithMeCalendars = new ArrayList<>();
     }
 
     public static User registeredUser(User user) {
