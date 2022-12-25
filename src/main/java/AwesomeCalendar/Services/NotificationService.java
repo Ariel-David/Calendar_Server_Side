@@ -14,8 +14,8 @@ public class NotificationService {
 
     private static final Logger logger = LogManager.getLogger(NotificationService.class.getName());
 
-    public NotificationsSettings setNotificationsSettings(User user, NotificationsSettings notificationsSettings) {
-        user.setNotificationsSettings(notificationsSettings);
-
-    }
+//    public NotificationsSettings setNotificationsSettings(User user, NotificationsSettings notificationsSettings) {
+//        user.setNotificationsSettings(notificationsSettings);
+//
+//    }
 }

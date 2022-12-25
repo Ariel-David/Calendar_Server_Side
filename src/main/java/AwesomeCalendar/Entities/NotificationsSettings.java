@@ -8,10 +8,6 @@ public class NotificationsSettings {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "id", nullable = false)
     private Long id;
-
-    @ManyToOne
-    @JoinColumn(nullable = false)
-    private Notification notification;
     private boolean eventInvitation = false;
     private boolean userStatusChanged = false;
     private boolean eventDataChanged = false;
@@ -66,15 +62,6 @@ public class NotificationsSettings {
     public void setUpComingEvent(boolean upComingEvent) {
         this.upComingEvent = upComingEvent;
     }
-
-    public Notification getNotification() {
-        return notification;
-    }
-
-    public void setNotification(Notification notification) {
-        this.notification = notification;
-    }
-
 
     public Long getId() {
         return id;
