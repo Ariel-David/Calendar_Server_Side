@@ -27,7 +27,7 @@ public class User {
     @JsonIgnore
     private List<User> sharedWithMeCalendars;
 
-    @Column(nullable = false)
+    @OneToOne
     private NotificationsSettings notificationsSettings;
 
     public User() {
@@ -48,8 +48,8 @@ public class User {
         this.password = password;
     }
 
-    public User(Long id, String password) {
-        this.id = id;
+    public User(String email, String password) {
+        this.email = email;
         this.password = password;
     }
 
