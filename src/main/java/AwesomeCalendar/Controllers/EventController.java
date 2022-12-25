@@ -7,6 +7,7 @@ import AwesomeCalendar.Entities.Event;
 import AwesomeCalendar.Entities.Role;
 import AwesomeCalendar.Entities.User;
 import AwesomeCalendar.Services.EventService;
+import AwesomeCalendar.Services.SharingService;
 import AwesomeCalendar.Utilities.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -28,6 +29,9 @@ import static AwesomeCalendar.Utilities.messages.SuccessMessages.*;
 public class EventController {
     @Autowired
     private EventService eventService;
+
+    @Autowired
+    private SharingService sharingService;
 
     @PostMapping("/new")
     public ResponseEntity<CustomResponse<EventDTO>> createEvent(@RequestAttribute("user") User user, @RequestBody Event event) {
@@ -121,6 +125,28 @@ public class EventController {
     public ResponseEntity<CustomResponse<List<EventDTO>>> getEventsBetweenDates(@RequestAttribute("user") User user, @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) ZonedDateTime startDate, @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("endDate") ZonedDateTime endDate) {
         CustomResponse<List<EventDTO>> cResponse;
         List<Event> eventList = eventService.getEventsBetweenDates(startDate, endDate);
+        if (eventList == null) {
+            cResponse = new CustomResponse<>(null, null, somethingWrongMessage);
+            return ResponseEntity.badRequest().body(cResponse);
+        }
+        cResponse = new CustomResponse<>(convertEventListToEventDTOList(eventList), null, getEventsBetweenDatesSuccessfullyMessage);
+        return ResponseEntity.ok().body(cResponse);
+    }
+
+    /**
+     * gets all events between start date and end date that at lease one user from the list is invited to.
+     * @param user the user requesting all the events.
+     * @param startDate where to start the cut of the relevant events.
+     * @param endDate where to end the cut of the relevant events.
+     * @param usersEmails the email of the users of which we want to see their calendars.
+     * @return all the events matching the parameters.
+     */
+    @RequestMapping(value = "/getCalendarsBetweenDates", method = RequestMethod.GET)
+    public ResponseEntity<CustomResponse<List<EventDTO>>> getEventsBetweenDates(@RequestAttribute("user") User user, @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) ZonedDateTime startDate,
+                                                                                @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("endDate") ZonedDateTime endDate, @RequestBody List<String> usersEmails) {
+        CustomResponse<List<EventDTO>> cResponse;
+        List<User> shared = sharingService.isShared(user, usersEmails);
+        List<Event> eventList = eventService.getEventsBetweenDates(startDate, endDate, shared);
         if (eventList == null) {
             cResponse = new CustomResponse<>(null, null, somethingWrongMessage);
             return ResponseEntity.badRequest().body(cResponse);

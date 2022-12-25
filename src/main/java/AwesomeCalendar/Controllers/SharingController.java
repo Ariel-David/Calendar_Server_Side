@@ -6,7 +6,6 @@ import AwesomeCalendar.Entities.User;
 import AwesomeCalendar.Services.SharingService;
 import AwesomeCalendar.Utilities.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.CustomEditorConfigurer;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,7 +22,7 @@ public class SharingController {
     private SharingService sharingService;
 
     /**
-     * shared a calendar with another user. the other user will be able to see this users public events
+     * share a calendar with another user. the other user will be able to see this user's public events
      * even if he was not invited to them
      * @param user the user that wants to share a calendar with another user
      * @param userEmail the email of the other user that the user wants to share their calendar with
