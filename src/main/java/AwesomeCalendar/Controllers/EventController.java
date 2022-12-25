@@ -143,7 +143,7 @@ public class EventController {
      */
     @RequestMapping(value = "/getCalendarsBetweenDates", method = RequestMethod.GET)
     public ResponseEntity<CustomResponse<List<EventDTO>>> getEventsBetweenDates(@RequestAttribute("user") User user, @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) ZonedDateTime startDate,
-                                                                                @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("endDate") ZonedDateTime endDate, @RequestBody List<String> usersEmails) {
+                                                                                @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("endDate") ZonedDateTime endDate, @RequestParam List<String> usersEmails) {
         CustomResponse<List<EventDTO>> cResponse;
         List<User> shared = sharingService.isShared(user, usersEmails);
         List<Event> eventList = eventService.getEventsBetweenDates(startDate, endDate, shared);
