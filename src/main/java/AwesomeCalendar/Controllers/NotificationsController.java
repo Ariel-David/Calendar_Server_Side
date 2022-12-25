@@ -29,7 +29,7 @@ public class NotificationsController {
     public ResponseEntity<CustomResponse<NotificationsSettings>> setNotificationsSettings(@RequestAttribute("user") User user, @RequestBody NotificationsSettings notificationsSettings) {
         if (user == null) return ResponseEntity.badRequest().build();
         CustomResponse<NotificationsSettings> cResponse;
-       NotificationsSettings setNotifications = notificationService.setNotificationsSettings(user,notificationsSettings);
+        NotificationsSettings setNotifications = notificationService.setNotificationsSettings(user, notificationsSettings);
         if (setNotifications == null) {
             cResponse = new CustomResponse<>(null, null, somethingWrongMessage);
             return ResponseEntity.internalServerError().body(cResponse);
@@ -37,4 +37,5 @@ public class NotificationsController {
         cResponse = new CustomResponse<>(setNotifications, null, setNotificationsSuccessfullyMessage);
         return ResponseEntity.ok().body(cResponse);
     }
+
 }
