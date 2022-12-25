@@ -10,10 +10,10 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class EventService {
@@ -76,6 +76,20 @@ public class EventService {
     }
     public List<Event> getEventsBetweenDates(ZonedDateTime startDate , ZonedDateTime endDate){
         return eventRepository.findEventByStartBetween(startDate , endDate);
+    }
+
+    /**
+     * gets all events between start date and end date that at lease one user from the list is invited to.
+     * @param startDate where to start the cut of the relevant events.
+     * @param endDate where to end the cut of the relevant events.
+     * @param calendars the users of which we want to see their calendars.
+     * @return all the events matching the parameters.
+     */
+    public List<Event> getEventsBetweenDates(ZonedDateTime startDate , ZonedDateTime endDate, List<User> calendars){
+        List<Event> events = eventRepository.findEventByStartBetween(startDate, endDate);
+        return events.stream()
+                .filter(event -> event.getUserRoles().stream().anyMatch(role -> calendars.contains(role.getUser())))
+                .collect(Collectors.toList());
     }
 
     public Role addGuestRole(Long eventId, String userEmail) {
