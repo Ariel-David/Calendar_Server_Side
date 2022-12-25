@@ -4,7 +4,10 @@ import AwesomeCalendar.Entities.User;
 import AwesomeCalendar.Repositories.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 
@@ -16,6 +19,9 @@ public class AuthService {
     private UserRepo userRepository;
 
     private Map<String, String> keyTokensValEmails;
+
+   String clientId="2298388bcf5985aa7bcb";
+   String clientSecret="50b29b012b0b535aa7d2f20627b8ebf790b390a";
 
     /**
      * AuthService constructor

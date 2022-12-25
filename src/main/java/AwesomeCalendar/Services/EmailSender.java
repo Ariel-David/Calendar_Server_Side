@@ -6,11 +6,11 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 @Service
-public class EmailService {
+public class EmailSender {
     @Autowired
     private JavaMailSender mailSender;
 
-    public void sendEmailNotification(String userEmail,String body) {
+    private void sendEmailNotification(String userEmail,String body) {
         Email email = new Email.Builder().to(userEmail).subject("You Have A New Notification!").content(body).build();
         mailSender.send(email.convertIntoMessage());
     }
