@@ -21,15 +21,15 @@ public class SharingService {
      * @return the user that we shared the calendar with.
      */
     public User shareCalendar(User user, String sharedWithEmail) {
-        User SharedWith = userRepository.findByEmail(sharedWithEmail);
-        if (SharedWith == null) {
+        User sharedWith = userRepository.findByEmail(sharedWithEmail);
+        if (sharedWith == null) {
             throw new IllegalArgumentException("Invalid user email");
         }
-        if (user.getSharedWithMeCalendars().contains(SharedWith)) {
+        if (sharedWith.getSharedWithMeCalendars().contains(user)) {
             throw new IllegalArgumentException("Calendar already shared with this user!");
         }
-        SharedWith.addSharedCalendar(user);
-        userRepository.save(SharedWith);
+        sharedWith.addSharedCalendar(user);
+        userRepository.save(sharedWith);
         return user;
     }
 
