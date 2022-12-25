@@ -30,6 +30,7 @@ public class TokenFilter implements Filter {
 
         if (!Utility.destinations.contains(path)) {
             filterChain.doFilter(servletRequest, servletResponse);
+            return;
         }
 
         String token = req.getHeader("token");
