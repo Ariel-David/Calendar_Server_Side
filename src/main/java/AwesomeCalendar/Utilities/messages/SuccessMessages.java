@@ -11,4 +11,7 @@ public class SuccessMessages {
     public static String updateEventSuccessfullyMessage = "Event has been updated successfully";
     public static String registerSuccessfullyMessage = "success register";
     public static String loginSuccessfullyMessage = "success login";
+
+    public static String setNotificationsSuccessfullyMessage = "Notifications settings has been created successfully";
+
 }
