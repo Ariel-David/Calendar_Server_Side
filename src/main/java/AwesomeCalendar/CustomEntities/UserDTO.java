@@ -2,6 +2,8 @@ package AwesomeCalendar.CustomEntities;
 
 import AwesomeCalendar.Entities.User;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class UserDTO {
@@ -17,6 +19,15 @@ public class UserDTO {
         userDTO.setEmail(user.getEmail());
 
         return userDTO;
+    }
+
+    public static List<UserDTO> convertUserListToUserDTOList(List<User> users) {
+        List<UserDTO> listUsers = new ArrayList<>();
+        for (User user : users) {
+            UserDTO userDTO = UserDTO.convertUserToUserDTO(user);
+            listUsers.add(userDTO);
+        }
+        return listUsers;
     }
 
     public Long getId() {

@@ -12,6 +12,10 @@ public class SuccessMessages {
     public static String registerSuccessfullyMessage = "success register";
     public static String loginSuccessfullyMessage = "success login";
 
+    public static String shareCalendarSuccessfullyMessage = "successfully shared calendar";
+
+    public static String getSharedCalendarsSuccessfullyMessage = "users list has returned successfully";
+
     public static String setNotificationsSuccessfullyMessage = "Notifications settings has been created successfully";
 
 }

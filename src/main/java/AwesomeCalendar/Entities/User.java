@@ -1,5 +1,7 @@
 package AwesomeCalendar.Entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +23,8 @@ public class User {
     @Column(nullable = false, length = 64)
     private String password;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(cascade = {CascadeType.REMOVE, CascadeType.PERSIST}, fetch = FetchType.EAGER)
+    @JsonIgnore
     private List<User> sharedWithMeCalendars;
 
     @Column(nullable = false)
@@ -35,8 +38,8 @@ public class User {
         return sharedWithMeCalendars;
     }
 
-    public void AddSharedCalendar(User user) {
-        sharedWithMeCalendars.add(user);
+    public void addSharedCalendar(User user) {
+        this.sharedWithMeCalendars.add(user);
     }
 
     public User(Long id, String email, String password) {
