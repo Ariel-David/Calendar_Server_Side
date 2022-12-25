@@ -1,7 +1,6 @@
 package AwesomeCalendar.Entities;
-
 import AwesomeCalendar.enums.NotificationHandler;
-import AwesomeCalendar.enums.NotificationType;
+
 
 import javax.persistence.*;
 

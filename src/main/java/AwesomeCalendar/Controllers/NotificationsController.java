@@ -1,20 +1,13 @@
 package AwesomeCalendar.Controllers;
 
 import AwesomeCalendar.CustomEntities.CustomResponse;
-import AwesomeCalendar.CustomEntities.EventDTO;
-import AwesomeCalendar.Entities.Event;
 import AwesomeCalendar.Entities.NotificationsSettings;
 import AwesomeCalendar.Entities.User;
-import AwesomeCalendar.Services.EventService;
 import AwesomeCalendar.Services.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import static AwesomeCalendar.CustomEntities.EventDTO.convertEventToEventDTO;
-import static AwesomeCalendar.Utilities.messages.ExceptionMessage.requiredFieldMessage;
 import static AwesomeCalendar.Utilities.messages.ExceptionMessage.somethingWrongMessage;
-import static AwesomeCalendar.Utilities.messages.SuccessMessages.eventCreatedSuccessfullyMessage;
 import static AwesomeCalendar.Utilities.messages.SuccessMessages.setNotificationsSuccessfullyMessage;
 
 @CrossOrigin
