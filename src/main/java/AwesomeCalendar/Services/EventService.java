@@ -85,10 +85,12 @@ public class EventService {
      * @param calendars the users of which we want to see their calendars.
      * @return all the events matching the parameters.
      */
-    public List<Event> getEventsBetweenDates(ZonedDateTime startDate , ZonedDateTime endDate, List<User> calendars){
+    public List<Event> getEventsBetweenDates(User user, ZonedDateTime startDate , ZonedDateTime endDate, List<User> calendars){
         List<Event> events = eventRepository.findEventByStartBetween(startDate, endDate);
         return events.stream()
-                .filter(event -> event.getUserRoles().stream().anyMatch(role -> calendars.contains(role.getUser())))
+                .filter(event -> event.getUserRoles().stream().anyMatch(role -> calendars.contains(role.getUser()))
+                        && (event.getEventAccess() == Event.EventAccess.PUBLIC
+                        || (event.getEventAccess() == Event.EventAccess.PRIVATE && event.getUserRoles().contains(user))))
                 .collect(Collectors.toList());
     }
 

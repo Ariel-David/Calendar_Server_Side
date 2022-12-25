@@ -146,7 +146,7 @@ public class EventController {
                                                                                 @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("endDate") ZonedDateTime endDate, @RequestParam List<String> usersEmails) {
         CustomResponse<List<EventDTO>> cResponse;
         List<User> shared = sharingService.isShared(user, usersEmails);
-        List<Event> eventList = eventService.getEventsBetweenDates(startDate, endDate, shared);
+        List<Event> eventList = eventService.getEventsBetweenDates(user, startDate, endDate, shared);
         if (eventList == null) {
             cResponse = new CustomResponse<>(null, null, somethingWrongMessage);
             return ResponseEntity.badRequest().body(cResponse);
