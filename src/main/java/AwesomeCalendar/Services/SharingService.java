@@ -19,8 +19,14 @@ public class SharingService {
      * @param user the user that wants to share their calendar.
      * @param sharedWithEmail the email of the user they want to share their calendar with.
      * @return the user that we shared the calendar with.
+     * @throws IllegalArgumentException if the user is null,
+     * if the email doesn't correspond to a user,
+     * or if the user is already shared the calendar
      */
     public User shareCalendar(User user, String sharedWithEmail) {
+        if (user == null) {
+            throw new IllegalArgumentException("User cant be null");
+        }
         User sharedWith = userRepository.findByEmail(sharedWithEmail);
         if (sharedWith == null) {
             throw new IllegalArgumentException("Invalid user email");
@@ -30,7 +36,7 @@ public class SharingService {
         }
         sharedWith.addSharedCalendar(user);
         userRepository.save(sharedWith);
-        return user;
+        return sharedWith;
     }
 
     /**
@@ -42,6 +48,12 @@ public class SharingService {
      * share their calendar with him.
      */
     public List<User> isShared(User user, List<String> usersEmail) {
+        if (user == null) {
+            throw new IllegalArgumentException("user cant be null");
+        }
+        if (usersEmail == null) {
+            throw new IllegalArgumentException("usersEmail cant be null");
+        }
         List<User> usersCalendars = new ArrayList<>();
         for (String email : usersEmail) {
             User byEmail = userRepository.findByEmail(email);
