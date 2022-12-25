@@ -4,7 +4,6 @@ import AwesomeCalendar.Entities.User;
 import AwesomeCalendar.Repositories.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class SharingService {
@@ -20,8 +19,8 @@ public class SharingService {
         if (user.getSharedWithMeCalendars().contains(SharedWith)) {
             throw new IllegalArgumentException("Calendar already shared with this user!");
         }
-        user.AddSharedCalendar(SharedWith);
-        userRepository.save(user);
+        SharedWith.addSharedCalendar(user);
+        userRepository.save(SharedWith);
         return user;
     }
 }

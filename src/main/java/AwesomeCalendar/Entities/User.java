@@ -1,8 +1,6 @@
 package AwesomeCalendar.Entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.hibernate.Hibernate;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -37,7 +35,7 @@ public class User {
         return sharedWithMeCalendars;
     }
 
-    public void AddSharedCalendar(User user) {
+    public void addSharedCalendar(User user) {
         this.sharedWithMeCalendars.add(user);
     }
 
