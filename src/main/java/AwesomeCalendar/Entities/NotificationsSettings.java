@@ -1,5 +1,8 @@
 package AwesomeCalendar.Entities;
 
+import AwesomeCalendar.enums.NotificationHandler;
+import AwesomeCalendar.enums.NotificationType;
+
 import javax.persistence.*;
 
 @Entity
@@ -8,62 +11,74 @@ public class NotificationsSettings {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "id", nullable = false)
     private Long id;
-    private boolean eventInvitation = false;
-    private boolean userStatusChanged = false;
-    private boolean eventDataChanged = false;
-    private boolean eventCanceled = false;
-    private boolean userUninvited = false;
-    private boolean upComingEvent = false;
 
-    public boolean isEventInvitation() {
-        return eventInvitation;
-    }
+    @Column(nullable = false)
+    private NotificationHandler eventInvitation = NotificationHandler.None;
 
-    public void setEventInvitation(boolean eventInvitation) {
-        this.eventInvitation = eventInvitation;
-    }
+    @Column(nullable = false)
+    private NotificationHandler UserStatusChanged = NotificationHandler.None;
 
-    public boolean isUserStatusChanged() {
-        return userStatusChanged;
-    }
+    @Column(nullable = false)
+    private NotificationHandler EventDataChanged = NotificationHandler.None;
 
-    public void setUserStatusChanged(boolean userStatusChanged) {
-        this.userStatusChanged = userStatusChanged;
-    }
+    @Column(nullable = false)
+    private NotificationHandler EventCancel = NotificationHandler.None;
 
-    public boolean isEventDataChanged() {
-        return eventDataChanged;
-    }
+    @Column(nullable = false)
+    private NotificationHandler UserUninvited = NotificationHandler.None;
 
-    public void setEventDataChanged(boolean eventDataChanged) {
-        this.eventDataChanged = eventDataChanged;
-    }
-
-    public boolean isEventCanceled() {
-        return eventCanceled;
-    }
-
-    public void setEventCanceled(boolean eventCanceled) {
-        this.eventCanceled = eventCanceled;
-    }
-
-    public boolean isUserUninvited() {
-        return userUninvited;
-    }
-
-    public void setUserUninvited(boolean userUninvited) {
-        this.userUninvited = userUninvited;
-    }
-
-    public boolean isUpComingEvent() {
-        return upComingEvent;
-    }
-
-    public void setUpComingEvent(boolean upComingEvent) {
-        this.upComingEvent = upComingEvent;
-    }
+    @Column(nullable = false)
+    private NotificationHandler UpcomingEvent = NotificationHandler.None;
 
     public Long getId() {
         return id;
+    }
+
+    public NotificationHandler getEventInvitation() {
+        return eventInvitation;
+    }
+
+    public void setEventInvitation(NotificationHandler eventInvitation) {
+        this.eventInvitation = eventInvitation;
+    }
+
+    public NotificationHandler getUserStatusChanged() {
+        return UserStatusChanged;
+    }
+
+    public void setUserStatusChanged(NotificationHandler userStatusChanged) {
+        UserStatusChanged = userStatusChanged;
+    }
+
+    public NotificationHandler getEventDataChanged() {
+        return EventDataChanged;
+    }
+
+    public void setEventDataChanged(NotificationHandler eventDataChanged) {
+        EventDataChanged = eventDataChanged;
+    }
+
+    public NotificationHandler getEventCancel() {
+        return EventCancel;
+    }
+
+    public void setEventCancel(NotificationHandler eventCancel) {
+        EventCancel = eventCancel;
+    }
+
+    public NotificationHandler getUserUninvited() {
+        return UserUninvited;
+    }
+
+    public void setUserUninvited(NotificationHandler userUninvited) {
+        UserUninvited = userUninvited;
+    }
+
+    public NotificationHandler getUpcomingEvent() {
+        return UpcomingEvent;
+    }
+
+    public void setUpcomingEvent(NotificationHandler upcomingEvent) {
+        UpcomingEvent = upcomingEvent;
     }
 }
