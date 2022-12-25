@@ -28,7 +28,7 @@ public class User {
     private List<User> sharedWithMeCalendars;
 
     @Column(nullable = false)
-    private Notification notifications;
+    private NotificationsSettings notificationsSettings;
 
     public User() {
         sharedWithMeCalendars = new ArrayList<>();
@@ -58,6 +58,14 @@ public class User {
         currUser.setEmail(user.getEmail());
         currUser.setPassword(encryptPassword(user.getPassword()));
         return currUser;
+    }
+
+    public NotificationsSettings getNotificationsSettings() {
+        return notificationsSettings;
+    }
+
+    public void setNotificationsSettings(NotificationsSettings notificationsSettings) {
+        this.notificationsSettings = notificationsSettings;
     }
 
     public Long getId() {
