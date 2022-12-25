@@ -1,5 +1,6 @@
 package AwesomeCalendar.Entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.Hibernate;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +25,8 @@ public class User {
     @Column(nullable = false, length = 64)
     private String password;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(cascade = {CascadeType.REMOVE, CascadeType.PERSIST}, fetch = FetchType.EAGER)
+    @JsonIgnore
     private List<User> sharedWithMeCalendars;
 
     public User() {

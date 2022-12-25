@@ -12,13 +12,14 @@ public class SharingService {
     @Autowired
     private UserRepo userRepository;
 
-    @Transactional
     public User shareCalendar(User user, String sharedWithEmail) {
         User SharedWith = userRepository.findByEmail(sharedWithEmail);
         if (SharedWith == null) {
             throw new IllegalArgumentException("Invalid user email");
         }
-        SharedWith.getSharedWithMeCalendars();
+        if (user.getSharedWithMeCalendars().contains(SharedWith)) {
+            throw new IllegalArgumentException("Calendar already shared with this user!");
+        }
         user.AddSharedCalendar(SharedWith);
         userRepository.save(user);
         return user;

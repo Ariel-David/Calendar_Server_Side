@@ -27,8 +27,14 @@ public class SharingController {
             cResponse = new CustomResponse<>(null, null, invalidEmailMessage);
             return ResponseEntity.badRequest().body(cResponse);
         }
-        User sharedUser = sharingService.shareCalendar(user, userEmail);
-        cResponse = new CustomResponse<>(UserDTO.convertUserToUserDTO(sharedUser), null, shareCalendarSuccessfullyMessage);
-        return ResponseEntity.ok().body(cResponse);
+        try {
+            User sharedUser = sharingService.shareCalendar(user, userEmail);
+            cResponse = new CustomResponse<>(UserDTO.convertUserToUserDTO(sharedUser), null, shareCalendarSuccessfullyMessage);
+            return ResponseEntity.ok().body(cResponse);
+        } catch (IllegalArgumentException e) {
+            cResponse = new CustomResponse<>(null, null, e.getMessage());
+            return ResponseEntity.badRequest().body(cResponse);
+        }
+
     }
 }
