@@ -251,7 +251,7 @@ public class EventServiceTests {
     void getEventsBetweenDates_GoodRequest_returnsEventsList() {
         ZonedDateTime startTime = ZonedDateTime.now();
         ZonedDateTime endTime = ZonedDateTime.now().plusDays(7);
-        event.AddUserRole(new Role(user, Role.RoleType.ORGANIZER, Role.StatusType.APPROVED));
+        event.addUserRole(new Role(user, Role.RoleType.ORGANIZER, Role.StatusType.APPROVED));
         given(eventRepository.findEventByStartBetween(startTime, endTime)).willReturn(List.of(event));
         List<Event> eventsBetweenDates = eventService.getEventsBetweenDates(user, startTime, endTime, List.of(user));
 
@@ -288,7 +288,7 @@ public class EventServiceTests {
 
     @Test
     void addGuestRole_UserAlreadyGuest_throwsIllegalArgumentException() {
-        event.AddUserRole(new Role(userTwo, Role.RoleType.GUEST, Role.StatusType.TENTATIVE));
+        event.addUserRole(new Role(userTwo, Role.RoleType.GUEST, Role.StatusType.TENTATIVE));
         given(eventRepository.findById(10L)).willReturn(Optional.of(event));
         given(userRepository.findByEmail("test.test@gmail.com")).willReturn(userTwo);
         assertThrows(IllegalArgumentException.class, () ->
@@ -345,7 +345,7 @@ public class EventServiceTests {
 
     @Test
     void updateTypeUserRole_UserOriginallyGuest_changeUserRoleToAdmin() {
-        event.AddUserRole(new Role(userTwo, Role.RoleType.GUEST, Role.StatusType.TENTATIVE));
+        event.addUserRole(new Role(userTwo, Role.RoleType.GUEST, Role.StatusType.TENTATIVE));
         given(eventRepository.findById(10L)).willReturn(Optional.of(event));
         given(userRepository.findById(2L)).willReturn(Optional.of(userTwo));
         given(eventRepository.save(event)).willReturn(event);
@@ -359,7 +359,7 @@ public class EventServiceTests {
 
     @Test
     void updateTypeUserRole_UserOriginallyAdmin_changeUserRoleToGuest() {
-        event.AddUserRole(new Role(userTwo, Role.RoleType.ADMIN, Role.StatusType.TENTATIVE));
+        event.addUserRole(new Role(userTwo, Role.RoleType.ADMIN, Role.StatusType.TENTATIVE));
         given(eventRepository.findById(10L)).willReturn(Optional.of(event));
         given(userRepository.findById(2L)).willReturn(Optional.of(userTwo));
         given(eventRepository.save(event)).willReturn(event);
@@ -405,7 +405,7 @@ public class EventServiceTests {
 
     @Test
     void updateStatusUserRole_ChangeStatusToRejected_returnsStatusRejected() {
-        event.AddUserRole(new Role(user, Role.RoleType.ORGANIZER, Role.StatusType.APPROVED));
+        event.addUserRole(new Role(user, Role.RoleType.ORGANIZER, Role.StatusType.APPROVED));
         given(eventRepository.findById(event.getId())).willReturn(Optional.of(event));
 
         Role returnedRole = eventService.updateStatusUserRole(event.getId(), user, "REJECTED");
@@ -416,7 +416,7 @@ public class EventServiceTests {
 
     @Test
     void updateStatusUserRole_InvalidStatus_DoesNothing() {
-        event.AddUserRole(new Role(user, Role.RoleType.ORGANIZER, Role.StatusType.APPROVED));
+        event.addUserRole(new Role(user, Role.RoleType.ORGANIZER, Role.StatusType.APPROVED));
         given(eventRepository.findById(event.getId())).willReturn(Optional.of(event));
 
         Role returnedRole = eventService.updateStatusUserRole(event.getId(), user, "MAYBE");
@@ -465,7 +465,7 @@ public class EventServiceTests {
 
     @Test
     void deleteRole_UserOrganizerInEvent_throwsIllegalArgumentException() {
-        event.AddUserRole(new Role(user, Role.RoleType.ORGANIZER, Role.StatusType.APPROVED));
+        event.addUserRole(new Role(user, Role.RoleType.ORGANIZER, Role.StatusType.APPROVED));
         given(eventRepository.findById(10L)).willReturn(Optional.of(event));
         given(userRepository.findByEmail(user.getEmail())).willReturn(user);
 
@@ -475,7 +475,7 @@ public class EventServiceTests {
 
     @Test
     void deleteRole_GoodRequest_deletesUserRole() {
-        event.AddUserRole(new Role(user, Role.RoleType.GUEST, Role.StatusType.APPROVED));
+        event.addUserRole(new Role(user, Role.RoleType.GUEST, Role.StatusType.APPROVED));
         given(eventRepository.findById(10L)).willReturn(Optional.of(event));
         given(userRepository.findByEmail(user.getEmail())).willReturn(user);
 
@@ -501,8 +501,8 @@ public class EventServiceTests {
     void getRolesForEvent_GoodRequest_returnsRoleList() {
         Role roleOne = new Role(user, Role.RoleType.ORGANIZER, Role.StatusType.APPROVED);
         Role roleTwo = new Role(user, Role.RoleType.GUEST, Role.StatusType.TENTATIVE);
-        event.AddUserRole(roleOne);
-        event.AddUserRole(roleTwo);
+        event.addUserRole(roleOne);
+        event.addUserRole(roleTwo);
         given(eventRepository.findById(event.getId())).willReturn(Optional.of(event));
 
         List<Role> rolesForEvent = eventService.getRolesForEvent(event.getId());
@@ -540,7 +540,7 @@ public class EventServiceTests {
     @Test
     void getRoleByEventAnsUser_GoodRequest_returnsRole() {
         Role role = new Role(user, Role.RoleType.ORGANIZER, Role.StatusType.APPROVED);
-        event.AddUserRole(role);
+        event.addUserRole(role);
         given(eventRepository.findById(event.getId())).willReturn(Optional.of(event));
 
         Role roleByEventAndUSer = eventService.getRoleByEventAndUSer(event.getId(), user);

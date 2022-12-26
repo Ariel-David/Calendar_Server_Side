@@ -37,7 +37,7 @@ public class EventService {
     public Event createEvent(Event event, User user) {
         Utility.checkArgsNotNull(event, user);
         logger.info("Creating event:" + event);
-        event.AddUserRole(new Role(user, Role.RoleType.ORGANIZER, Role.StatusType.APPROVED));
+        event.addUserRole(new Role(user, Role.RoleType.ORGANIZER, Role.StatusType.APPROVED));
         return eventRepository.save(event);
     }
     public Event updateEvent(Long eventId, Event event) {
@@ -129,7 +129,7 @@ public class EventService {
             throw new IllegalArgumentException("Exist role");
         }
         Role role = new Role(userInDB, Role.RoleType.GUEST, Role.StatusType.TENTATIVE);
-        eventInDB.get().AddUserRole(role);
+        eventInDB.get().addUserRole(role);
         eventRepository.save(eventInDB.get());
         return role;
     }

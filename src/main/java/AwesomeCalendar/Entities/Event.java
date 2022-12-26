@@ -1,9 +1,6 @@
 package AwesomeCalendar.Entities;
 
 import javax.persistence.*;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.OffsetTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +44,7 @@ public class Event {
         return this.userRoles.stream().filter((role) -> role.getUser().equals(user)).findFirst();
     }
 
-    public void AddUserRole(Role userRole) {
+    public void addUserRole(Role userRole) {
         this.userRoles.add(userRole);
     }
 
@@ -68,6 +65,15 @@ public class Event {
         this.title = title;
         this.description = description;
         this.userRoles = new ArrayList<>();
+    }
+
+    public Event(EventAccess eventAccess, ZonedDateTime start, ZonedDateTime end, String location, String title, String description) {
+        this.eventAccess = eventAccess;
+        this.start = start;
+        this.end = end;
+        this.location = location;
+        this.title = title;
+        this.description = description;
     }
 
     public Long getId() {
