@@ -14,7 +14,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
+import static AwesomeCalendar.Utilities.messages.ExceptionMessage.*;
+import static AwesomeCalendar.Utilities.messages.SuccessMessages.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 
@@ -31,6 +36,7 @@ public class EventControllerTests {
     User user2;
     Event event1;
     Role role1;
+
     @BeforeEach
     void setup() {
         user1 = new User(0L, "test@test.test", "123456");
@@ -42,21 +48,21 @@ public class EventControllerTests {
     }
 
     @Test
-    void createEvent_NullEventStart_status400() {
+    void createEvent_NullEventStart_requiredFieldMessage() {
         event1 = new Event(Event.EventAccess.PUBLIC, null, ZonedDateTime.now(), null, "test", null);
-        assertEquals(400, eventController.createEvent(user1, event1).getStatusCodeValue());
+        assertEquals(requiredFieldMessage, eventController.createEvent(user1, event1).getBody().getMessage());
     }
 
     @Test
-    void createEvent_NullEventEnd_status400() {
+    void createEvent_NullEventEnd_requiredFieldMessage() {
         event1 = new Event(Event.EventAccess.PUBLIC, ZonedDateTime.now(), null, null, "test", null);
-        assertEquals(400, eventController.createEvent(user1, event1).getStatusCodeValue());
+        assertEquals(requiredFieldMessage, eventController.createEvent(user1, event1).getBody().getMessage());
     }
 
     @Test
-    void createEvent_NullEventTitle_status400() {
+    void createEvent_NullEventTitle_requiredFieldMessage() {
         event1 = new Event(Event.EventAccess.PUBLIC, ZonedDateTime.now(), ZonedDateTime.now(), null, null, null);
-        assertEquals(400, eventController.createEvent(user1, event1).getStatusCodeValue());
+        assertEquals(requiredFieldMessage, eventController.createEvent(user1, event1).getBody().getMessage());
     }
 
     @Test
@@ -67,21 +73,77 @@ public class EventControllerTests {
     }
 
     @Test
-    void createEvent_okEventCreate_status200() {
+    void createEvent_okEventCreate_eventCreatedSuccessfullyMessage() {
         event1 = new Event(null, ZonedDateTime.now(), ZonedDateTime.now(), null, "test", null);
         given(eventService.createEvent(event1, user1)).willReturn(event1);
-        assertEquals(200, eventController.createEvent(user1, event1).getStatusCodeValue());
+        assertEquals(eventCreatedSuccessfullyMessage, eventController.createEvent(user1, event1).getBody().getMessage());
     }
 
     @Test
-    void createRole_validateEmail_status400() {
-        assertEquals(400, eventController.createRole(0L, "test").getStatusCodeValue());
+    void createRole_validateEmail_invalidEmailMessage() {
+        assertEquals(invalidEmailMessage, eventController.createRole(0L, "test").getBody().getMessage());
     }
+
     @Test
     void createRole_okCreateRole_status200() {
-        user2 = new User(1L, "role1@role1.role1", "123456");
+        user2 = new User(1L, "role@role.role", "123456");
         role1 = new Role(user2, Role.RoleType.GUEST, Role.StatusType.TENTATIVE);
         given(eventService.addGuestRole(0L, "role@role.role")).willReturn(role1);
         assertEquals(200, eventController.createRole(0L, "role@role.role").getStatusCodeValue());
+    }
+
+    @Test
+    void updateRoleType_okUpdateRoleType_admin() {
+        user2 = new User(1L, "role@role.role", "123456");
+        role1 = new Role(user2, Role.RoleType.ADMIN, Role.StatusType.TENTATIVE);
+        given(eventService.updateTypeUserRole(0L, 1L)).willReturn(role1);
+        assertEquals(Role.RoleType.ADMIN, eventController.updateRoleType(0L, 1L).getBody().getResponse().getRoleType());
+    }
+
+    @Test
+    void updateRoleStatus_badRequest_invalidStatusMessage() {
+        assertEquals(invalidStatusMessage, eventController.updateRoleStatus(user1, 0L, "hi").getBody().getMessage());
+    }
+    @Test
+    void updateRoleStatus_okUpdateRoleStatus_invalidStatusMessage() {
+        role1 = new Role(user1, Role.RoleType.ADMIN, Role.StatusType.APPROVED);
+        given(eventService.updateStatusUserRole(0L, user1, "APPROVED")).willReturn(role1);
+        assertEquals(roleStatusChangedSuccessfullyMessage, eventController.updateRoleStatus(user1, 0L, "APPROVED").getBody().getMessage());
+    }
+    @Test
+    void deleteEvent_nullEventId_invalidEventIdMessage() {
+        assertEquals(invalidEventIdMessage, eventController.deleteEvent(null).getBody().getMessage());
+    }
+    @Test
+    void deleteEvent_nullEvent_somethingWrongMessage() {
+        given(eventService.deleteEvent(0L)).willReturn(null);
+        assertEquals(somethingWrongMessage, eventController.deleteEvent(0L).getBody().getMessage());
+    }
+    @Test
+    void deleteEvent_okDeleted_deleteEventSuccessfullyMessage() {
+        event1 = new Event(null, ZonedDateTime.now(), ZonedDateTime.now(), null, "test", null);
+        given(eventService.deleteEvent(0L)).willReturn(event1);
+        assertEquals(deleteEventSuccessfullyMessage, eventController.deleteEvent(0L).getBody().getMessage());
+    }
+    @Test
+    void getEvent_isNotPresent_somethingWrongMessage() {
+        given(eventService.getEvent(0L)).willReturn(Optional.ofNullable(null));
+        assertEquals(somethingWrongMessage, eventController.getEvent(0L).getBody().getMessage());
+    }
+    @Test
+    void getEvent_okGetEvent_getEventSuccessfullyMessage() {
+        event1 = new Event(null, ZonedDateTime.now(), ZonedDateTime.now(), null, "test", null);
+        given(eventService.getEvent(0L)).willReturn(Optional.ofNullable(event1));
+        assertEquals(getEventSuccessfullyMessage, eventController.getEvent(0L).getBody().getMessage());
+    }
+    @Test
+    void getRolesOfEvent_nullEventId_400() {
+        assertEquals(400, eventController.getRolesOfEvent(null).getStatusCodeValue());
+    }
+    @Test
+    void getRolesOfEvent_okGetRolesOfEvent_200() {
+        List<Role> listRoles = new ArrayList<>();
+        given(eventService.getRolesForEvent(0L)).willReturn(listRoles);
+        assertEquals(200, eventController.getRolesOfEvent(0L).getStatusCodeValue());
     }
 }
