@@ -21,8 +21,8 @@ public class AuthService {
 
     private Map<String, String> keyTokensValEmails;
 
-   String clientId="2298388bcf5985aa7bcb";
-   String clientSecret="50b29b012b0b535aa7d2f20627b8ebf790b390a";
+    String clientId = "2298388bcf5985aa7bcb";
+    String clientSecret = "50b29b012b0b535aa7d2f20627b8ebf790b390a";
 
     /**
      * AuthService constructor
@@ -37,7 +37,7 @@ public class AuthService {
     /**
      * Initializes the keyTokensValEmails if the keyTokensValEmails is null
      */
-    Map<String, String> getTokensInstance() {
+    private Map<String, String> getTokensInstance() {
         if (this.keyTokensValEmails == null)
             this.keyTokensValEmails = new HashMap<>();
         return this.keyTokensValEmails;
@@ -51,38 +51,31 @@ public class AuthService {
      * @throws IllegalArgumentException when the provided email already exists
      */
     public User addUser(User user) {
+        checkArgsNotNull(user);
+        checkArgsNotNull(user.getEmail(), user.getPassword());
         logger.info("adding user:" + user);
-        try {
-            if (userRepository.findByEmail(user.getEmail()) != null) {
-                logger.debug("cant create user - email already exist:" + user.getEmail());
-                throw new IllegalArgumentException("email exist");
-            }
-            User registeredUser = User.registeredUser(user);
-            return userRepository.save(registeredUser);
-        } catch (RuntimeException e) {
-            throw new IllegalArgumentException(e.getMessage());
+        if (userRepository.findByEmail(user.getEmail()) != null) {
+            logger.debug("cant create user - email already exist:" + user.getEmail());
+            throw new IllegalArgumentException("email exist");
         }
+        User registeredUser = User.registeredUser(user);
+        return userRepository.save(registeredUser);
     }
 
     public Pair<String, User> login(User user) {
+        checkArgsNotNull(user);
+        checkArgsNotNull(user.getEmail(), user.getPassword());
         logger.info("logging in - user:" + user);
-        try {
-            User dbUser = userRepository.findByEmail(user.getEmail());
-            if (dbUser == null) {
-                throw new IllegalArgumentException("failed login");
-            }
-            if (!matchesPasswords(user.getPassword(), dbUser.getPassword())) {
-                throw new IllegalArgumentException("wrong password");
-            }
-            String sessionToken = generateToken();
-            keyTokensValEmails.put(sessionToken, dbUser.getEmail());
-//            Map<User, String> m = new HashMap<>();
-//            m.put(dbUser, sessionToken);
-            return Pair.of(sessionToken, dbUser);
-//            return Pair.of(1"")
-        } catch (RuntimeException e) {
-            throw new IllegalArgumentException(e.getMessage());
+        User dbUser = userRepository.findByEmail(user.getEmail());
+        if (dbUser == null) {
+            throw new IllegalArgumentException("failed login");
         }
+        if (!matchesPasswords(user.getPassword(), dbUser.getPassword())) {
+            throw new IllegalArgumentException("wrong password");
+        }
+        String sessionToken = generateToken();
+        keyTokensValEmails.put(sessionToken, dbUser.getEmail());
+        return Pair.of(sessionToken, dbUser);
     }
 
     public User checkToken(String token) {
