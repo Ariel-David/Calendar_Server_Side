@@ -2,6 +2,8 @@ package AwesomeCalendar.Services;
 
 import AwesomeCalendar.Entities.User;
 import AwesomeCalendar.Repositories.UserRepo;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,8 @@ public class AuthService {
     @Autowired
     private UserRepo userRepository;
 
+    private static final Logger logger = LogManager.getLogger(AuthService.class);
+
     private Map<String, String> keyTokensValEmails;
 
    String clientId="2298388bcf5985aa7bcb";
@@ -26,6 +30,7 @@ public class AuthService {
      * Initializes keyEmailsValTokens new Map
      */
     AuthService() {
+        logger.info("starting auth service");
         this.keyTokensValEmails = getTokensInstance();
     }
 
@@ -46,8 +51,10 @@ public class AuthService {
      * @throws IllegalArgumentException when the provided email already exists
      */
     public User addUser(User user) {
+        logger.info("adding user:" + user);
         try {
             if (userRepository.findByEmail(user.getEmail()) != null) {
+                logger.debug("cant create user - email already exist:" + user.getEmail());
                 throw new IllegalArgumentException("email exist");
             }
             User registeredUser = User.registeredUser(user);
@@ -58,6 +65,7 @@ public class AuthService {
     }
 
     public Pair<String, User> login(User user) {
+        logger.info("logging in - user:" + user);
         try {
             User dbUser = userRepository.findByEmail(user.getEmail());
             if (dbUser == null) {
@@ -78,6 +86,7 @@ public class AuthService {
     }
 
     public User checkToken(String token) {
+        logger.info("checking token:" + token);
         if (!keyTokensValEmails.containsKey(token)) {
             throw new IllegalArgumentException("invalid token");
         }

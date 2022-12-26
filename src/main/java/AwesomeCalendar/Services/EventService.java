@@ -27,10 +27,12 @@ public class EventService {
     private static final Logger logger = LogManager.getLogger(EventService.class.getName());
 
     public Event createEvent(Event event, User user) {
+        logger.info("Creating event:" + event);
         event.AddUserRole(new Role(user, Role.RoleType.ORGANIZER, Role.StatusType.APPROVED));
         return eventRepository.save(event);
     }
     public Event updateEvent(Long eventId, Event event) {
+        logger.info("Updating event:" + eventId + " details to:" + event);
         Optional<Event> eventInDB = eventRepository.findById(eventId);
         if (!eventInDB.isPresent()) {
             throw new IllegalArgumentException("Invalid event id");
@@ -75,6 +77,7 @@ public class EventService {
         return eventInDB;
     }
     public List<Event> getEventsBetweenDates(ZonedDateTime startDate , ZonedDateTime endDate){
+        logger.debug("Getting events between dates");
         return eventRepository.findEventByStartBetween(startDate , endDate);
     }
 
@@ -85,14 +88,18 @@ public class EventService {
      * @param calendars the users of which we want to see their calendars.
      * @return all the events matching the parameters.
      */
-    public List<Event> getEventsBetweenDates(ZonedDateTime startDate , ZonedDateTime endDate, List<User> calendars){
+    public List<Event> getEventsBetweenDates(User user, ZonedDateTime startDate , ZonedDateTime endDate, List<User> calendars){
+        logger.debug("Getting events between dates by calendars");
         List<Event> events = eventRepository.findEventByStartBetween(startDate, endDate);
         return events.stream()
-                .filter(event -> event.getUserRoles().stream().anyMatch(role -> calendars.contains(role.getUser())))
+                .filter(event -> event.getUserRoles().stream().anyMatch(role -> calendars.contains(role.getUser()))
+                        && (event.getEventAccess() == Event.EventAccess.PUBLIC
+                        || (event.getEventAccess() == Event.EventAccess.PRIVATE && event.getUserRoles().contains(user))))
                 .collect(Collectors.toList());
     }
 
     public Role addGuestRole(Long eventId, String userEmail) {
+        logger.info("Adding guest role for user:" + userEmail + " in event:" + eventId);
         Optional<Event> eventInDB = eventRepository.findById(eventId);
         if (!eventInDB.isPresent()) {
             throw new IllegalArgumentException("Invalid event id");
@@ -112,6 +119,7 @@ public class EventService {
     }
 
     public Role updateTypeUserRole(Long eventId, Long userId) {
+        logger.info("Updating user role for user:" + userId + " in event:" + eventId);
         Optional<Event> eventInDB = eventRepository.findById(eventId);
         if (!eventInDB.isPresent()) {
             throw new IllegalArgumentException("Invalid event id");
@@ -124,6 +132,7 @@ public class EventService {
         if (!userRole.isPresent()) {
             throw new IllegalArgumentException("You have not received an invitation to this event");
         }
+
         if (userRole.get().getRoleType().equals(Role.RoleType.GUEST)) {
             userRole.get().setRoleType(Role.RoleType.ADMIN);
         } else if (userRole.get().getRoleType().equals(Role.RoleType.ADMIN)) {
@@ -134,6 +143,7 @@ public class EventService {
     }
 
     public Role updateStatusUserRole(Long eventId, User user, String status) {
+        logger.info("Updating user status for user:" + user.getEmail() + " in event:" + eventId);
         Optional<Event> eventInDB = eventRepository.findById(eventId);
         if (!eventInDB.isPresent()) {
             throw new IllegalArgumentException("Invalid event id");
@@ -142,7 +152,6 @@ public class EventService {
         if (!userRole.isPresent()) {
             throw new IllegalArgumentException("You have not received an invitation to this event");
         }
-
         if (status.equals("APPROVED")) {
             userRole.get().setStatusType(Role.StatusType.APPROVED);
         } else if (status.equals("REJECTED")) {
@@ -156,6 +165,7 @@ public class EventService {
     }
 
     public Role deleteRole(Long eventId, String userEmail) {
+        logger.info("deleting role for user:" + userEmail + " in event:" + eventId);
         Optional<Event> eventInDB = eventRepository.findById(eventId);
         if (!eventInDB.isPresent()) {
             throw new IllegalArgumentException("Invalid event id");
@@ -176,6 +186,7 @@ public class EventService {
     }
 
     public List<Role> getRolesForEvent(Long eventId) {
+        logger.debug("getting roles for event:" + eventId);
         if (eventId == null) {
             throw new IllegalArgumentException("event id cant be null");
         }
@@ -187,6 +198,7 @@ public class EventService {
     }
 
     public Role getRoleByEventAndUSer(Long eventId, User user) {
+        logger.info("getting role for user:" + user.getEmail() + " in event:" + eventId);
         Optional<Event> eventInDB = eventRepository.findById(eventId);
         if (!eventInDB.isPresent()) {
             throw new IllegalArgumentException("Invalid event id");

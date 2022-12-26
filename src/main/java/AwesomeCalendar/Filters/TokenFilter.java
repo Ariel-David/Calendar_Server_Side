@@ -4,6 +4,8 @@ import AwesomeCalendar.Entities.User;
 import AwesomeCalendar.Services.AuthService;
 import AwesomeCalendar.Utilities.Utility;
 import com.google.gson.Gson;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -12,6 +14,8 @@ import java.io.IOException;
 
 public class TokenFilter implements Filter {
     private final AuthService authService;
+
+    private static final Logger logger = LogManager.getLogger(TokenFilter.class);
 
     public TokenFilter(AuthService authService) {
         this.authService = authService;
@@ -24,12 +28,14 @@ public class TokenFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+        logger.debug("Applying Token filter");
         HttpServletRequest req = (HttpServletRequest) servletRequest;
         HttpServletResponse res = (HttpServletResponse) servletResponse;
         String path = req.getRequestURI();
 
         if (!Utility.destinations.contains(path)) {
             filterChain.doFilter(servletRequest, servletResponse);
+            return;
         }
 
         String token = req.getHeader("token");

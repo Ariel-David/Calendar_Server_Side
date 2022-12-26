@@ -6,6 +6,8 @@ import AwesomeCalendar.Entities.User;
 import AwesomeCalendar.Repositories.EventRepo;
 import AwesomeCalendar.Services.EventService;
 import AwesomeCalendar.Utilities.Utility;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -17,6 +19,8 @@ public class RoleFilter implements Filter {
     private final EventRepo eventRepo;
 
     private final EventService eventService;
+
+    private static final Logger logger = LogManager.getLogger(RoleFilter.class);
 
     public RoleFilter(EventRepo eventRepo, EventService eventService) {
         this.eventRepo = eventRepo;
@@ -30,6 +34,7 @@ public class RoleFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+        logger.debug("Applying Role filter");
         HttpServletRequest req = (HttpServletRequest) servletRequest;
         HttpServletResponse res = (HttpServletResponse) servletResponse;
         String path = req.getRequestURI();
