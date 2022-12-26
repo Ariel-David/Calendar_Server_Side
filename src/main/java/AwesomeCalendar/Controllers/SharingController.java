@@ -5,6 +5,8 @@ import AwesomeCalendar.CustomEntities.UserDTO;
 import AwesomeCalendar.Entities.User;
 import AwesomeCalendar.Services.SharingService;
 import AwesomeCalendar.Utilities.Validate;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +23,8 @@ public class SharingController {
     @Autowired
     private SharingService sharingService;
 
+    private static final Logger logger = LogManager.getLogger(SharingController.class);
+
     /**
      * share a calendar with another user. the other user will be able to see this user's public events
      * even if he was not invited to them
@@ -30,6 +34,7 @@ public class SharingController {
      */
     @PostMapping("/share")
     public ResponseEntity<CustomResponse<UserDTO>> shareCalendar(@RequestAttribute("user") User user, @RequestParam String userEmail) {
+        logger.debug("got request to share calendar");
         if (user == null) return ResponseEntity.badRequest().build();
         CustomResponse<UserDTO> cResponse;
         if (!Validate.email(userEmail)) {
@@ -39,6 +44,7 @@ public class SharingController {
         try {
             User sharedUser = sharingService.shareCalendar(user, userEmail);
             cResponse = new CustomResponse<>(UserDTO.convertUserToUserDTO(sharedUser), null, shareCalendarSuccessfullyMessage);
+            logger.debug("successfully shared calendar");
             return ResponseEntity.ok().body(cResponse);
         } catch (IllegalArgumentException e) {
             cResponse = new CustomResponse<>(null, null, e.getMessage());
@@ -55,6 +61,7 @@ public class SharingController {
      */
     @GetMapping("/sharedWithMe")
     public ResponseEntity<CustomResponse<List<UserDTO>>> sharedWithMeCalendars(@RequestAttribute("user") User user) {
+        logger.debug("got request for calendars shared with me");
         if (user == null) return ResponseEntity.badRequest().build();
         List<User> sharedWithMeCalendars = user.getSharedWithMeCalendars();
         sharedWithMeCalendars.add(user);
