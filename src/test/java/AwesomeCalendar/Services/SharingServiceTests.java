@@ -89,22 +89,24 @@ public class SharingServiceTests {
     }
 
     @Test
-    void isShared_BadEmailInList_throwsIllegalArgumentException() {
-        given(userRepository.findByEmail("badString")).willReturn(null);
-        assertThrows(IllegalArgumentException.class,
-                () -> sharingService.isShared(user1, List.of("badString")));
+    void isShared_BadEmailInList_returnsEmptyList() {
+        given(userRepository.findByEmailIn(List.of("badString"))).willReturn(List.of());
+
+        List<User> usersList = sharingService.isShared(user1, List.of("badString"));
+
+        assertEquals(0, usersList.size());
     }
 
     @Test
     void isShared_EmailOfUserNotSharedWith_throwsIllegalArgumentException() {
-        given(userRepository.findByEmail(user2.getEmail())).willReturn(user2);
+        given(userRepository.findByEmailIn(List.of(user2.getEmail()))).willReturn(List.of(user2));
         assertThrows(IllegalArgumentException.class,
                 () -> sharingService.isShared(user1, List.of(user2.getEmail())));
     }
 
     @Test
     void isShared_goodRequest_returnsListOfUsers() {
-        given(userRepository.findByEmail(user2.getEmail())).willReturn(user2);
+        given(userRepository.findByEmailIn(List.of(user2.getEmail()))).willReturn(List.of(user2));
         user1.addSharedCalendar(user2);
 
         List<User> shared = sharingService.isShared(user1, List.of(user2.getEmail()));
