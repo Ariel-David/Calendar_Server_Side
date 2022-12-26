@@ -7,6 +7,8 @@ import AwesomeCalendar.Entities.GithubUser;
 import AwesomeCalendar.Entities.User;
 import AwesomeCalendar.Services.AuthService;
 import AwesomeCalendar.Utilities.Validate;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -16,8 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.google.gson.Gson;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.List;
 
 import static AwesomeCalendar.CustomEntities.UserDTO.convertUserToUserDTO;
 import static AwesomeCalendar.Utilities.messages.ExceptionMessage.*;
@@ -30,6 +30,8 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
+    private static final Logger logger = LogManager.getLogger(AuthController.class);
+
     private static final Gson gson = new Gson();
 
 
@@ -41,6 +43,7 @@ public class AuthController {
      */
     @RequestMapping(value = "register", method = RequestMethod.POST)
     public ResponseEntity<CustomResponse<UserDTO>> registerUser(@RequestBody User user) {
+        logger.debug("Got request for registering - " + user);
         CustomResponse<UserDTO> cResponse;
         if (!Validate.email(user.getEmail())) {
             cResponse = new CustomResponse<>(null, null, invalidEmailMessage);
@@ -53,6 +56,7 @@ public class AuthController {
         try {
             UserDTO registerUserDTO = convertUserToUserDTO(authService.addUser(user));
             cResponse = new CustomResponse<>(registerUserDTO, null, registerSuccessfullyMessage);
+            logger.debug("Successfully registered - " + user);
             return ResponseEntity.ok().body(cResponse);
         }
         catch (IllegalArgumentException e){
@@ -69,6 +73,7 @@ public class AuthController {
      */
     @RequestMapping(value = "login", method = RequestMethod.POST)
     public ResponseEntity<CustomResponse<UserDTO>> login(@RequestBody User user) {
+        logger.debug("Got request for login - " + user);
         CustomResponse<UserDTO> cResponse;
         if (!Validate.email(user.getEmail())) {
             cResponse = new CustomResponse<>(null, null, invalidEmailMessage);
@@ -82,6 +87,7 @@ public class AuthController {
             Pair<String, User> pair = authService.login(user);
             if (pair != null) {
                 cResponse = new CustomResponse<>(convertUserToUserDTO(pair.getSecond()), pair.getFirst(), loginSuccessfullyMessage);
+                logger.debug("Successfully logged in - " + user);
                 return ResponseEntity.ok(cResponse); // 200
             }
         } catch (IllegalArgumentException e) {
@@ -94,6 +100,7 @@ public class AuthController {
 
     @RequestMapping(value = "gitHub", method = RequestMethod.POST)
     public ResponseEntity<CustomResponse<UserDTO>> registerWithGitHub(@RequestParam String code) {
+        logger.debug("Got request for login through github - " + code);
         System.out.println(code);
         if(code.equals("undefined")){
             return null;
@@ -119,6 +126,7 @@ public class AuthController {
             }
             Pair<String,User> login = authService.login(user);
             String loginToken = login.getFirst();
+            logger.debug("Successfully logged in through github - " + user);
             return ResponseEntity.ok().body(new CustomResponse<UserDTO>(UserDTO.convertUserToUserDTO(login.getSecond()),loginToken,"GitHub user logged in"));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(null);
