@@ -59,7 +59,7 @@ public class Event {
         this.userRoles = new ArrayList<>();
     }
 
-    public Event(Long id, EventAccess eventAccess, ZonedDateTime start, ZonedDateTime end, String location, String title, String description) {
+    public Event(Long id,EventAccess eventAccess, ZonedDateTime start, ZonedDateTime end, String location, String title, String description) {
         this.id = id;
         this.eventAccess = eventAccess;
         this.start = start;
