@@ -59,6 +59,16 @@ public class Event {
         this.userRoles = new ArrayList<>();
     }
 
+    public Event(EventAccess eventAccess, ZonedDateTime start, ZonedDateTime end, String location, String title, String description) {
+        this.eventAccess = eventAccess;
+        this.start = start;
+        this.end = end;
+        this.location = location;
+        this.title = title;
+        this.description = description;
+        this.userRoles = new ArrayList<>();
+    }
+
     public Long getId() {
         return id;
     }
