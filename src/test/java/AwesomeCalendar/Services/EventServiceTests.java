@@ -158,8 +158,6 @@ public class EventServiceTests {
 
     @Test
     void deleteEvent_NullEventId_throwsIllegalArgumentException() {
-        given(eventRepository.findById(null)).willReturn(Optional.empty());
-
         assertThrows(IllegalArgumentException.class, () -> eventService.deleteEvent(null));
     }
 
@@ -180,11 +178,7 @@ public class EventServiceTests {
 
     @Test
     void getEvent_NullEventId_returnsEmptyOptional() {
-        given(eventRepository.findById(null)).willReturn(Optional.empty());
-
-        Optional<Event> returnedEvent = eventService.getEvent(null);
-
-        assertFalse(returnedEvent.isPresent());
+        assertThrows(IllegalArgumentException.class, () -> eventService.getEvent(null));
     }
 
     @Test
