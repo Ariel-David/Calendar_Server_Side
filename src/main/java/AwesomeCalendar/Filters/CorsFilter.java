@@ -1,5 +1,8 @@
 package AwesomeCalendar.Filters;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -9,6 +12,8 @@ import java.util.Set;
 
 public class CorsFilter implements Filter {
     private final Set<String> origins = new HashSet<>(Set.of("http://localhost:9000"));
+
+    private static final Logger logger = LogManager.getLogger(CorsFilter.class);
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         Filter.super.init(filterConfig);
@@ -16,6 +21,7 @@ public class CorsFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+        logger.debug("Applying cors filter");
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse res=((HttpServletResponse)servletResponse);
         String header = request.getHeader("origin");
