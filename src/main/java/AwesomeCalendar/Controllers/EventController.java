@@ -131,6 +131,7 @@ public class EventController {
         return ResponseEntity.ok().body(cResponse);
     }
 
+    @Deprecated
     @RequestMapping(value = "/getBetweenDates", method = RequestMethod.GET)
     public ResponseEntity<CustomResponse<List<EventDTO>>> getEventsBetweenDates(@RequestAttribute("user") User user, @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) ZonedDateTime startDate, @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("endDate") ZonedDateTime endDate) {
         logger.debug("Got request to get events between dates:" + startDate + "-" + endDate);
