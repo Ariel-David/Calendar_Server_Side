@@ -39,4 +39,13 @@ public class Utility {
         BCryptPasswordEncoder bEncoder = new BCryptPasswordEncoder();
         return bEncoder.matches(userPassword, dbUserPassword);
     }
+
+    public static void checkArgsNotNull(Object... args) {
+        Objects.requireNonNull(args);
+        for (Object o : args) {
+            if (o == null) {
+                throw new IllegalArgumentException("Arguments must be non null");
+            }
+        }
+    }
 }
