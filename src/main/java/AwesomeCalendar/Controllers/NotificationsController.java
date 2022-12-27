@@ -1,9 +1,9 @@
 package AwesomeCalendar.Controllers;
 
 import AwesomeCalendar.CustomEntities.CustomResponse;
-import AwesomeCalendar.CustomEntities.TimingNotificationsDTO;
+import AwesomeCalendar.CustomEntities.RoleDTO;
 import AwesomeCalendar.Entities.NotificationsSettings;
-import AwesomeCalendar.Entities.TimingNotifications;
+import AwesomeCalendar.Entities.Role;
 import AwesomeCalendar.Entities.User;
 import AwesomeCalendar.Services.NotificationService;
 import AwesomeCalendar.enums.NotificationsTiming;
@@ -41,23 +41,23 @@ public class NotificationsController {
     }
 
     @PostMapping("/timing")
-    public ResponseEntity<CustomResponse<TimingNotificationsDTO>> addTimingNotification(@RequestAttribute("user") User user,
+    public ResponseEntity<CustomResponse<RoleDTO>> addTimingNotification(@RequestAttribute("user") User user,
                                                                                      @RequestParam("eventId") Long eventId,
                                                                                      @RequestParam("timing") NotificationsTiming timing) {
         if (user == null || eventId == null || timing == null) {
             return ResponseEntity.badRequest().build();
         }
-        TimingNotifications timingNotification;
+        Role roleWithTiming;
 
         try {
-            timingNotification = notificationService.addTimingNotification(user, eventId, timing);
+            roleWithTiming = notificationService.addTimingNotification(user, eventId, timing);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new CustomResponse<>(null, null , e.getMessage()));
         }
 
-        if (timingNotification == null) {
+        if (roleWithTiming == null) {
             return ResponseEntity.internalServerError().body(new CustomResponse<>(null, null, somethingWrongMessage));
         }
-        return ResponseEntity.ok().body(new CustomResponse<>(TimingNotificationsDTO.fromTimingNotification(timingNotification), null, "success"));
+        return ResponseEntity.ok().body(new CustomResponse<>(RoleDTO.convertRoleToRoleDTO(roleWithTiming), null, "success"));
     }
 }

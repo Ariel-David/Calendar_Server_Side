@@ -1,9 +1,6 @@
 package AwesomeCalendar.Services;
 
-import AwesomeCalendar.Entities.Event;
-import AwesomeCalendar.Entities.NotificationsSettings;
-import AwesomeCalendar.Entities.TimingNotifications;
-import AwesomeCalendar.Entities.User;
+import AwesomeCalendar.Entities.*;
 import AwesomeCalendar.Repositories.EventRepo;
 import AwesomeCalendar.Repositories.UserRepo;
 import AwesomeCalendar.Utilities.Utility;
@@ -13,8 +10,10 @@ import AwesomeCalendar.enums.NotificationsTiming;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -107,7 +106,7 @@ public class NotificationService {
         }
     }
 
-    public TimingNotifications addTimingNotification(User user, Long eventId, NotificationsTiming timing) {
+    public Role addTimingNotification(User user, Long eventId, NotificationsTiming timing) {
         Utility.checkArgsNotNull(user, eventId, timing);
         Optional<Event> event = eventRepository.findById(eventId);
         if (!event.isPresent()) {
@@ -117,10 +116,52 @@ public class NotificationService {
         if (!userFromDb.isPresent()) {
             throw new IllegalArgumentException("Invalid user");
         }
-        TimingNotifications thisNotification = new TimingNotifications(event.get(), timing);
-        userFromDb.get().getNotificationsSettings().addUpcomingEventNotifications(thisNotification);
+        Optional<Role> userRole = event.get().getUserRole(user);
+        if (!userRole.isPresent()) {
+            throw new IllegalArgumentException("User not in event");
+        }
+        userRole.get().setNotificationsTiming(timing);
 
-        userRepository.save(userFromDb.get());
-        return thisNotification;
+        eventRepository.save(event.get());
+        return userRole.get();
+    }
+
+    @Scheduled(fixedRate = 1000*60)
+    private void upcomingNotifier() {
+        logger.debug("starting to check upcoming events");
+        List<Event> eventsInTheNextDay = eventRepository.findEventByStartBetween(ZonedDateTime.now(), ZonedDateTime.now().plusDays(7));
+        for (Event event : eventsInTheNextDay) {
+            List<Role> roles = event.getUserRoles();
+            for (Role role : roles) {
+                if (shouldNotify(event.getStart(), role.getNotificationsTiming())) {
+                    sendNotifications(List.of(role.getUser().getEmail()), NotificationType.UPCOMING_EVENT);
+                    role.setNotificationsTiming(null);
+                }
+            }
+            eventRepository.save(event);
+        }
+    }
+
+    private boolean shouldNotify(ZonedDateTime eventStart, NotificationsTiming notificationsTiming) {
+        if (eventStart == null || notificationsTiming == null) return false;
+        ZonedDateTime notifyTime = ZonedDateTime.from(eventStart);
+        switch (notificationsTiming) {
+            case ONE_DAY:
+                notifyTime = notifyTime.minusDays(1);
+                break;
+            case THREE_HOURS:
+                notifyTime = notifyTime.minusHours(3);
+                break;
+            case ONE_HOUR:
+                notifyTime = notifyTime.minusHours(1);
+                break;
+            case HALF_HOUR:
+                notifyTime = notifyTime.minusMinutes(30);
+                break;
+            case TEN_MIN:
+                notifyTime = notifyTime.minusMinutes(10);
+                break;
+        }
+        return ZonedDateTime.now().isAfter(notifyTime);
     }
 }

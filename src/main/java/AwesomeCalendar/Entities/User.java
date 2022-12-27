@@ -48,12 +48,14 @@ public class User {
         this.email = email;
         this.password = password;
         sharedWithMeCalendars = new ArrayList<>();
+        notificationsSettings = new NotificationsSettings();
     }
 
     public User(String email, String password) {
         this.email = email;
         this.password = password;
         sharedWithMeCalendars = new ArrayList<>();
+        notificationsSettings = new NotificationsSettings();
     }
 
     public static User registeredUser(User user) {

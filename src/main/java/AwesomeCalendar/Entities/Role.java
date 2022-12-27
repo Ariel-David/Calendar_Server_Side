@@ -1,5 +1,7 @@
 package AwesomeCalendar.Entities;
 
+import AwesomeCalendar.enums.NotificationsTiming;
+
 import javax.persistence.*;
 
 @Entity
@@ -21,6 +23,9 @@ public class Role {
 
     @Column(nullable = false)
     private StatusType statusType;
+
+    @Column()
+    NotificationsTiming notificationsTiming;
 
     public Role() {
     }
@@ -57,6 +62,14 @@ public class Role {
 
     public void setStatusType(StatusType statusType) {
         this.statusType = statusType;
+    }
+
+    public NotificationsTiming getNotificationsTiming() {
+        return notificationsTiming;
+    }
+
+    public void setNotificationsTiming(NotificationsTiming notificationsTiming) {
+        this.notificationsTiming = notificationsTiming;
     }
 
     public enum RoleType {
