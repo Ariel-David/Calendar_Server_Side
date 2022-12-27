@@ -50,7 +50,7 @@ public class EventController {
      * @param event the new event data
      * @return a SuccessResponse - OK status, a message, the new event data
      */
-    @PostMapping("/new")
+    @RequestMapping(value = "/new", method = RequestMethod.POST)
     public ResponseEntity<CustomResponse<EventDTO>> createEvent(@RequestAttribute("user") User user, @RequestBody Event event) {
         logger.debug("Got request to create event - " + event);
         if (user == null) return ResponseEntity.badRequest().build();
@@ -165,7 +165,7 @@ public class EventController {
      * @param eventId - the event to delete
      * @return successResponse with OK status ,deleted event, a Message
      */
-    @DeleteMapping(value = "delete")
+    @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
     public ResponseEntity<CustomResponse<EventDTO>> deleteEvent(@RequestParam("eventId") Long eventId) {
         logger.debug("Got request delete event:" + eventId);
         CustomResponse<EventDTO> cResponse;
@@ -275,7 +275,7 @@ public class EventController {
      * @param userEmail the email of the user that is being deleted from the event
      * @return a SuccessResponse - OK status, a message, the list of emails of deleted users
      */
-    @PatchMapping("/removeUser")
+    @RequestMapping(value = "/removeUser", method = RequestMethod.PATCH)
     public ResponseEntity<CustomResponse<RoleDTO>> removeUser(@RequestParam("eventId") Long eventId, @RequestParam("userEmail") String userEmail) {
         logger.debug("Got request to remove user:" + userEmail + " from event:" + eventId);
         CustomResponse<RoleDTO> cResponse;
@@ -335,7 +335,7 @@ public class EventController {
      * @param eventId the event id
      * @return successResponse with roles of the event, a Http-status
      */
-    @GetMapping("/getUsers")
+    @RequestMapping(value = "/getUsers", method = RequestMethod.GET)
     public ResponseEntity<List<Role>> getRolesOfEvent(@RequestParam Long eventId) {
         logger.debug("Got request to get roles of events:" + eventId);
         if (eventId == null) {
