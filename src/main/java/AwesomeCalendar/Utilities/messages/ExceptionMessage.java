@@ -8,4 +8,8 @@ public class ExceptionMessage {
     public static String invalidStatusMessage = "Invalid Status, Please try again.";
     public static String invalidEventIdMessage = "Invalid eventId";
     public static String FieldsAdminCantUpdateMessage = "Admins can not update title, start date or end date";
+    public static String couldNotGetUserFromGithubMessage = "Couldn't get user from github";
+    public static String invalidUserEmailMessage = "Invalid user email";
+
+
 }
