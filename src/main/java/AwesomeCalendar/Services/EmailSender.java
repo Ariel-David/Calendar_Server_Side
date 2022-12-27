@@ -11,6 +11,9 @@ public class EmailSender {
     private JavaMailSender mailSender;
 
     public void sendEmailNotification(String userEmail,String body) {
+        if(userEmail == null){
+            throw new IllegalArgumentException("Invalid user email");
+        }
         Email email = new Email.Builder().to(userEmail).subject("You Have A New Notification!").content(body).build();
         mailSender.send(email.convertIntoMessage());
     }
