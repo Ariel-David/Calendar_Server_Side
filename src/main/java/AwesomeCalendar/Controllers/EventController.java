@@ -43,6 +43,12 @@ public class EventController {
 
     private static final Logger logger = LogManager.getLogger(EventController.class);
 
+    /**
+     * Add new event to the user's calendar
+     * @param user the user that creates the event
+     * @param event the new event data
+     * @return a SuccessResponse - OK status, a message, the new event data
+     */
     @PostMapping("/new")
     public ResponseEntity<CustomResponse<EventDTO>> createEvent(@RequestAttribute("user") User user, @RequestBody Event event) {
         logger.debug("Got request to create event - " + event);
@@ -72,6 +78,12 @@ public class EventController {
         return ResponseEntity.ok().body(cResponse);
     }
 
+    /**
+     * Add new guest to the event
+     * @param eventId event Id
+     * @param userEmail the user that will add to the event
+     * @return a SuccessResponse - OK status, a message, the new role
+     */
     @RequestMapping(value = "new/role", method = RequestMethod.POST)
     public ResponseEntity<CustomResponse<RoleDTO>> createRole(@RequestParam("eventId") Long eventId, @RequestParam("userEmail") String userEmail) {
         logger.debug("Got request to add guest role to event:" + eventId + " for user:" + userEmail);
@@ -86,6 +98,12 @@ public class EventController {
         return ResponseEntity.ok().body(cResponse);
     }
 
+    /**
+     * Update role type for user
+     * @param eventId the eventID
+     * @param userId  the id of the user that we change role for
+     * @return a SuccessResponse - OK status, a message, the new role
+     */
     @RequestMapping(value = "update/role/type", method = RequestMethod.PATCH)
     public ResponseEntity<CustomResponse<RoleDTO>> updateRoleType(@RequestParam("eventId") Long eventId, @RequestParam("userId") Long userId) {
         logger.debug("Got request to change role to event:" + eventId + " for user:" + userId);
@@ -94,6 +112,13 @@ public class EventController {
         return ResponseEntity.ok().body(cResponse);
     }
 
+    /**
+     * Update role status for user
+     * @param user the user that we change status for
+     * @param eventId the event
+     * @param status the new status
+     * @return a SuccessResponse - OK status, a message, the updated role with the status
+     */
     @RequestMapping(value = "update/role/status", method = RequestMethod.PATCH)
     public ResponseEntity<CustomResponse<RoleDTO>> updateRoleStatus(@RequestAttribute("user") User user, @RequestParam("eventId") Long eventId, @RequestParam("status") String status) {
         logger.debug("Got request to add guest status to event:" + eventId + " for user:" + user.getEmail());
@@ -108,6 +133,11 @@ public class EventController {
         return ResponseEntity.badRequest().body(cResponse);
     }
 
+    /**
+     * Delete event from DB
+     * @param eventId - the event to delete
+     * @return successResponse with OK status ,deleted event, a Message
+     */
     @DeleteMapping(value = "delete")
     public ResponseEntity<CustomResponse<EventDTO>> deleteEvent(@RequestParam("eventId") Long eventId) {
         logger.debug("Got request delete event:" + eventId);
@@ -128,6 +158,11 @@ public class EventController {
         return ResponseEntity.ok().body(cResponse);
     }
 
+    /**
+     * Get event from DB
+     * @param id the event id
+     * @return a SuccessResponse - OK status, a message, the event
+     */
     @RequestMapping(value = "/getEvent", method = RequestMethod.GET)
     public ResponseEntity<CustomResponse<EventDTO>> getEvent(@RequestParam("id") long id) {
         logger.debug("Got request to get event:" + id);
@@ -141,6 +176,12 @@ public class EventController {
         return ResponseEntity.ok().body(cResponse);
     }
 
+    /**
+     * Get an event between specific dates
+     * @param user the user
+     * @param startDate the start date of the event
+     * @param endDate the end date of the even
+     */
     @Deprecated
     @RequestMapping(value = "/getBetweenDates", method = RequestMethod.GET)
     public ResponseEntity<CustomResponse<List<EventDTO>>> getEventsBetweenDates(@RequestAttribute("user") User user, @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) ZonedDateTime startDate, @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("endDate") ZonedDateTime endDate) {
@@ -179,6 +220,13 @@ public class EventController {
         return ResponseEntity.ok().body(cResponse);
     }
 
+    /**
+     * Remove user from the event
+     *
+     * @param eventId     the event id
+     * @param userEmail   the email of the user that is being deleted from the event
+     * @return a SuccessResponse - OK status, a message, the list of emails of deleted users
+     */
     @PatchMapping("/removeUser")
     public ResponseEntity<CustomResponse<RoleDTO>> removeUser(@RequestParam("eventId") Long eventId, @RequestParam("userEmail") String userEmail) {
         logger.debug("Got request to remove user:" + userEmail + " from event:" + eventId);
@@ -197,7 +245,13 @@ public class EventController {
             return ResponseEntity.badRequest().body(cResponse);
         }
     }
-
+    /**
+     * Update event data
+     * @param userType the role of the user
+     * @param eventId - the event id
+     * @param event - the event data
+     * @return successResponse with updated event,Message,OK status
+     */
     @RequestMapping(value = "update", method = RequestMethod.PUT)
     public ResponseEntity<CustomResponse<EventDTO>> updateEvent(@RequestAttribute("userType") Role.RoleType userType, @RequestParam("eventId") Long eventId, @RequestBody Event event) {
         logger.debug("Got request to update event:" + eventId);
@@ -214,7 +268,11 @@ public class EventController {
         notificationService.sendNotifications(listUserInEvent,NotificationType.EVENT_DATA_CHANGED);
         return ResponseEntity.ok().body(cResponse);
     }
-
+    /**
+     * Get all the roles at the event
+     * @param eventId the event id
+     * @return successResponse with roles of the event, a Http-status
+     */
     @GetMapping("/getUsers")
     public ResponseEntity<List<Role>> getRolesOfEvent(@RequestParam Long eventId) {
         logger.debug("Got request to get roles of events:" + eventId);

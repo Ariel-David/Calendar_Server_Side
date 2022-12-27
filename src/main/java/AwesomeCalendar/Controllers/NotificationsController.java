@@ -18,6 +18,12 @@ public class NotificationsController {
     @Autowired
     private NotificationService notificationService;
 
+    /**
+     * Set all the notifications settings
+     * @param user the user
+     * @param notificationsSettings the notifications settings of the user
+     * @return successResponse with the notifications settings, a Http-status
+     */
     @PostMapping("/settings")
     public ResponseEntity<CustomResponse<NotificationsSettings>> setNotificationsSettings(@RequestAttribute("user") User user, @RequestBody NotificationsSettings notificationsSettings) {
         if (user == null) return ResponseEntity.badRequest().build();

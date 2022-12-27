@@ -30,9 +30,6 @@ public class Event {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-//    @Column
-//    private List<File> attachments;
-
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     List<Role> userRoles;
 
@@ -127,14 +124,6 @@ public class Event {
     public void setDescription(String description) {
         this.description = description;
     }
-
-//    public List<File> getAttachments() {
-//        return attachments;
-//    }
-//
-//    public void setAttachments(List<File> attachments) {
-//        this.attachments = attachments;
-//    }
 
     public enum EventAccess {
         PUBLIC, PRIVATE

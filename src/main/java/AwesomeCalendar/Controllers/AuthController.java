@@ -98,6 +98,11 @@ public class AuthController {
         return ResponseEntity.badRequest().body(cResponse);
     }
 
+    /**
+     * Login using GitHub
+     * @param code - the code from GitHub's API
+     * @return a SuccessResponse - OK status, a message, the login data - user's DTO and the generated token
+     */
     @RequestMapping(value = "gitHub", method = RequestMethod.POST)
     public ResponseEntity<CustomResponse<UserDTO>> registerWithGitHub(@RequestParam String code) {
         logger.debug("Got request for login through github - " + code);
