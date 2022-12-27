@@ -35,10 +35,16 @@ public class EventService {
      * @throws IllegalArgumentException if the event or user are null
      */
     public Event createEvent(Event event, User user) {
-        Utility.checkArgsNotNull(event, user);
-        logger.info("Creating event:" + event);
-        event.addUserRole(new Role(user, Role.RoleType.ORGANIZER, Role.StatusType.APPROVED));
-        return eventRepository.save(event);
+        try {
+            Utility.checkArgsNotNull(event, user);
+            logger.info("Creating event:" + event);
+            event.addUserRole(new Role(user, Role.RoleType.ORGANIZER, Role.StatusType.APPROVED));
+            return eventRepository.save(event);
+        }catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Arguments must be non null");
+        }
+
+
     }
     public Event updateEvent(Long eventId, Event event) {
         logger.info("Updating event:" + eventId + " details to:" + event);
