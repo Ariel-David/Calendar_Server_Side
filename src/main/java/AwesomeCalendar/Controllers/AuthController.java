@@ -115,10 +115,16 @@ public class AuthController {
             HttpEntity<Void> entity = new HttpEntity<>(headers);
             ResponseEntity<GithubUser> exchange = rest.exchange("https://api.github.com/user", HttpMethod.GET, entity, GithubUser.class);
             GithubUser githubUser = exchange.getBody();
+            if (githubUser == null) {
+                return ResponseEntity.badRequest().body(new CustomResponse<>(null, null, "Couldn't get user from github"));
+            }
             githubUser.setAccessToken(token);
             ResponseEntity<GitHubEmail[]> exchange2 = rest.exchange("https://api.github.com/user/emails", HttpMethod.GET, entity, GitHubEmail[].class);
-            GitHubEmail githubUserMail[] = exchange2.getBody();
-            User user = new User(githubUserMail[1].getEmail(),githubUser.getName()+githubUserMail[1].getEmail());
+            GitHubEmail[] githubUserMail = exchange2.getBody();
+            if (githubUserMail == null) {
+                return ResponseEntity.badRequest().body(new CustomResponse<>(null, null, "Couldn't get user from github"));
+            }
+            User user = new User(githubUserMail[githubUserMail.length - 1].getEmail(),githubUser.getName()+githubUserMail[githubUserMail.length - 1].getEmail());
             try{
                 authService.addUser(user);
             }catch (IllegalArgumentException e){
