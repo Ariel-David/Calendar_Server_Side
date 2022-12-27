@@ -5,6 +5,7 @@ import AwesomeCalendar.Entities.Role;
 import AwesomeCalendar.Entities.User;
 import AwesomeCalendar.Repositories.EventRepo;
 import AwesomeCalendar.Repositories.UserRepo;
+import AwesomeCalendar.Utilities.Utility;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,13 +27,22 @@ public class EventService {
 
     private static final Logger logger = LogManager.getLogger(EventService.class.getName());
 
+    /**
+     * create an event based on the given event and saves it in the database.
+     * @param event the event details from which to create the event.
+     * @param user the user that is creating the event.
+     * @return the created event.
+     * @throws IllegalArgumentException if the event or user are null
+     */
     public Event createEvent(Event event, User user) {
+        Utility.checkArgsNotNull(event, user);
         logger.info("Creating event:" + event);
-        event.AddUserRole(new Role(user, Role.RoleType.ORGANIZER, Role.StatusType.APPROVED));
+        event.addUserRole(new Role(user, Role.RoleType.ORGANIZER, Role.StatusType.APPROVED));
         return eventRepository.save(event);
     }
     public Event updateEvent(Long eventId, Event event) {
         logger.info("Updating event:" + eventId + " details to:" + event);
+        Utility.checkArgsNotNull(eventId, event);
         Optional<Event> eventInDB = eventRepository.findById(eventId);
         if (!eventInDB.isPresent()) {
             throw new IllegalArgumentException("Invalid event id");
@@ -60,6 +70,7 @@ public class EventService {
     }
 
     public Event deleteEvent(Long eventId) {
+        Utility.checkArgsNotNull(eventId);
         logger.debug("Check if the event exist in DB");
         Optional<Event> eventInDB = eventRepository.findById(eventId);
         if (!eventInDB.isPresent()) {
@@ -81,11 +92,13 @@ public class EventService {
     }
 
     public Optional<Event> getEvent(Long id){
+        Utility.checkArgsNotNull(id);
         logger.debug("Check if the event exist in DB");
         Optional<Event> eventInDB = eventRepository.findById(id);
         logger.debug("Found the event");
         return eventInDB;
     }
+    @Deprecated
     public List<Event> getEventsBetweenDates(ZonedDateTime startDate , ZonedDateTime endDate){
         logger.debug("Getting events between dates");
         return eventRepository.findEventByStartBetween(startDate , endDate);
@@ -97,8 +110,10 @@ public class EventService {
      * @param endDate where to end the cut of the relevant events.
      * @param calendars the users of which we want to see their calendars.
      * @return all the events matching the parameters.
+     * @throws IllegalArgumentException if one of the parameters is null
      */
     public List<Event> getEventsBetweenDates(User user, ZonedDateTime startDate , ZonedDateTime endDate, List<User> calendars){
+        Utility.checkArgsNotNull(user, startDate, endDate, calendars);
         logger.debug("Getting events between dates by calendars");
         List<Event> events = eventRepository.findEventByStartBetween(startDate, endDate);
         return events.stream()
@@ -109,6 +124,7 @@ public class EventService {
     }
 
     public Role addGuestRole(Long eventId, String userEmail) {
+        Utility.checkArgsNotNull(eventId, userEmail);
         logger.info("Adding guest role for user:" + userEmail + " in event:" + eventId);
         Optional<Event> eventInDB = eventRepository.findById(eventId);
         if (!eventInDB.isPresent()) {
@@ -123,12 +139,13 @@ public class EventService {
             throw new IllegalArgumentException("Exist role");
         }
         Role role = new Role(userInDB, Role.RoleType.GUEST, Role.StatusType.TENTATIVE);
-        eventInDB.get().AddUserRole(role);
+        eventInDB.get().addUserRole(role);
         eventRepository.save(eventInDB.get());
         return role;
     }
 
     public Role updateTypeUserRole(Long eventId, Long userId) {
+        Utility.checkArgsNotNull(eventId, userId);
         logger.info("Updating user role for user:" + userId + " in event:" + eventId);
         Optional<Event> eventInDB = eventRepository.findById(eventId);
         if (!eventInDB.isPresent()) {
@@ -153,6 +170,7 @@ public class EventService {
     }
 
     public Role updateStatusUserRole(Long eventId, User user, String status) {
+        Utility.checkArgsNotNull(eventId, user, status);
         logger.info("Updating user status for user:" + user.getEmail() + " in event:" + eventId);
         Optional<Event> eventInDB = eventRepository.findById(eventId);
         if (!eventInDB.isPresent()) {
@@ -175,6 +193,7 @@ public class EventService {
     }
 
     public Role deleteRole(Long eventId, String userEmail) {
+        Utility.checkArgsNotNull(eventId, userEmail);
         logger.info("deleting role for user:" + userEmail + " in event:" + eventId);
         Optional<Event> eventInDB = eventRepository.findById(eventId);
         if (!eventInDB.isPresent()) {
@@ -196,10 +215,8 @@ public class EventService {
     }
 
     public List<Role> getRolesForEvent(Long eventId) {
+        Utility.checkArgsNotNull(eventId);
         logger.debug("getting roles for event:" + eventId);
-        if (eventId == null) {
-            throw new IllegalArgumentException("event id cant be null");
-        }
         Optional<Event> eventInDB = eventRepository.findById(eventId);
         if (!eventInDB.isPresent()) {
             throw new IllegalArgumentException("Invalid event id");
@@ -208,6 +225,7 @@ public class EventService {
     }
 
     public Role getRoleByEventAndUSer(Long eventId, User user) {
+        Utility.checkArgsNotNull(eventId, user);
         logger.info("getting role for user:" + user.getEmail() + " in event:" + eventId);
         Optional<Event> eventInDB = eventRepository.findById(eventId);
         if (!eventInDB.isPresent()) {

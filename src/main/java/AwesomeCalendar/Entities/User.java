@@ -23,7 +23,7 @@ public class User {
     @Column(nullable = false, length = 64)
     private String password;
 
-    @OneToMany(cascade = {CascadeType.REMOVE, CascadeType.PERSIST}, fetch = FetchType.EAGER)
+    @ManyToMany(cascade = {CascadeType.REMOVE, CascadeType.PERSIST}, fetch = FetchType.EAGER)
     @JsonIgnore
     private List<User> sharedWithMeCalendars;
 
