@@ -129,7 +129,7 @@ public class NotificationService {
     @Scheduled(fixedRate = 1000*60)
     private void upcomingNotifier() {
         logger.debug("starting to check upcoming events");
-        List<Event> eventsInTheNextDay = eventRepository.findEventByStartBetween(ZonedDateTime.now(), ZonedDateTime.now().plusDays(7));
+        List<Event> eventsInTheNextDay = eventRepository.findEventByStartBetween(ZonedDateTime.now(), ZonedDateTime.now().plusDays(1));
         for (Event event : eventsInTheNextDay) {
             List<Role> roles = event.getUserRoles();
             for (Role role : roles) {
