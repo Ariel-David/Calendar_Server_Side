@@ -85,6 +85,13 @@ public class EventControllerTests {
     }
 
     @Test
+    void createEvent_illegalArgumentException_throwIllegalArgumentException() {
+        event1 = new Event(null, ZonedDateTime.now(), ZonedDateTime.now(), null, "test", null);
+        given(eventService.createEvent(event1, user1)).willThrow(IllegalArgumentException.class);
+        assertEquals(400, eventController.createEvent(user1, event1).getStatusCodeValue());
+    }
+
+    @Test
     void createRole_validateEmail_invalidEmailMessage() {
         assertEquals(invalidEmailMessage, eventController.createRole(0L, "test").getBody().getMessage());
     }
@@ -106,6 +113,12 @@ public class EventControllerTests {
     }
 
     @Test
+    void updateRoleType_illegalArgumentException_throwIllegalArgumentException() {
+        given(eventService.updateTypeUserRole(0L, 1L)).willThrow(IllegalArgumentException.class);
+        assertEquals(400, eventController.updateRoleType(0L, 1L).getStatusCodeValue());
+    }
+
+    @Test
     void updateRoleStatus_badRequest_invalidStatusMessage() {
         assertEquals(invalidStatusMessage, eventController.updateRoleStatus(user1, 0L, "hi").getBody().getMessage());
     }
@@ -115,8 +128,13 @@ public class EventControllerTests {
         role1 = new Role(user1, Role.RoleType.ADMIN, Role.StatusType.APPROVED);
         given(eventService.updateStatusUserRole(0L, user1, "APPROVED")).willReturn(role1);
         given(eventService.getEventOrganizer(0L)).willReturn(Optional.of(user1));
-//        given(notificationService.sendNotifications(List.of(user1.getEmail()), NotificationType.USER_STATUS_CHANGED)).willReturn(null);
         assertEquals(roleStatusChangedSuccessfullyMessage, eventController.updateRoleStatus(user1, 0L, "APPROVED").getBody().getMessage());
+    }
+
+    @Test
+    void updateRoleStatus_illegalArgumentException_throwIllegalArgumentException() {
+        given(eventService.updateStatusUserRole(0L, user1, "APPROVED")).willThrow(IllegalArgumentException.class);
+        assertEquals(400, eventController.updateRoleStatus(user1, 0L, "APPROVED").getStatusCodeValue());
     }
 
     @Test
@@ -135,6 +153,12 @@ public class EventControllerTests {
         event1 = new Event(0L, null, ZonedDateTime.now(), ZonedDateTime.now(), null, "test", null);
         given(eventService.deleteEvent(0L)).willReturn(event1);
         assertEquals(deleteEventSuccessfullyMessage, eventController.deleteEvent(0L).getBody().getMessage());
+    }
+
+    @Test
+    void deleteEvent_illegalArgumentException_throwIllegalArgumentException() {
+        given(eventService.deleteEvent(0L)).willThrow(IllegalArgumentException.class);
+        assertEquals(400, eventController.deleteEvent(0L).getStatusCodeValue());
     }
 
     @Test
@@ -170,6 +194,13 @@ public class EventControllerTests {
     }
 
     @Test
+    void getEventsBetweenDates_illegalArgumentException_throwIllegalArgumentException() {
+        ZonedDateTime z = ZonedDateTime.now();
+        given(eventService.getEventsBetweenDates(user1, z, z, List.of())).willThrow(IllegalArgumentException.class);
+        assertEquals(400, eventController.getEventsBetweenDates(user1, z, z, null).getStatusCodeValue());
+    }
+
+    @Test
     void removeUser_nullEventId_somethingWrongMessage() {
         assertEquals(somethingWrongMessage, eventController.removeUser(null, "a@a.a").getBody().getMessage());
     }
@@ -193,6 +224,12 @@ public class EventControllerTests {
     }
 
     @Test
+    void removeUser_illegalArgumentException_throwIllegalArgumentException() {
+        given(eventService.deleteRole(0L, "a@a.a")).willThrow(IllegalArgumentException.class);
+        assertEquals(400, eventController.removeUser(0L, "a@a.a").getStatusCodeValue());
+    }
+
+    @Test
     void updateEvent_permissionAdmin_FieldsAdminCantUpdateMessage() {
         event1 = new Event(null, ZonedDateTime.now(), ZonedDateTime.now(), null, "test", null);
         assertEquals(FieldsAdminCantUpdateMessage, eventController.updateEvent(Role.RoleType.ADMIN, 0L, event1).getBody().getMessage());
@@ -206,6 +243,13 @@ public class EventControllerTests {
     }
 
     @Test
+    void updateEvent_illegalArgumentException_throwIllegalArgumentException() {
+        event1 = new Event(0L, null, null, null, "haifa", null, null);
+        given(eventService.updateEvent(0L, event1)).willThrow(IllegalArgumentException.class);
+        assertEquals(400, eventController.updateEvent(Role.RoleType.ADMIN, 0L, event1).getStatusCodeValue());
+    }
+
+    @Test
     void getRolesOfEvent_nullEventId_400() {
         assertEquals(400, eventController.getRolesOfEvent(null).getStatusCodeValue());
     }
@@ -215,5 +259,11 @@ public class EventControllerTests {
         List<Role> listRoles = new ArrayList<>();
         given(eventService.getRolesForEvent(0L)).willReturn(listRoles);
         assertEquals(200, eventController.getRolesOfEvent(0L).getStatusCodeValue());
+    }
+
+    @Test
+    void getRolesOfEvent_illegalArgumentException_throwIllegalArgumentException() {
+        given(eventService.getRolesForEvent(0L)).willThrow(IllegalArgumentException.class);
+        assertEquals(400, eventController.getRolesOfEvent(0L).getStatusCodeValue());
     }
 }

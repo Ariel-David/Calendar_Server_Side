@@ -87,6 +87,6 @@ public class AuthControllerTests {
 
     @Test
     void registerWithGitHub_nullCode_null() {
-        assertEquals(null, authController.registerWithGitHub("undefined"));
+        assertEquals(somethingWrongMessage, authController.registerWithGitHub("undefined").getBody().getMessage());
     }
 }

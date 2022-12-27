@@ -44,4 +44,9 @@ public class NotificationsControllerTests {
         given(notificationService.setNotificationsSettings(user1, notificationsSettings1)).willReturn(notificationsSettings1);
         assertEquals(setNotificationsSuccessfullyMessage, notificationsController.setNotificationsSettings(user1, notificationsSettings1).getBody().getMessage());
     }
+    @Test
+    void setNotificationsSettings_illegalArgumentException_throwIllegalArgumentException() {
+        given(notificationService.setNotificationsSettings(user1, notificationsSettings1)).willThrow(IllegalArgumentException.class);
+        assertEquals(400, notificationsController.setNotificationsSettings(user1, notificationsSettings1).getStatusCodeValue());
+    }
 }

@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static AwesomeCalendar.Utilities.messages.ExceptionMessage.invalidUserEmailMessage;
+
 @Service
 public class NotificationService {
     @Autowired
@@ -27,7 +29,7 @@ public class NotificationService {
     public NotificationsSettings setNotificationsSettings(User user, NotificationsSettings notificationsSettings) {
         User userInDB = userRepository.findByEmail(user.getEmail());
         if (userInDB == null) {
-            throw new IllegalArgumentException("Invalid user email");
+            throw new IllegalArgumentException(invalidUserEmailMessage);
         }
         userInDB.setNotificationsSettings(notificationsSettings);
         userRepository.save(userInDB);

@@ -28,11 +28,12 @@ public class SharingController {
     /**
      * share a calendar with another user. the other user will be able to see this user's public events
      * even if he was not invited to them
-     * @param user the user that wants to share a calendar with another user
+     *
+     * @param user      the user that wants to share a calendar with another user
      * @param userEmail the email of the other user that the user wants to share their calendar with
      * @return the user that was shared the calendar
      */
-    @PostMapping("/share")
+    @RequestMapping(value = "/share", method = RequestMethod.POST)
     public ResponseEntity<CustomResponse<UserDTO>> shareCalendar(@RequestAttribute("user") User user, @RequestParam String userEmail) {
         logger.debug("got request to share calendar");
         if (user == null) return ResponseEntity.badRequest().build();
@@ -55,11 +56,12 @@ public class SharingController {
     /**
      * gets all calendars shared with the user. the user should call this function
      * before requesting calendars, so he can see what calendars he can access to
+     *
      * @param user the user that wants to see what calendars are shared with him.
      *             if called from a rest call, the server expects a token and the filter will change it to user object.
      * @return all the calendars that are shared with the user.
      */
-    @GetMapping("/sharedWithMe")
+    @RequestMapping(value = "/sharedWithMe", method = RequestMethod.GET)
     public ResponseEntity<CustomResponse<List<UserDTO>>> sharedWithMeCalendars(@RequestAttribute("user") User user) {
         logger.debug("got request for calendars shared with me");
         if (user == null) return ResponseEntity.badRequest().build();

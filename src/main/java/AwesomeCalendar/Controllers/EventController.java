@@ -45,11 +45,12 @@ public class EventController {
 
     /**
      * Add new event to the user's calendar
-     * @param user the user that creates the event
+     *
+     * @param user  the user that creates the event
      * @param event the new event data
      * @return a SuccessResponse - OK status, a message, the new event data
      */
-    @PostMapping("/new")
+    @RequestMapping(value = "/new", method = RequestMethod.POST)
     public ResponseEntity<CustomResponse<EventDTO>> createEvent(@RequestAttribute("user") User user, @RequestBody Event event) {
         logger.debug("Got request to create event - " + event);
         if (user == null) return ResponseEntity.badRequest().build();
@@ -69,18 +70,24 @@ public class EventController {
         if (event.getEventAccess() == null) {
             event.setEventAccess(Event.EventAccess.PRIVATE);
         }
-        Event createdEvent = eventService.createEvent(event, user);
-        if (createdEvent == null) {
-            cResponse = new CustomResponse<>(null, null, somethingWrongMessage);
-            return ResponseEntity.internalServerError().body(cResponse);
+        try {
+            Event createdEvent = eventService.createEvent(event, user);
+            if (createdEvent == null) {
+                cResponse = new CustomResponse<>(null, null, somethingWrongMessage);
+                return ResponseEntity.internalServerError().body(cResponse);
+            }
+            cResponse = new CustomResponse<>(convertEventToEventDTO(createdEvent), null, eventCreatedSuccessfullyMessage);
+            return ResponseEntity.ok().body(cResponse);
+        } catch (IllegalArgumentException e) {
+            cResponse = new CustomResponse<>(null, null, e.getMessage());
+            return ResponseEntity.badRequest().body(cResponse);
         }
-        cResponse = new CustomResponse<>(convertEventToEventDTO(createdEvent), null, eventCreatedSuccessfullyMessage);
-        return ResponseEntity.ok().body(cResponse);
     }
 
     /**
      * Add new guest to the event
-     * @param eventId event Id
+     *
+     * @param eventId   event Id
      * @param userEmail the user that will add to the event
      * @return a SuccessResponse - OK status, a message, the new role
      */
@@ -92,14 +99,20 @@ public class EventController {
             cResponse = new CustomResponse<>(null, null, invalidEmailMessage);
             return ResponseEntity.badRequest().body(cResponse);
         }
-        Role newRole = eventService.addGuestRole(eventId, userEmail);
-        cResponse = new CustomResponse<>(convertRoleToRoleDTO(newRole), null, roleCreatedSuccessfullyMessage);
-        notificationService.sendNotifications(List.of(userEmail), NotificationType.EVENT_INVITATION);
-        return ResponseEntity.ok().body(cResponse);
+        try {
+            Role newRole = eventService.addGuestRole(eventId, userEmail);
+            cResponse = new CustomResponse<>(convertRoleToRoleDTO(newRole), null, roleCreatedSuccessfullyMessage);
+            notificationService.sendNotifications(List.of(userEmail), NotificationType.EVENT_INVITATION);
+            return ResponseEntity.ok().body(cResponse);
+        } catch (IllegalArgumentException e) {
+            cResponse = new CustomResponse<>(null, null, e.getMessage());
+            return ResponseEntity.badRequest().body(cResponse);
+        }
     }
 
     /**
      * Update role type for user
+     *
      * @param eventId the eventID
      * @param userId  the id of the user that we change role for
      * @return a SuccessResponse - OK status, a message, the new role
@@ -107,38 +120,52 @@ public class EventController {
     @RequestMapping(value = "update/role/type", method = RequestMethod.PATCH)
     public ResponseEntity<CustomResponse<RoleDTO>> updateRoleType(@RequestParam("eventId") Long eventId, @RequestParam("userId") Long userId) {
         logger.debug("Got request to change role to event:" + eventId + " for user:" + userId);
-        Role newRole = eventService.updateTypeUserRole(eventId, userId);
-        CustomResponse<RoleDTO> cResponse = new CustomResponse<>(convertRoleToRoleDTO(newRole), null, roleTypeChangedSuccessfullyMessage);
-        return ResponseEntity.ok().body(cResponse);
+        CustomResponse<RoleDTO> cResponse;
+        try {
+            Role newRole = eventService.updateTypeUserRole(eventId, userId);
+            cResponse = new CustomResponse<>(convertRoleToRoleDTO(newRole), null, roleTypeChangedSuccessfullyMessage);
+            return ResponseEntity.ok().body(cResponse);
+        } catch (IllegalArgumentException e) {
+            cResponse = new CustomResponse<>(null, null, e.getMessage());
+            return ResponseEntity.badRequest().body(cResponse);
+        }
+
     }
 
     /**
      * Update role status for user
-     * @param user the user that we change status for
+     *
+     * @param user    the user that we change status for
      * @param eventId the event
-     * @param status the new status
+     * @param status  the new status
      * @return a SuccessResponse - OK status, a message, the updated role with the status
      */
     @RequestMapping(value = "update/role/status", method = RequestMethod.PATCH)
     public ResponseEntity<CustomResponse<RoleDTO>> updateRoleStatus(@RequestAttribute("user") User user, @RequestParam("eventId") Long eventId, @RequestParam("status") String status) {
         logger.debug("Got request to add guest status to event:" + eventId + " for user:" + user.getEmail());
         CustomResponse<RoleDTO> cResponse;
-        if (status.equals("TENTATIVE") || status.equals("REJECTED") || status.equals("APPROVED")) {
-            Role newRole = eventService.updateStatusUserRole(eventId, user, status);
-            cResponse = new CustomResponse<>(convertRoleToRoleDTO(newRole), null, roleStatusChangedSuccessfullyMessage);
-            notificationService.sendNotifications(List.of(eventService.getEventOrganizer(eventId).get().getEmail()), NotificationType.USER_STATUS_CHANGED);
-            return ResponseEntity.ok().body(cResponse);
+        try {
+            if (status.equals("TENTATIVE") || status.equals("REJECTED") || status.equals("APPROVED")) {
+                Role newRole = eventService.updateStatusUserRole(eventId, user, status);
+                cResponse = new CustomResponse<>(convertRoleToRoleDTO(newRole), null, roleStatusChangedSuccessfullyMessage);
+                notificationService.sendNotifications(List.of(eventService.getEventOrganizer(eventId).get().getEmail()), NotificationType.USER_STATUS_CHANGED);
+                return ResponseEntity.ok().body(cResponse);
+            }
+            cResponse = new CustomResponse<>(null, null, invalidStatusMessage);
+            return ResponseEntity.badRequest().body(cResponse);
+        } catch (IllegalArgumentException e) {
+            cResponse = new CustomResponse<>(null, null, e.getMessage());
+            return ResponseEntity.badRequest().body(cResponse);
         }
-        cResponse = new CustomResponse<>(null, null, invalidStatusMessage);
-        return ResponseEntity.badRequest().body(cResponse);
     }
 
     /**
      * Delete event from DB
+     *
      * @param eventId - the event to delete
      * @return successResponse with OK status ,deleted event, a Message
      */
-    @DeleteMapping(value = "delete")
+    @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
     public ResponseEntity<CustomResponse<EventDTO>> deleteEvent(@RequestParam("eventId") Long eventId) {
         logger.debug("Got request delete event:" + eventId);
         CustomResponse<EventDTO> cResponse;
@@ -146,20 +173,25 @@ public class EventController {
             cResponse = new CustomResponse<>(null, null, invalidEventIdMessage);
             return ResponseEntity.badRequest().body(cResponse);
         }
-        //roleService.deleteRolesForEvent(eventId);
-        Event deleted_event = eventService.deleteEvent(eventId);
-        if (deleted_event == null) {
-            cResponse = new CustomResponse<>(null, null, somethingWrongMessage);
+        try {
+            Event deleted_event = eventService.deleteEvent(eventId);
+            if (deleted_event == null) {
+                cResponse = new CustomResponse<>(null, null, somethingWrongMessage);
+                return ResponseEntity.badRequest().body(cResponse);
+            }
+            cResponse = new CustomResponse<>(convertEventToEventDTO(deleted_event), null, deleteEventSuccessfullyMessage);
+            List<String> listUserInEvent = deleted_event.getUserRoles().stream().map(role -> role.getUser().getEmail()).collect(Collectors.toList());
+            notificationService.sendNotifications(listUserInEvent, NotificationType.EVENT_CANCEL);
+            return ResponseEntity.ok().body(cResponse);
+        } catch (IllegalArgumentException e) {
+            cResponse = new CustomResponse<>(null, null, e.getMessage());
             return ResponseEntity.badRequest().body(cResponse);
         }
-        cResponse = new CustomResponse<>(convertEventToEventDTO(deleted_event), null, deleteEventSuccessfullyMessage);
-        List<String> listUserInEvent = deleted_event.getUserRoles().stream().map(role -> role.getUser().getEmail()).collect(Collectors.toList());
-        notificationService.sendNotifications(listUserInEvent,NotificationType.EVENT_CANCEL);
-        return ResponseEntity.ok().body(cResponse);
     }
 
     /**
      * Get event from DB
+     *
      * @param id the event id
      * @return a SuccessResponse - OK status, a message, the event
      */
@@ -167,33 +199,44 @@ public class EventController {
     public ResponseEntity<CustomResponse<EventDTO>> getEvent(@RequestParam("id") long id) {
         logger.debug("Got request to get event:" + id);
         CustomResponse<EventDTO> cResponse;
-        Optional<Event> found_event = eventService.getEvent(id);
-        if (!found_event.isPresent()) {
-            cResponse = new CustomResponse<>(null, null, somethingWrongMessage);
+        try {
+            Optional<Event> found_event = eventService.getEvent(id);
+            if (!found_event.isPresent()) {
+                cResponse = new CustomResponse<>(null, null, somethingWrongMessage);
+                return ResponseEntity.badRequest().body(cResponse);
+            }
+            cResponse = new CustomResponse<>(convertEventToEventDTO(found_event.get()), null, getEventSuccessfullyMessage);
+            return ResponseEntity.ok().body(cResponse);
+        } catch (IllegalArgumentException e) {
+            cResponse = new CustomResponse<>(null, null, e.getMessage());
             return ResponseEntity.badRequest().body(cResponse);
         }
-        cResponse = new CustomResponse<>(convertEventToEventDTO(found_event.get()), null, getEventSuccessfullyMessage);
-        return ResponseEntity.ok().body(cResponse);
     }
 
     /**
      * Get an event between specific dates
-     * @param user the user
+     *
+     * @param user      the user
      * @param startDate the start date of the event
-     * @param endDate the end date of the even
+     * @param endDate   the end date of the even
      */
     @Deprecated
     @RequestMapping(value = "/getBetweenDates", method = RequestMethod.GET)
     public ResponseEntity<CustomResponse<List<EventDTO>>> getEventsBetweenDates(@RequestAttribute("user") User user, @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) ZonedDateTime startDate, @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("endDate") ZonedDateTime endDate) {
         logger.debug("Got request to get events between dates:" + startDate + "-" + endDate);
         CustomResponse<List<EventDTO>> cResponse;
-        List<Event> eventList = eventService.getEventsBetweenDates(startDate, endDate);
-        if (eventList == null) {
-            cResponse = new CustomResponse<>(null, null, somethingWrongMessage);
+        try {
+            List<Event> eventList = eventService.getEventsBetweenDates(startDate, endDate);
+            if (eventList == null) {
+                cResponse = new CustomResponse<>(null, null, somethingWrongMessage);
+                return ResponseEntity.badRequest().body(cResponse);
+            }
+            cResponse = new CustomResponse<>(convertEventListToEventDTOList(eventList), null, getEventsBetweenDatesSuccessfullyMessage);
+            return ResponseEntity.ok().body(cResponse);
+        } catch (IllegalArgumentException e) {
+            cResponse = new CustomResponse<>(null, null, e.getMessage());
             return ResponseEntity.badRequest().body(cResponse);
         }
-        cResponse = new CustomResponse<>(convertEventListToEventDTOList(eventList), null, getEventsBetweenDatesSuccessfullyMessage);
-        return ResponseEntity.ok().body(cResponse);
     }
 
     /**
@@ -210,24 +253,29 @@ public class EventController {
                                                                                 @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("endDate") ZonedDateTime endDate, @RequestParam List<String> usersEmails) {
         logger.debug("Got request to get events between dates:" + startDate + "-" + endDate + " from calendars:" + usersEmails);
         CustomResponse<List<EventDTO>> cResponse;
-        List<User> shared = sharingService.isShared(user, usersEmails);
-        List<Event> eventList = eventService.getEventsBetweenDates(user, startDate, endDate, shared);
-        if (eventList == null) {
-            cResponse = new CustomResponse<>(null, null, somethingWrongMessage);
+        try {
+            List<User> shared = sharingService.isShared(user, usersEmails);
+            List<Event> eventList = eventService.getEventsBetweenDates(user, startDate, endDate, shared);
+            if (eventList == null) {
+                cResponse = new CustomResponse<>(null, null, somethingWrongMessage);
+                return ResponseEntity.badRequest().body(cResponse);
+            }
+            cResponse = new CustomResponse<>(convertEventListToEventDTOList(eventList), null, getEventsBetweenDatesSuccessfullyMessage);
+            return ResponseEntity.ok().body(cResponse);
+        } catch (IllegalArgumentException e) {
+            cResponse = new CustomResponse<>(null, null, e.getMessage());
             return ResponseEntity.badRequest().body(cResponse);
         }
-        cResponse = new CustomResponse<>(convertEventListToEventDTOList(eventList), null, getEventsBetweenDatesSuccessfullyMessage);
-        return ResponseEntity.ok().body(cResponse);
     }
 
     /**
      * Remove user from the event
      *
-     * @param eventId     the event id
-     * @param userEmail   the email of the user that is being deleted from the event
+     * @param eventId   the event id
+     * @param userEmail the email of the user that is being deleted from the event
      * @return a SuccessResponse - OK status, a message, the list of emails of deleted users
      */
-    @PatchMapping("/removeUser")
+    @RequestMapping(value = "/removeUser", method = RequestMethod.PATCH)
     public ResponseEntity<CustomResponse<RoleDTO>> removeUser(@RequestParam("eventId") Long eventId, @RequestParam("userEmail") String userEmail) {
         logger.debug("Got request to remove user:" + userEmail + " from event:" + eventId);
         CustomResponse<RoleDTO> cResponse;
@@ -235,21 +283,28 @@ public class EventController {
             cResponse = new CustomResponse<>(null, null, somethingWrongMessage);
             return ResponseEntity.badRequest().body(cResponse);
         }
-        Role isDeleted = eventService.deleteRole(eventId, userEmail);
-        if (isDeleted != null) {
-            cResponse = new CustomResponse<>(convertRoleToRoleDTO(isDeleted), null, getEventsBetweenDatesSuccessfullyMessage);
-            notificationService.sendNotifications(List.of(userEmail),NotificationType.USER_UNINVITED);
-            return ResponseEntity.ok().body(cResponse);
-        } else {
-            cResponse = new CustomResponse<>(null, null, somethingWrongMessage);
+        try {
+            Role isDeleted = eventService.deleteRole(eventId, userEmail);
+            if (isDeleted != null) {
+                cResponse = new CustomResponse<>(convertRoleToRoleDTO(isDeleted), null, getEventsBetweenDatesSuccessfullyMessage);
+                notificationService.sendNotifications(List.of(userEmail), NotificationType.USER_UNINVITED);
+                return ResponseEntity.ok().body(cResponse);
+            } else {
+                cResponse = new CustomResponse<>(null, null, somethingWrongMessage);
+                return ResponseEntity.badRequest().body(cResponse);
+            }
+        } catch (IllegalArgumentException e) {
+            cResponse = new CustomResponse<>(null, null, e.getMessage());
             return ResponseEntity.badRequest().body(cResponse);
         }
     }
+
     /**
      * Update event data
+     *
      * @param userType the role of the user
-     * @param eventId - the event id
-     * @param event - the event data
+     * @param eventId  - the event id
+     * @param event    - the event data
      * @return successResponse with updated event,Message,OK status
      */
     @RequestMapping(value = "update", method = RequestMethod.PUT)
@@ -262,24 +317,36 @@ public class EventController {
                 return ResponseEntity.badRequest().body(cResponse);
             }
         }
-        Event updateEvent = eventService.updateEvent(eventId, event);
-        cResponse = new CustomResponse<>(convertEventToEventDTO(updateEvent), null, updateEventSuccessfullyMessage);
-        List<String> listUserInEvent = updateEvent.getUserRoles().stream().map(role -> role.getUser().getEmail()).collect(Collectors.toList());
-        notificationService.sendNotifications(listUserInEvent,NotificationType.EVENT_DATA_CHANGED);
-        return ResponseEntity.ok().body(cResponse);
+        try {
+            Event updateEvent = eventService.updateEvent(eventId, event);
+            cResponse = new CustomResponse<>(convertEventToEventDTO(updateEvent), null, updateEventSuccessfullyMessage);
+            List<String> listUserInEvent = updateEvent.getUserRoles().stream().map(role -> role.getUser().getEmail()).collect(Collectors.toList());
+            notificationService.sendNotifications(listUserInEvent, NotificationType.EVENT_DATA_CHANGED);
+            return ResponseEntity.ok().body(cResponse);
+        } catch (IllegalArgumentException e) {
+            cResponse = new CustomResponse<>(null, null, e.getMessage());
+            return ResponseEntity.badRequest().body(cResponse);
+        }
     }
+
     /**
      * Get all the roles at the event
+     *
      * @param eventId the event id
      * @return successResponse with roles of the event, a Http-status
      */
-    @GetMapping("/getUsers")
+    @RequestMapping(value = "/getUsers", method = RequestMethod.GET)
     public ResponseEntity<List<Role>> getRolesOfEvent(@RequestParam Long eventId) {
         logger.debug("Got request to get roles of events:" + eventId);
         if (eventId == null) {
             return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.ok().body(eventService.getRolesForEvent(eventId));
+        try {
+            return ResponseEntity.ok().body(eventService.getRolesForEvent(eventId));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+
     }
 
 }

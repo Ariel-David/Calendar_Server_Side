@@ -7,6 +7,7 @@ import AwesomeCalendar.Services.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import static AwesomeCalendar.Utilities.messages.ExceptionMessage.somethingWrongMessage;
 import static AwesomeCalendar.Utilities.messages.SuccessMessages.setNotificationsSuccessfullyMessage;
 
@@ -20,21 +21,26 @@ public class NotificationsController {
 
     /**
      * Set all the notifications settings
-     * @param user the user
+     *
+     * @param user                  the user
      * @param notificationsSettings the notifications settings of the user
      * @return successResponse with the notifications settings, a Http-status
      */
-    @PostMapping("/settings")
+    @RequestMapping(value = "/settings", method = RequestMethod.POST)
     public ResponseEntity<CustomResponse<NotificationsSettings>> setNotificationsSettings(@RequestAttribute("user") User user, @RequestBody NotificationsSettings notificationsSettings) {
         if (user == null) return ResponseEntity.badRequest().build();
         CustomResponse<NotificationsSettings> cResponse;
-        NotificationsSettings setNotifications = notificationService.setNotificationsSettings(user, notificationsSettings);
-        if (setNotifications == null) {
-            cResponse = new CustomResponse<>(null, null, somethingWrongMessage);
-            return ResponseEntity.internalServerError().body(cResponse);
+        try {
+            NotificationsSettings setNotifications = notificationService.setNotificationsSettings(user, notificationsSettings);
+            if (setNotifications == null) {
+                cResponse = new CustomResponse<>(null, null, somethingWrongMessage);
+                return ResponseEntity.internalServerError().body(cResponse);
+            }
+            cResponse = new CustomResponse<>(setNotifications, null, setNotificationsSuccessfullyMessage);
+            return ResponseEntity.ok().body(cResponse);
+        } catch (IllegalArgumentException e) {
+            cResponse = new CustomResponse<>(null, null, e.getMessage());
+            return ResponseEntity.badRequest().body(cResponse);
         }
-        cResponse = new CustomResponse<>(setNotifications, null, setNotificationsSuccessfullyMessage);
-        return ResponseEntity.ok().body(cResponse);
     }
-
 }
