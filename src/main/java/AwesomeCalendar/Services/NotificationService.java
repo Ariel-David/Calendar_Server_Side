@@ -19,6 +19,9 @@ public class NotificationService {
     @Autowired
     private EmailSender emailSender;
 
+    @Autowired
+    private PopUpSender popUpSender;
+
     private static final Logger logger = LogManager.getLogger(NotificationService.class.getName());
 
     public NotificationsSettings setNotificationsSettings(User user, NotificationsSettings notificationsSettings) {
@@ -84,11 +87,11 @@ public class NotificationService {
                 emailSender.sendEmailNotification(user.getEmail(), message);
                 break;
             case Popup:
-                //PopUp
+                popUpSender.sendPopNotification(user.getEmail(), message);
                 break;
             case Both:
                 emailSender.sendEmailNotification(user.getEmail(), message);
-                //PopUp
+                popUpSender.sendPopNotification(user.getEmail(), message);
         }
     }
 }
