@@ -31,11 +31,9 @@ public class NotificationsSettings {
     private NotificationHandler upcomingEvent = NotificationHandler.None;
 
     public NotificationsSettings() {
-
     }
 
-    public NotificationsSettings(Long id,NotificationHandler eventInvitation, NotificationHandler userStatusChanged, NotificationHandler eventDataChanged, NotificationHandler eventCancel, NotificationHandler userUninvited, NotificationHandler upcomingEvent) {
-        this.id = id;
+    public NotificationsSettings(NotificationHandler eventInvitation, NotificationHandler userStatusChanged, NotificationHandler eventDataChanged, NotificationHandler eventCancel, NotificationHandler userUninvited, NotificationHandler upcomingEvent) {
         this.eventInvitation = eventInvitation;
         this.userStatusChanged = userStatusChanged;
         this.eventDataChanged = eventDataChanged;

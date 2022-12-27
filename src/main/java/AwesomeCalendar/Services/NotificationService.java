@@ -35,6 +35,9 @@ public class NotificationService {
     }
 
     public void sendNotifications(List<String> usersToSend, NotificationType notificationType) {
+        if(usersToSend == null){
+            throw new IllegalArgumentException("List is null");
+        }
         String message = "";
         for (String userEmail : usersToSend) {
             User userInDB = userRepository.findByEmail(userEmail);
