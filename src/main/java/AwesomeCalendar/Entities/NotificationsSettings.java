@@ -29,6 +29,18 @@ public class NotificationsSettings {
     @Column(nullable = false)
     private NotificationHandler upcomingEvent = NotificationHandler.None;
 
+    public NotificationsSettings() {
+    }
+
+    public NotificationsSettings(NotificationHandler eventInvitation, NotificationHandler userStatusChanged, NotificationHandler eventDataChanged, NotificationHandler eventCancel, NotificationHandler userUninvited, NotificationHandler upcomingEvent) {
+        this.eventInvitation = eventInvitation;
+        this.userStatusChanged = userStatusChanged;
+        this.eventDataChanged = eventDataChanged;
+        this.eventCancel = eventCancel;
+        this.userUninvited = userUninvited;
+        this.upcomingEvent = upcomingEvent;
+    }
+
     public Long getId() {
         return id;
     }
