@@ -4,7 +4,9 @@ import AwesomeCalendar.Entities.Event;
 import AwesomeCalendar.Entities.Role;
 import AwesomeCalendar.Entities.User;
 import AwesomeCalendar.Services.EventService;
+import AwesomeCalendar.Services.NotificationService;
 import AwesomeCalendar.Services.SharingService;
+import AwesomeCalendar.enums.NotificationType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,6 +33,8 @@ public class EventControllerTests {
     EventService eventService;
     @Mock
     SharingService sharingService;
+    @Mock
+    NotificationService notificationService;
     @InjectMocks
     EventController eventController;
     User user1;
@@ -110,6 +114,8 @@ public class EventControllerTests {
     void updateRoleStatus_okUpdateRoleStatus_invalidStatusMessage() {
         role1 = new Role(user1, Role.RoleType.ADMIN, Role.StatusType.APPROVED);
         given(eventService.updateStatusUserRole(0L, user1, "APPROVED")).willReturn(role1);
+        given(eventService.getEventOrganizer(0L)).willReturn(Optional.of(user1));
+//        given(notificationService.sendNotifications(List.of(user1.getEmail()), NotificationType.USER_STATUS_CHANGED)).willReturn(null);
         assertEquals(roleStatusChangedSuccessfullyMessage, eventController.updateRoleStatus(user1, 0L, "APPROVED").getBody().getMessage());
     }
 
@@ -126,7 +132,7 @@ public class EventControllerTests {
 
     @Test
     void deleteEvent_okDeleted_deleteEventSuccessfullyMessage() {
-        event1 = new Event(null, ZonedDateTime.now(), ZonedDateTime.now(), null, "test", null);
+        event1 = new Event(0L, null, ZonedDateTime.now(), ZonedDateTime.now(), null, "test", null);
         given(eventService.deleteEvent(0L)).willReturn(event1);
         assertEquals(deleteEventSuccessfullyMessage, eventController.deleteEvent(0L).getBody().getMessage());
     }
@@ -194,7 +200,7 @@ public class EventControllerTests {
 
     @Test
     void updateEvent_okUpdateEvent_FieldsAdminCantUpdateMessage() {
-        event1 = new Event(null, null, null, "haifa", null, null);
+        event1 = new Event(0L, null, null, null, "haifa", null, null);
         given(eventService.updateEvent(0L, event1)).willReturn(event1);
         assertEquals(updateEventSuccessfullyMessage, eventController.updateEvent(Role.RoleType.ADMIN, 0L, event1).getBody().getMessage());
     }
