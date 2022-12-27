@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 
 import java.time.ZonedDateTime;
@@ -104,42 +105,105 @@ public class EventControllerTests {
     void updateRoleStatus_badRequest_invalidStatusMessage() {
         assertEquals(invalidStatusMessage, eventController.updateRoleStatus(user1, 0L, "hi").getBody().getMessage());
     }
+
     @Test
     void updateRoleStatus_okUpdateRoleStatus_invalidStatusMessage() {
         role1 = new Role(user1, Role.RoleType.ADMIN, Role.StatusType.APPROVED);
         given(eventService.updateStatusUserRole(0L, user1, "APPROVED")).willReturn(role1);
         assertEquals(roleStatusChangedSuccessfullyMessage, eventController.updateRoleStatus(user1, 0L, "APPROVED").getBody().getMessage());
     }
+
     @Test
     void deleteEvent_nullEventId_invalidEventIdMessage() {
         assertEquals(invalidEventIdMessage, eventController.deleteEvent(null).getBody().getMessage());
     }
+
     @Test
     void deleteEvent_nullEvent_somethingWrongMessage() {
         given(eventService.deleteEvent(0L)).willReturn(null);
         assertEquals(somethingWrongMessage, eventController.deleteEvent(0L).getBody().getMessage());
     }
+
     @Test
     void deleteEvent_okDeleted_deleteEventSuccessfullyMessage() {
         event1 = new Event(null, ZonedDateTime.now(), ZonedDateTime.now(), null, "test", null);
         given(eventService.deleteEvent(0L)).willReturn(event1);
         assertEquals(deleteEventSuccessfullyMessage, eventController.deleteEvent(0L).getBody().getMessage());
     }
+
     @Test
     void getEvent_isNotPresent_somethingWrongMessage() {
         given(eventService.getEvent(0L)).willReturn(Optional.ofNullable(null));
         assertEquals(somethingWrongMessage, eventController.getEvent(0L).getBody().getMessage());
     }
+
     @Test
     void getEvent_okGetEvent_getEventSuccessfullyMessage() {
         event1 = new Event(null, ZonedDateTime.now(), ZonedDateTime.now(), null, "test", null);
         given(eventService.getEvent(0L)).willReturn(Optional.ofNullable(event1));
         assertEquals(getEventSuccessfullyMessage, eventController.getEvent(0L).getBody().getMessage());
     }
+
+    @Test
+    void getEventsBetweenDates_nullEventList_somethingWrongMessage() {
+        ZonedDateTime z = ZonedDateTime.now();
+        given(sharingService.isShared(user1, null)).willReturn(List.of());
+        given(eventService.getEventsBetweenDates(user1, z, z, List.of())).willReturn(null);
+        assertEquals(somethingWrongMessage, eventController.getEventsBetweenDates(user1, z, z, null).getBody().getMessage());
+    }
+
+    @Test
+    void getEventsBetweenDates_okGetEventsBetweenDates_getEventsBetweenDatesSuccessfullyMessage() {
+        ZonedDateTime z = ZonedDateTime.now();
+        event1 = new Event(null, ZonedDateTime.now(), ZonedDateTime.now(), null, "test", null);
+        List<Event> eventList = new ArrayList<>();
+        eventList.add(event1);
+        given(sharingService.isShared(user1, null)).willReturn(List.of());
+        given(eventService.getEventsBetweenDates(user1, z, z, List.of())).willReturn(eventList);
+        assertEquals(getEventsBetweenDatesSuccessfullyMessage, eventController.getEventsBetweenDates(user1, z, z, null).getBody().getMessage());
+    }
+
+    @Test
+    void removeUser_nullEventId_somethingWrongMessage() {
+        assertEquals(somethingWrongMessage, eventController.removeUser(null, "a@a.a").getBody().getMessage());
+    }
+
+    @Test
+    void removeUser_nullUserEmail_somethingWrongMessage() {
+        assertEquals(somethingWrongMessage, eventController.removeUser(0L, null).getBody().getMessage());
+    }
+
+    @Test
+    void removeUser_okDeleteRole_getEventsBetweenDatesSuccessfullyMessage() {
+        role1 = new Role(user1, Role.RoleType.ADMIN, Role.StatusType.APPROVED);
+        given(eventService.deleteRole(0L, "a@a.a")).willReturn(role1);
+        assertEquals(getEventsBetweenDatesSuccessfullyMessage, eventController.removeUser(0L, "a@a.a").getBody().getMessage());
+    }
+
+    @Test
+    void removeUser_nullDeleteRole_somethingWrongMessage() {
+        given(eventService.deleteRole(0L, "a@a.a")).willReturn(null);
+        assertEquals(somethingWrongMessage, eventController.removeUser(0L, "a@a.a").getBody().getMessage());
+    }
+
+    @Test
+    void updateEvent_permissionAdmin_FieldsAdminCantUpdateMessage() {
+        event1 = new Event(null, ZonedDateTime.now(), ZonedDateTime.now(), null, "test", null);
+        assertEquals(FieldsAdminCantUpdateMessage, eventController.updateEvent(Role.RoleType.ADMIN, 0L, event1).getBody().getMessage());
+    }
+
+    @Test
+    void updateEvent_okUpdateEvent_FieldsAdminCantUpdateMessage() {
+        event1 = new Event(null, null, null, "haifa", null, null);
+        given(eventService.updateEvent(0L, event1)).willReturn(event1);
+        assertEquals(updateEventSuccessfullyMessage, eventController.updateEvent(Role.RoleType.ADMIN, 0L, event1).getBody().getMessage());
+    }
+
     @Test
     void getRolesOfEvent_nullEventId_400() {
         assertEquals(400, eventController.getRolesOfEvent(null).getStatusCodeValue());
     }
+
     @Test
     void getRolesOfEvent_okGetRolesOfEvent_200() {
         List<Role> listRoles = new ArrayList<>();
