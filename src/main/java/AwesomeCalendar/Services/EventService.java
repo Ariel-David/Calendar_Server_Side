@@ -70,6 +70,16 @@ public class EventService {
         return eventInDB.get();
     }
 
+    public Optional<User> getEventOrganizer(Long eventId){
+        logger.debug("Get the organizer of the event");
+        Optional<Event> eventInDB = eventRepository.findById(eventId);
+        if (!eventInDB.isPresent()) {
+            throw new IllegalArgumentException("Invalid event id");
+        }
+        logger.debug("Get the event from DB");
+        return eventInDB.get().getUserRoles().stream().filter(role -> role.getRoleType().equals(Role.RoleType.ORGANIZER)).map(role -> role.getUser()).findFirst();
+    }
+
     public Optional<Event> getEvent(Long id){
         logger.debug("Check if the event exist in DB");
         Optional<Event> eventInDB = eventRepository.findById(id);

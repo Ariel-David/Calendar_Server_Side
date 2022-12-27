@@ -7,8 +7,10 @@ import AwesomeCalendar.Entities.Event;
 import AwesomeCalendar.Entities.Role;
 import AwesomeCalendar.Entities.User;
 import AwesomeCalendar.Services.EventService;
+import AwesomeCalendar.Services.NotificationService;
 import AwesomeCalendar.Services.SharingService;
 import AwesomeCalendar.Utilities.Validate;
+import AwesomeCalendar.enums.NotificationType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static AwesomeCalendar.CustomEntities.EventDTO.*;
 import static AwesomeCalendar.CustomEntities.RoleDTO.*;
@@ -34,6 +37,9 @@ public class EventController {
 
     @Autowired
     private SharingService sharingService;
+
+    @Autowired
+    NotificationService notificationService;
 
     private static final Logger logger = LogManager.getLogger(EventController.class);
 
@@ -76,6 +82,7 @@ public class EventController {
         }
         Role newRole = eventService.addGuestRole(eventId, userEmail);
         cResponse = new CustomResponse<>(convertRoleToRoleDTO(newRole), null, roleCreatedSuccessfullyMessage);
+        notificationService.sendNotifications(List.of(userEmail), NotificationType.EVENT_INVITATION);
         return ResponseEntity.ok().body(cResponse);
     }
 
@@ -94,6 +101,7 @@ public class EventController {
         if (status.equals("TENTATIVE") || status.equals("REJECTED") || status.equals("APPROVED")) {
             Role newRole = eventService.updateStatusUserRole(eventId, user, status);
             cResponse = new CustomResponse<>(convertRoleToRoleDTO(newRole), null, roleStatusChangedSuccessfullyMessage);
+            notificationService.sendNotifications(List.of(eventService.getEventOrganizer(eventId).get().getEmail()), NotificationType.USER_STATUS_CHANGED);
             return ResponseEntity.ok().body(cResponse);
         }
         cResponse = new CustomResponse<>(null, null, invalidStatusMessage);
@@ -115,6 +123,8 @@ public class EventController {
             return ResponseEntity.badRequest().body(cResponse);
         }
         cResponse = new CustomResponse<>(convertEventToEventDTO(deleted_event), null, deleteEventSuccessfullyMessage);
+        List<String> listUserInEvent = deleted_event.getUserRoles().stream().map(role -> role.getUser().getEmail()).collect(Collectors.toList());
+        notificationService.sendNotifications(listUserInEvent,NotificationType.EVENT_CANCEL);
         return ResponseEntity.ok().body(cResponse);
     }
 
@@ -179,6 +189,7 @@ public class EventController {
         Role isDeleted = eventService.deleteRole(eventId, userEmail);
         if (isDeleted != null) {
             cResponse = new CustomResponse<>(convertRoleToRoleDTO(isDeleted), null, getEventsBetweenDatesSuccessfullyMessage);
+            notificationService.sendNotifications(List.of(userEmail),NotificationType.USER_UNINVITED);
             return ResponseEntity.ok().body(cResponse);
         } else {
             cResponse = new CustomResponse<>(null, null, somethingWrongMessage);
@@ -198,6 +209,8 @@ public class EventController {
         }
         Event updateEvent = eventService.updateEvent(eventId, event);
         cResponse = new CustomResponse<>(convertEventToEventDTO(updateEvent), null, updateEventSuccessfullyMessage);
+        List<String> listUserInEvent = updateEvent.getUserRoles().stream().map(role -> role.getUser().getEmail()).collect(Collectors.toList());
+        notificationService.sendNotifications(listUserInEvent,NotificationType.EVENT_DATA_CHANGED);
         return ResponseEntity.ok().body(cResponse);
     }
 

@@ -26,52 +26,53 @@ public class NotificationService {
         if (userInDB == null) {
             throw new IllegalArgumentException("Invalid user email");
         }
-        user.setNotificationsSettings(notificationsSettings);
-        return user.getNotificationsSettings();
+        userInDB.setNotificationsSettings(notificationsSettings);
+        userRepository.save(userInDB);
+        return userInDB.getNotificationsSettings();
     }
 
-    public void sendNotifications(List<User> usersToSend, NotificationType notificationType) {
+    public void sendNotifications(List<String> usersToSend, NotificationType notificationType) {
         String message = "";
-        for (User user : usersToSend) {
-            User userInDB = userRepository.findByEmail(user.getEmail());
+        for (String userEmail : usersToSend) {
+            User userInDB = userRepository.findByEmail(userEmail);
             if (userInDB == null) {
                 throw new IllegalArgumentException("Invalid user email");
             }
             switch (notificationType) {
                 case EVENT_CANCEL:
                     message = "Event canceled";
-                    NotificationHandler notificationHandler1 = user.getNotificationsSettings().getEventCancel();
-                    sendHelper(user, notificationHandler1, message);
+                    NotificationHandler notificationHandler1 = userInDB.getNotificationsSettings().getEventCancel();
+                    sendHelper(userInDB, notificationHandler1, message);
                     break;
 
                 case EVENT_INVITATION:
                     message = "You have a new event invitation";
-                    NotificationHandler notificationHandler2 = user.getNotificationsSettings().getEventInvitation();
-                    sendHelper(user, notificationHandler2,message);
+                    NotificationHandler notificationHandler2 = userInDB.getNotificationsSettings().getEventInvitation();
+                    sendHelper(userInDB, notificationHandler2,message);
                     break;
 
                 case USER_UNINVITED:
                     message = "You uninvited from event";
-                    NotificationHandler notificationHandler3 = user.getNotificationsSettings().getUserUninvited();
-                    sendHelper(user, notificationHandler3,message);
+                    NotificationHandler notificationHandler3 = userInDB.getNotificationsSettings().getUserUninvited();
+                    sendHelper(userInDB, notificationHandler3,message);
                     break;
 
                 case USER_STATUS_CHANGED:
                     message = "Your status changed";
-                    NotificationHandler notificationHandler4 = user.getNotificationsSettings().getUserStatusChanged();
-                    sendHelper(user, notificationHandler4,message);
+                    NotificationHandler notificationHandler4 = userInDB.getNotificationsSettings().getUserStatusChanged();
+                    sendHelper(userInDB, notificationHandler4,message);
                     break;
 
                 case EVENT_DATA_CHANGED:
                     message = "Event data changed";
-                    NotificationHandler notificationHandler5 = user.getNotificationsSettings().getEventDataChanged();
-                    sendHelper(user, notificationHandler5,message);
+                    NotificationHandler notificationHandler5 = userInDB.getNotificationsSettings().getEventDataChanged();
+                    sendHelper(userInDB, notificationHandler5,message);
                     break;
 
                 case UPCOMING_EVENT:
                     message = "You have upcoming event!";
-                    NotificationHandler notificationHandler6 = user.getNotificationsSettings().getUpcomingEvent();
-                    sendHelper(user, notificationHandler6,message);
+                    NotificationHandler notificationHandler6 = userInDB.getNotificationsSettings().getUpcomingEvent();
+                    sendHelper(userInDB, notificationHandler6,message);
                     break;
             }
         }
