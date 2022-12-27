@@ -4,6 +4,8 @@ import AwesomeCalendar.enums.NotificationHandler;
 
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class NotificationsSettings {
@@ -30,7 +32,11 @@ public class NotificationsSettings {
     @Column(nullable = false)
     private NotificationHandler upcomingEvent = NotificationHandler.None;
 
+    @OneToMany(cascade = {CascadeType.REMOVE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
+    private List<TimingNotifications> upcomingEventNotifications;
+
     public NotificationsSettings() {
+        upcomingEventNotifications = new ArrayList<>();
     }
 
     public NotificationsSettings(NotificationHandler eventInvitation, NotificationHandler userStatusChanged, NotificationHandler eventDataChanged, NotificationHandler eventCancel, NotificationHandler userUninvited, NotificationHandler upcomingEvent) {
@@ -40,6 +46,7 @@ public class NotificationsSettings {
         this.eventCancel = eventCancel;
         this.userUninvited = userUninvited;
         this.upcomingEvent = upcomingEvent;
+        upcomingEventNotifications = new ArrayList<>();
     }
 
     public Long getId() {
@@ -92,5 +99,13 @@ public class NotificationsSettings {
 
     public void setUpcomingEvent(NotificationHandler upcomingEvent) {
         this.upcomingEvent = upcomingEvent;
+    }
+
+    public List<TimingNotifications> getUpcomingEventNotifications() {
+        return upcomingEventNotifications;
+    }
+
+    public void addUpcomingEventNotifications(TimingNotifications upcomingEventNotification) {
+        this.upcomingEventNotifications.add(upcomingEventNotification);
     }
 }

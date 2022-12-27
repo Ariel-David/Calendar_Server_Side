@@ -1,16 +1,22 @@
 package AwesomeCalendar.Services;
 
+import AwesomeCalendar.Entities.Event;
 import AwesomeCalendar.Entities.NotificationsSettings;
+import AwesomeCalendar.Entities.TimingNotifications;
 import AwesomeCalendar.Entities.User;
+import AwesomeCalendar.Repositories.EventRepo;
 import AwesomeCalendar.Repositories.UserRepo;
+import AwesomeCalendar.Utilities.Utility;
 import AwesomeCalendar.enums.NotificationHandler;
 import AwesomeCalendar.enums.NotificationType;
+import AwesomeCalendar.enums.NotificationsTiming;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class NotificationService {
@@ -21,6 +27,9 @@ public class NotificationService {
 
     @Autowired
     private PopUpSender popUpSender;
+
+    @Autowired
+    private EventRepo eventRepository;
 
     private static final Logger logger = LogManager.getLogger(NotificationService.class.getName());
 
@@ -96,5 +105,22 @@ public class NotificationService {
                 emailSender.sendEmailNotification(user.getEmail(), message);
                 popUpSender.sendPopNotification(user.getEmail(), message);
         }
+    }
+
+    public TimingNotifications addTimingNotification(User user, Long eventId, NotificationsTiming timing) {
+        Utility.checkArgsNotNull(user, eventId, timing);
+        Optional<Event> event = eventRepository.findById(eventId);
+        if (!event.isPresent()) {
+            throw new IllegalArgumentException("Invalid event Id");
+        }
+        Optional<User> userFromDb = userRepository.findById(user.getId());
+        if (!userFromDb.isPresent()) {
+            throw new IllegalArgumentException("Invalid user");
+        }
+        TimingNotifications thisNotification = new TimingNotifications(event.get(), timing);
+        userFromDb.get().getNotificationsSettings().addUpcomingEventNotifications(thisNotification);
+
+        userRepository.save(userFromDb.get());
+        return thisNotification;
     }
 }

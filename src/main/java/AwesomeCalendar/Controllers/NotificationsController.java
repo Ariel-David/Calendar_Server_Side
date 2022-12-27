@@ -1,9 +1,12 @@
 package AwesomeCalendar.Controllers;
 
 import AwesomeCalendar.CustomEntities.CustomResponse;
+import AwesomeCalendar.CustomEntities.TimingNotificationsDTO;
 import AwesomeCalendar.Entities.NotificationsSettings;
+import AwesomeCalendar.Entities.TimingNotifications;
 import AwesomeCalendar.Entities.User;
 import AwesomeCalendar.Services.NotificationService;
+import AwesomeCalendar.enums.NotificationsTiming;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -37,4 +40,24 @@ public class NotificationsController {
         return ResponseEntity.ok().body(cResponse);
     }
 
+    @PostMapping("/timing")
+    public ResponseEntity<CustomResponse<TimingNotificationsDTO>> addTimingNotification(@RequestAttribute("user") User user,
+                                                                                     @RequestParam("eventId") Long eventId,
+                                                                                     @RequestParam("timing") NotificationsTiming timing) {
+        if (user == null || eventId == null || timing == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        TimingNotifications timingNotification;
+
+        try {
+            timingNotification = notificationService.addTimingNotification(user, eventId, timing);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new CustomResponse<>(null, null , e.getMessage()));
+        }
+
+        if (timingNotification == null) {
+            return ResponseEntity.internalServerError().body(new CustomResponse<>(null, null, somethingWrongMessage));
+        }
+        return ResponseEntity.ok().body(new CustomResponse<>(TimingNotificationsDTO.fromTimingNotification(timingNotification), null, "success"));
+    }
 }

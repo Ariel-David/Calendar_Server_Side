@@ -3,7 +3,6 @@ package AwesomeCalendar.Entities;
 import AwesomeCalendar.enums.NotificationsTiming;
 
 import javax.persistence.*;
-import java.time.Duration;
 
 @Entity
 public class TimingNotifications {
@@ -18,6 +17,14 @@ public class TimingNotifications {
 
     @Column(nullable = false)
     private NotificationsTiming NotificationTiming;
+
+    public TimingNotifications() {
+    }
+
+    public TimingNotifications(Event event, NotificationsTiming notificationTiming) {
+        this.event = event;
+        NotificationTiming = notificationTiming;
+    }
 
     public NotificationsTiming getNotificationTiming() {
         return NotificationTiming;
