@@ -114,4 +114,16 @@ public class SharingServiceTests {
         assertEquals(1, shared.size());
         assertEquals(user2, shared.get(0));
     }
+
+    @Test
+    void isShared_GoodRequestWithSenderInList_returnsListOfUsers() {
+        List<User> returnedList = new ArrayList<>(List.of(user1, user2));
+        given(userRepository.findByEmailIn(List.of(user1.getEmail(), user2.getEmail()))).willReturn(returnedList);
+        user1.addSharedCalendar(user2);
+
+        List<User> shared = sharingService.isShared(user1, List.of(user1.getEmail(), user2.getEmail()));
+
+        assertEquals(2, shared.size());
+        assertTrue(shared.containsAll(List.of(user1, user2)));
+    }
 }
