@@ -27,6 +27,7 @@ public class NotificationsControllerTests {
     @BeforeEach
     void setup() {
         user1 = new User(0L, "test@test.test", "123456");
+        notificationsSettings1  = new NotificationsSettings(NotificationHandler.Email,NotificationHandler.Email,NotificationHandler.Email,NotificationHandler.Email,NotificationHandler.Email,NotificationHandler.Email);
     }
 
     @Test
