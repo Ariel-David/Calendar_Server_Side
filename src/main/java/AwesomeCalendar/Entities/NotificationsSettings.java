@@ -15,19 +15,19 @@ public class NotificationsSettings {
     private NotificationHandler eventInvitation = NotificationHandler.None;
 
     @Column(nullable = false)
-    private NotificationHandler UserStatusChanged = NotificationHandler.None;
+    private NotificationHandler userStatusChanged = NotificationHandler.None;
 
     @Column(nullable = false)
-    private NotificationHandler EventDataChanged = NotificationHandler.None;
+    private NotificationHandler eventDataChanged = NotificationHandler.None;
 
     @Column(nullable = false)
-    private NotificationHandler EventCancel = NotificationHandler.None;
+    private NotificationHandler eventCancel = NotificationHandler.None;
 
     @Column(nullable = false)
-    private NotificationHandler UserUninvited = NotificationHandler.None;
+    private NotificationHandler userUninvited = NotificationHandler.None;
 
     @Column(nullable = false)
-    private NotificationHandler UpcomingEvent = NotificationHandler.None;
+    private NotificationHandler upcomingEvent = NotificationHandler.None;
 
     public Long getId() {
         return id;
@@ -42,42 +42,42 @@ public class NotificationsSettings {
     }
 
     public NotificationHandler getUserStatusChanged() {
-        return UserStatusChanged;
+        return userStatusChanged;
     }
 
     public void setUserStatusChanged(NotificationHandler userStatusChanged) {
-        UserStatusChanged = userStatusChanged;
+        this.userStatusChanged = userStatusChanged;
     }
 
     public NotificationHandler getEventDataChanged() {
-        return EventDataChanged;
+        return eventDataChanged;
     }
 
     public void setEventDataChanged(NotificationHandler eventDataChanged) {
-        EventDataChanged = eventDataChanged;
+        this.eventDataChanged = eventDataChanged;
     }
 
     public NotificationHandler getEventCancel() {
-        return EventCancel;
+        return eventCancel;
     }
 
     public void setEventCancel(NotificationHandler eventCancel) {
-        EventCancel = eventCancel;
+        this.eventCancel = eventCancel;
     }
 
     public NotificationHandler getUserUninvited() {
-        return UserUninvited;
+        return userUninvited;
     }
 
     public void setUserUninvited(NotificationHandler userUninvited) {
-        UserUninvited = userUninvited;
+        this.userUninvited = userUninvited;
     }
 
     public NotificationHandler getUpcomingEvent() {
-        return UpcomingEvent;
+        return upcomingEvent;
     }
 
     public void setUpcomingEvent(NotificationHandler upcomingEvent) {
-        UpcomingEvent = upcomingEvent;
+        this.upcomingEvent = upcomingEvent;
     }
 }

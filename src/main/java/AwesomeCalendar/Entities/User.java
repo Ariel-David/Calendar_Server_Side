@@ -27,11 +27,12 @@ public class User {
     @JsonIgnore
     private List<User> sharedWithMeCalendars;
 
-    @OneToOne
+    @OneToOne(cascade = {CascadeType.REMOVE, CascadeType.PERSIST}, fetch = FetchType.EAGER)
     private NotificationsSettings notificationsSettings;
 
     public User() {
         sharedWithMeCalendars = new ArrayList<>();
+        notificationsSettings = new NotificationsSettings();
     }
 
     public List<User> getSharedWithMeCalendars() {
