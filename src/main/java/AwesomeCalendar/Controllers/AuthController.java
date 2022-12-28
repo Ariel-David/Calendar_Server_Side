@@ -97,50 +97,5 @@ public class AuthController {
         cResponse = new CustomLoginResponse<>(null, null, somethingWrongMessage);
         return ResponseEntity.badRequest().body(cResponse);
     }
-
-    /**
-     * Login using GitHub
-     *
-     * @param code - the code from GitHub's API
-     * @return a SuccessResponse - OK status, a message, the login data - user's DTO and the generated token
-     */
-    @RequestMapping(value = "gitHub", method = RequestMethod.POST)
-    public ResponseEntity<CustomLoginResponse<UserDTO>> registerWithGitHub(@RequestParam String code) {
-        logger.debug("Got request for login through github - " + code);
-        if (code.equals("undefined")) {
-            return ResponseEntity.badRequest().body(new CustomLoginResponse<UserDTO>(null, null, somethingWrongMessage));
-        }
-        try {
-            RestTemplate rest = new RestTemplate();
-            ResponseEntity<String> res = rest.postForEntity("https://github.com/login/oauth/access_token?code=" + code + "&client_id=2298388bcf5985aa7bcb" + "&client_secret=c50b29b012b0b535aa7d2f20627b8ebf790b390a" + "&scope=user:email", null, String.class);
-            HttpHeaders headers = new HttpHeaders();
-            String token = res.getBody().split("&")[0].split("=")[1];
-            headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + token);
-            HttpEntity<Void> entity = new HttpEntity<>(headers);
-            ResponseEntity<GithubUser> exchange = rest.exchange("https://api.github.com/user", HttpMethod.GET, entity, GithubUser.class);
-            GithubUser githubUser = exchange.getBody();
-            if (githubUser == null) {
-                return ResponseEntity.badRequest().body(new CustomLoginResponse<>(null, null, couldNotGetUserFromGithubMessage));
-            }
-            githubUser.setAccessToken(token);
-            ResponseEntity<GitHubEmail[]> exchange2 = rest.exchange("https://api.github.com/user/emails", HttpMethod.GET, entity, GitHubEmail[].class);
-            GitHubEmail[] githubUserMail = exchange2.getBody();
-            if (githubUserMail == null) {
-                return ResponseEntity.badRequest().body(new CustomLoginResponse<>(null, null, couldNotGetUserFromGithubMessage));
-            }
-            User user = new User(githubUserMail[githubUserMail.length - 1].getEmail(), githubUser.getName() + githubUserMail[githubUserMail.length - 1].getEmail());
-            try {
-                authService.addUser(user);
-            } catch (IllegalArgumentException e) {
-
-            }
-            Pair<String, User> login = authService.login(user);
-            String loginToken = login.getFirst();
-            logger.debug("Successfully logged in through github - " + user);
-            return ResponseEntity.ok().body(new CustomLoginResponse<UserDTO>(UserDTO.convertUserToUserDTO(login.getSecond()), loginToken, gitHubUserLoggedInSuccessfullyMessage));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new CustomLoginResponse<UserDTO>(null, null, somethingWrongMessage));
-        }
-    }
 }
 
