@@ -14,8 +14,10 @@ import AwesomeCalendar.enums.NotificationsTiming;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
@@ -145,5 +147,51 @@ public class NotificationService {
         upcomingEventNotificationRepository.save(upcomingEventNotification);
 
         return upcomingEventNotification;
+    }
+
+    /**
+     * runs every minute
+     * <p>
+     * checks if any upcoming events have notifications that needs to be sent and sends them.
+     */
+    @Scheduled(fixedRate = 1000 * 60)
+    private void upcomingNotificationRunner() {
+        logger.debug("starting check for upcoming event notifications");
+        List<UpcomingEventNotification> all = upcomingEventNotificationRepository.findAll();
+        for (int i = 0; i < all.size();) {
+            UpcomingEventNotification currentNotification = all.get(i);
+            if (shouldNotify(currentNotification)) {
+                sendNotifications(List.of(currentNotification.getUser().getEmail()), NotificationType.UPCOMING_EVENT);
+                upcomingEventNotificationRepository.delete(currentNotification);
+                all.remove(i);
+            } else {
+                i++;
+            }
+        }
+    }
+
+    private boolean shouldNotify(UpcomingEventNotification notification) {
+        if (notification == null) {
+            return false;
+        }
+        ZonedDateTime timeToNotify = notification.getEvent().getStart();
+        switch(notification.getNotificationTiming()) {
+            case ONE_DAY:
+                timeToNotify = timeToNotify.minusDays(1);
+                break;
+            case THREE_HOURS:
+                timeToNotify = timeToNotify.minusHours(3);
+                break;
+            case ONE_HOUR:
+                timeToNotify = timeToNotify.minusHours(1);
+                break;
+            case HALF_HOUR:
+                timeToNotify = timeToNotify.minusMinutes(30);
+                break;
+            case TEN_MIN:
+                timeToNotify = timeToNotify.minusMinutes(10);
+                break;
+        }
+        return ZonedDateTime.now().plusHours(2).isAfter(timeToNotify);
     }
 }
