@@ -139,26 +139,26 @@ public class EventControllerTests {
 
     @Test
     void deleteEvent_nullEventId_invalidEventIdMessage() {
-        assertEquals(invalidEventIdMessage, eventController.deleteEvent(null).getBody().getMessage());
+        assertEquals(invalidEventIdMessage, eventController.deleteEvent(user1, null).getBody().getMessage());
     }
 
     @Test
     void deleteEvent_nullEvent_somethingWrongMessage() {
         given(eventService.deleteEvent(0L)).willReturn(null);
-        assertEquals(somethingWrongMessage, eventController.deleteEvent(0L).getBody().getMessage());
+        assertEquals(somethingWrongMessage, eventController.deleteEvent(user1, 0L).getBody().getMessage());
     }
 
     @Test
     void deleteEvent_okDeleted_deleteEventSuccessfullyMessage() {
         event1 = new Event(0L, null, ZonedDateTime.now(), ZonedDateTime.now(), null, "test", null);
         given(eventService.deleteEvent(0L)).willReturn(event1);
-        assertEquals(deleteEventSuccessfullyMessage, eventController.deleteEvent(0L).getBody().getMessage());
+        assertEquals(deleteEventSuccessfullyMessage, eventController.deleteEvent(user1, 0L).getBody().getMessage());
     }
 
     @Test
     void deleteEvent_illegalArgumentException_throwIllegalArgumentException() {
         given(eventService.deleteEvent(0L)).willThrow(IllegalArgumentException.class);
-        assertEquals(400, eventController.deleteEvent(0L).getStatusCodeValue());
+        assertEquals(400, eventController.deleteEvent(user1, 0L).getStatusCodeValue());
     }
 
     @Test
@@ -232,21 +232,21 @@ public class EventControllerTests {
     @Test
     void updateEvent_permissionAdmin_FieldsAdminCantUpdateMessage() {
         event1 = new Event(null, ZonedDateTime.now(), ZonedDateTime.now(), null, "test", null);
-        assertEquals(FieldsAdminCantUpdateMessage, eventController.updateEvent(Role.RoleType.ADMIN, 0L, event1).getBody().getMessage());
+        assertEquals(FieldsAdminCantUpdateMessage, eventController.updateEvent(user1, Role.RoleType.ADMIN, 0L, event1).getBody().getMessage());
     }
 
     @Test
     void updateEvent_okUpdateEvent_FieldsAdminCantUpdateMessage() {
         event1 = new Event(0L, null, null, null, "haifa", null, null);
         given(eventService.updateEvent(0L, event1)).willReturn(event1);
-        assertEquals(updateEventSuccessfullyMessage, eventController.updateEvent(Role.RoleType.ADMIN, 0L, event1).getBody().getMessage());
+        assertEquals(updateEventSuccessfullyMessage, eventController.updateEvent(user1, Role.RoleType.ADMIN, 0L, event1).getBody().getMessage());
     }
 
     @Test
     void updateEvent_illegalArgumentException_throwIllegalArgumentException() {
         event1 = new Event(0L, null, null, null, "haifa", null, null);
         given(eventService.updateEvent(0L, event1)).willThrow(IllegalArgumentException.class);
-        assertEquals(400, eventController.updateEvent(Role.RoleType.ADMIN, 0L, event1).getStatusCodeValue());
+        assertEquals(400, eventController.updateEvent(user1, Role.RoleType.ADMIN, 0L, event1).getStatusCodeValue());
     }
 
     @Test
