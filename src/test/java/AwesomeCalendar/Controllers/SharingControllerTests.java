@@ -1,7 +1,9 @@
 package AwesomeCalendar.Controllers;
 
 import AwesomeCalendar.Entities.User;
+import AwesomeCalendar.Services.NotificationService;
 import AwesomeCalendar.Services.SharingService;
+import AwesomeCalendar.enums.NotificationType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,16 +11,21 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
+
 import static AwesomeCalendar.Utilities.messages.ExceptionMessage.invalidEmailMessage;
 import static AwesomeCalendar.Utilities.messages.SuccessMessages.getSharedCalendarsSuccessfullyMessage;
 import static AwesomeCalendar.Utilities.messages.SuccessMessages.shareCalendarSuccessfullyMessage;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willReturn;
 
 @ExtendWith(MockitoExtension.class)
 public class SharingControllerTests {
     @Mock
     SharingService sharingService;
+    @Mock
+    NotificationService notificationService;
     @InjectMocks
     SharingController sharingController;
     User user1;
