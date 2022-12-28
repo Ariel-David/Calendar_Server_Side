@@ -50,7 +50,7 @@ public class SharingController {
         try {
             User sharedUser = sharingService.shareCalendar(user, userEmail);
             cResponse = new CustomResponse<>(UserDTO.convertUserToUserDTO(sharedUser), shareCalendarSuccessfullyMessage);
-            notificationService.sendNotifications(List.of(userEmail), NotificationType.SHARE_CALENDAR);
+            notificationService.sendNotifications(List.of(userEmail), NotificationType.SHARE_CALENDAR, null);
             logger.debug("successfully shared calendar");
             return ResponseEntity.ok().body(cResponse);
         } catch (IllegalArgumentException e) {

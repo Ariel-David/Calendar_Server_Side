@@ -102,8 +102,9 @@ public class EventController {
         }
         try {
             Role newRole = eventService.addGuestRole(eventId, userEmail);
+            Event event = eventService.getEventById(eventId);
             cResponse = new CustomResponse<>(convertRoleToRoleDTO(newRole), roleCreatedSuccessfullyMessage);
-            notificationService.sendNotifications(List.of(userEmail), NotificationType.EVENT_INVITATION);
+            notificationService.sendNotifications(List.of(userEmail), NotificationType.EVENT_INVITATION, event);
             return ResponseEntity.ok().body(cResponse);
         } catch (IllegalArgumentException e) {
             cResponse = new CustomResponse<>(null, e.getMessage());
@@ -148,8 +149,9 @@ public class EventController {
         try {
             if (status.equals("TENTATIVE") || status.equals("REJECTED") || status.equals("APPROVED")) {
                 Role newRole = eventService.updateStatusUserRole(eventId, user, status);
+                Event event = eventService.getEventById(eventId);
                 cResponse = new CustomResponse<>(convertRoleToRoleDTO(newRole), roleStatusChangedSuccessfullyMessage);
-                notificationService.sendNotifications(List.of(eventService.getEventOrganizer(eventId).get().getEmail()), NotificationType.USER_STATUS_CHANGED);
+                notificationService.sendNotifications(List.of(eventService.getEventOrganizer(eventId).get().getEmail()), NotificationType.USER_STATUS_CHANGED, event);
                 return ResponseEntity.ok().body(cResponse);
             }
             cResponse = new CustomResponse<>(null, invalidStatusMessage);
@@ -182,7 +184,7 @@ public class EventController {
             }
             cResponse = new CustomResponse<>(convertEventToEventDTO(deleted_event), deleteEventSuccessfullyMessage);
             List<String> listUserInEvent = deleted_event.getUserRoles().stream().map(role -> role.getUser().getEmail()).filter(email -> !email.equals(user.getEmail())).collect(Collectors.toList());
-            notificationService.sendNotifications(listUserInEvent, NotificationType.EVENT_CANCEL);
+            notificationService.sendNotifications(listUserInEvent, NotificationType.EVENT_CANCEL, deleted_event);
             return ResponseEntity.ok().body(cResponse);
         } catch (IllegalArgumentException e) {
             cResponse = new CustomResponse<>(null, e.getMessage());
@@ -287,8 +289,9 @@ public class EventController {
         try {
             Role isDeleted = eventService.deleteRole(eventId, userEmail);
             if (isDeleted != null) {
+                Event event = eventService.getEventById(eventId);
                 cResponse = new CustomResponse<>(convertRoleToRoleDTO(isDeleted), getEventsBetweenDatesSuccessfullyMessage);
-                notificationService.sendNotifications(List.of(userEmail), NotificationType.USER_UNINVITED);
+                notificationService.sendNotifications(List.of(userEmail), NotificationType.USER_UNINVITED, event);
                 return ResponseEntity.ok().body(cResponse);
             } else {
                 cResponse = new CustomResponse<>(null, somethingWrongMessage);
@@ -324,7 +327,7 @@ public class EventController {
             cResponse = new CustomResponse<>(convertEventToEventDTO(updateEvent), updateEventSuccessfullyMessage);
             List<String> listUserInEvent = updateEvent.getUserRoles().stream().map(role -> role.getUser().getEmail())
                     .filter(email -> !email.equals(user.getEmail())).collect(Collectors.toList());
-            notificationService.sendNotifications(listUserInEvent, NotificationType.EVENT_DATA_CHANGED);
+            notificationService.sendNotifications(listUserInEvent, NotificationType.EVENT_DATA_CHANGED,updateEvent);
             return ResponseEntity.ok().body(cResponse);
         } catch (IllegalArgumentException e) {
             cResponse = new CustomResponse<>(null, e.getMessage());

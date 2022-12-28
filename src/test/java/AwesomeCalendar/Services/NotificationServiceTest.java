@@ -37,34 +37,34 @@ class NotificationServiceTest {
 
     @BeforeEach
     void setup() {
-        user = new User(1L,"test.test@gmail.com", "12345");
+        user = new User(1L, "test.test@gmail.com", "12345");
     }
 
     @Test
     void set_nullNotificationsSettings() {
         assertThrows(IllegalArgumentException.class,
-                () -> notificationService.setNotificationsSettings(user,user.getNotificationsSettings()));
+                () -> notificationService.setNotificationsSettings(user, user.getNotificationsSettings()));
     }
 
     @Test
     void set_NotificationsSettings() {
         given(userRepository.findByEmail(user.getEmail())).willReturn(user);
         given(userRepository.save(user)).willReturn(null);
-        NotificationsSettings notificationsSettings = new NotificationsSettings(NotificationHandler.Both,NotificationHandler.Email,NotificationHandler.Email,NotificationHandler.Popup,NotificationHandler.Both,NotificationHandler.Email);
-        notificationService.setNotificationsSettings(user,notificationsSettings);
-        assertEquals(user.getNotificationsSettings(),notificationsSettings);
+        NotificationsSettings notificationsSettings = new NotificationsSettings(NotificationHandler.Both, NotificationHandler.Email, NotificationHandler.Email, NotificationHandler.Popup, NotificationHandler.Both, NotificationHandler.Email);
+        notificationService.setNotificationsSettings(user, notificationsSettings);
+        assertEquals(user.getNotificationsSettings(), notificationsSettings);
     }
 
     @Test
     void sendNotifications_NullUserList() {
         assertThrows(IllegalArgumentException.class,
-                () -> notificationService.sendNotifications(null,NotificationType.EVENT_INVITATION));
+                () -> notificationService.sendNotifications(null, NotificationType.EVENT_INVITATION, null));
     }
 
     @Test
     void sendHelper() {
-        doNothing().when(emailSender).sendEmailNotification(user.getEmail(),"notify");
-        notificationService.sendHelper(user,NotificationHandler.Email,"notify");
-        verify(emailSender,times(1)).sendEmailNotification(user.getEmail(),"notify");
+        doNothing().when(emailSender).sendEmailNotification(user.getEmail(), "notify");
+        notificationService.sendHelper(user, NotificationHandler.Email, "notify");
+        verify(emailSender, times(1)).sendEmailNotification(user.getEmail(), "notify");
     }
 }

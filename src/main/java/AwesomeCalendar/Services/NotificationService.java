@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.Column;
 import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.List;
@@ -55,7 +56,7 @@ public class NotificationService {
         return userInDB.getNotificationsSettings();
     }
 
-    public void sendNotifications(List<String> usersToSend, NotificationType notificationType) {
+    public void sendNotifications(List<String> usersToSend, NotificationType notificationType, Event event) {
         if (usersToSend == null) {
             throw new IllegalArgumentException("List is null");
         }
@@ -67,42 +68,84 @@ public class NotificationService {
             }
             switch (notificationType) {
                 case EVENT_CANCEL:
-                    message = "Event canceled";
+//                    message = "Event canceled";
+                    message = String.format("Subject: Event canceled\n" +
+                            "Title: " + event.getTitle() + "\n" +
+                            "Start: " + event.getStart() + "\n" +
+                            "End: " + event.getEnd() + "\n" +
+                            "location: " + event.getLocation() + "\n" +
+                            "description: " + event.getDescription() + "\n" +
+                            "eventAccess: " + event.getEventAccess() + "\n");
                     NotificationHandler notificationHandler1 = userInDB.getNotificationsSettings().getEventCancel();
                     sendHelper(userInDB, notificationHandler1, message);
                     realTimeSender.sendUpdate(userEmail, Event.class);
                     break;
 
                 case EVENT_INVITATION:
-                    message = "You have a new event invitation";
+//                    message = "You have a new event invitation";
+                    message = String.format("Subject: You have a new event invitation\n" +
+                            "Title: " + event.getTitle() + "\n" +
+                            "Start: " + event.getStart() + "\n" +
+                            "End: " + event.getEnd() + "\n" +
+                            "location: " + event.getLocation() + "\n" +
+                            "description: " + event.getDescription() + "\n" +
+                            "eventAccess: " + event.getEventAccess() + "\n");
                     NotificationHandler notificationHandler2 = userInDB.getNotificationsSettings().getEventInvitation();
                     sendHelper(userInDB, notificationHandler2, message);
                     realTimeSender.sendUpdate(userEmail, Event.class);
                     break;
 
                 case USER_UNINVITED:
-                    message = "You uninvited from event";
+//                    message = "Your invitation to the event has been removed";
+                    message = String.format("Subject: Your invitation to the event has been removed\n" +
+                            "Title: " + event.getTitle() + "\n" +
+                            "Start: " + event.getStart() + "\n" +
+                            "End: " + event.getEnd() + "\n" +
+                            "location: " + event.getLocation() + "\n" +
+                            "description: " + event.getDescription() + "\n" +
+                            "eventAccess: " + event.getEventAccess() + "\n");
                     NotificationHandler notificationHandler3 = userInDB.getNotificationsSettings().getUserUninvited();
                     sendHelper(userInDB, notificationHandler3, message);
                     realTimeSender.sendUpdate(userEmail, Event.class);
                     break;
 
                 case USER_STATUS_CHANGED:
-                    message = "Your status changed";
+//                    message = "Your status has changed";
+                    message = String.format("Subject: Your status has changed\n" +
+                            "Title: " + event.getTitle() + "\n" +
+                            "Start: " + event.getStart() + "\n" +
+                            "End: " + event.getEnd() + "\n" +
+                            "location: " + event.getLocation() + "\n" +
+                            "description: " + event.getDescription() + "\n" +
+                            "eventAccess: " + event.getEventAccess() + "\n");
                     NotificationHandler notificationHandler4 = userInDB.getNotificationsSettings().getUserStatusChanged();
                     sendHelper(userInDB, notificationHandler4, message);
                     realTimeSender.sendUpdate(userEmail, Event.class);
                     break;
 
                 case EVENT_DATA_CHANGED:
-                    message = "Event data changed";
+//                    message = "The event data has been updated";
+                    message = String.format("Subject: The event data has been updated\n" +
+                            "Title: " + event.getTitle() + "\n" +
+                            "Start: " + event.getStart() + "\n" +
+                            "End: " + event.getEnd() + "\n" +
+                            "location: " + event.getLocation() + "\n" +
+                            "description: " + event.getDescription() + "\n" +
+                            "eventAccess: " + event.getEventAccess() + "\n");
                     NotificationHandler notificationHandler5 = userInDB.getNotificationsSettings().getEventDataChanged();
                     sendHelper(userInDB, notificationHandler5, message);
                     realTimeSender.sendUpdate(userEmail, Event.class);
                     break;
 
                 case UPCOMING_EVENT:
-                    message = "You have upcoming event!";
+//                    message = "A reminder of an upcoming event";
+                    message = String.format("Subject: A reminder for an event that starts in "+ event.getStart().minusMinutes(ZonedDateTime.now().getMinute()) +" \n" +
+                            "Title: " + event.getTitle() + "\n" +
+                            "Start: " + event.getStart() + "\n" +
+                            "End: " + event.getEnd() + "\n" +
+                            "location: " + event.getLocation() + "\n" +
+                            "description: " + event.getDescription() + "\n" +
+                            "eventAccess: " + event.getEventAccess() + "\n");
                     NotificationHandler notificationHandler6 = userInDB.getNotificationsSettings().getUpcomingEvent();
                     sendHelper(userInDB, notificationHandler6, message);
                     realTimeSender.sendUpdate(userEmail, Event.class);
@@ -131,8 +174,9 @@ public class NotificationService {
 
     /**
      * adds an upcomingEventNotification setting for the user.
-     * @param user the user that wants the notification
-     * @param eventId the event he wants the notification for.
+     *
+     * @param user                the user that wants the notification
+     * @param eventId             the event he wants the notification for.
      * @param notificationsTiming the time before the event that he wants the notification.
      * @return upcomingnotification with all the details.
      * @throws IllegalArgumentException if any of the parameters are null or if the event id is invalid.
@@ -158,10 +202,10 @@ public class NotificationService {
     private void upcomingNotificationRunner() {
         logger.debug("starting check for upcoming event notifications");
         List<UpcomingEventNotification> all = upcomingEventNotificationRepository.findAll();
-        for (int i = 0; i < all.size();) {
+        for (int i = 0; i < all.size(); ) {
             UpcomingEventNotification currentNotification = all.get(i);
             if (shouldNotify(currentNotification)) {
-                sendNotifications(List.of(currentNotification.getUser().getEmail()), NotificationType.UPCOMING_EVENT);
+                sendNotifications(List.of(currentNotification.getUser().getEmail()), NotificationType.UPCOMING_EVENT, currentNotification.getEvent());
                 upcomingEventNotificationRepository.delete(currentNotification);
                 all.remove(i);
             } else {
@@ -175,7 +219,7 @@ public class NotificationService {
             return false;
         }
         ZonedDateTime timeToNotify = notification.getEvent().getStart();
-        switch(notification.getNotificationTiming()) {
+        switch (notification.getNotificationTiming()) {
             case ONE_DAY:
                 timeToNotify = timeToNotify.minusDays(1);
                 break;

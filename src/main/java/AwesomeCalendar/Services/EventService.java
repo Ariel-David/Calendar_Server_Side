@@ -252,4 +252,12 @@ public class EventService {
         }
         return userRole.get();
     }
+    public Event getEventById(Long eventId) {
+        logger.info("getting event by id " + eventId);
+        Optional<Event> eventInDB = eventRepository.findById(eventId);
+        if (!eventInDB.isPresent()) {
+            throw new IllegalArgumentException("Invalid event id");
+        }
+        return eventInDB.get();
+    }
 }
