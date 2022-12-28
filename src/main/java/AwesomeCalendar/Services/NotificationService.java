@@ -2,17 +2,25 @@ package AwesomeCalendar.Services;
 
 import AwesomeCalendar.Entities.Event;
 import AwesomeCalendar.Entities.NotificationsSettings;
+import AwesomeCalendar.Entities.UpcomingEventNotification;
 import AwesomeCalendar.Entities.User;
+import AwesomeCalendar.Repositories.EventRepo;
+import AwesomeCalendar.Repositories.UpcomingEventNotificationRepository;
 import AwesomeCalendar.Repositories.UserRepo;
+import AwesomeCalendar.Utilities.Utility;
 import AwesomeCalendar.enums.NotificationHandler;
 import AwesomeCalendar.enums.NotificationType;
+import AwesomeCalendar.enums.NotificationsTiming;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Optional;
 
 import static AwesomeCalendar.Utilities.messages.ExceptionMessage.invalidUserEmailMessage;
 
@@ -20,6 +28,12 @@ import static AwesomeCalendar.Utilities.messages.ExceptionMessage.invalidUserEma
 public class NotificationService {
     @Autowired
     private UserRepo userRepository;
+
+    @Autowired
+    private UpcomingEventNotificationRepository upcomingEventNotificationRepository;
+
+    @Autowired
+    private EventRepo eventRepository;
     @Autowired
     private EmailSender emailSender;
 
@@ -113,5 +127,71 @@ public class NotificationService {
                 emailSender.sendEmailNotification(user.getEmail(), message);
                 popUpSender.sendPopNotification(user.getEmail(), message);
         }
+    }
+
+    /**
+     * adds an upcomingEventNotification setting for the user.
+     * @param user the user that wants the notification
+     * @param eventId the event he wants the notification for.
+     * @param notificationsTiming the time before the event that he wants the notification.
+     * @return upcomingnotification with all the details.
+     * @throws IllegalArgumentException if any of the parameters are null or if the event id is invalid.
+     */
+    public UpcomingEventNotification addUpcomingEventNotification(User user, Long eventId, NotificationsTiming notificationsTiming) {
+        Utility.checkArgsNotNull(user, eventId, notificationsTiming);
+        Optional<Event> event = eventRepository.findById(eventId);
+        if (!event.isPresent()) {
+            throw new IllegalArgumentException("Event id incorrect");
+        }
+        UpcomingEventNotification upcomingEventNotification = new UpcomingEventNotification(event.get(), user, notificationsTiming);
+        upcomingEventNotificationRepository.save(upcomingEventNotification);
+
+        return upcomingEventNotification;
+    }
+
+    /**
+     * runs every minute
+     * <p>
+     * checks if any upcoming events have notifications that needs to be sent and sends them.
+     */
+    @Scheduled(fixedRate = 1000 * 60)
+    private void upcomingNotificationRunner() {
+        logger.debug("starting check for upcoming event notifications");
+        List<UpcomingEventNotification> all = upcomingEventNotificationRepository.findAll();
+        for (int i = 0; i < all.size();) {
+            UpcomingEventNotification currentNotification = all.get(i);
+            if (shouldNotify(currentNotification)) {
+                sendNotifications(List.of(currentNotification.getUser().getEmail()), NotificationType.UPCOMING_EVENT);
+                upcomingEventNotificationRepository.delete(currentNotification);
+                all.remove(i);
+            } else {
+                i++;
+            }
+        }
+    }
+
+    private boolean shouldNotify(UpcomingEventNotification notification) {
+        if (notification == null) {
+            return false;
+        }
+        ZonedDateTime timeToNotify = notification.getEvent().getStart();
+        switch(notification.getNotificationTiming()) {
+            case ONE_DAY:
+                timeToNotify = timeToNotify.minusDays(1);
+                break;
+            case THREE_HOURS:
+                timeToNotify = timeToNotify.minusHours(3);
+                break;
+            case ONE_HOUR:
+                timeToNotify = timeToNotify.minusHours(1);
+                break;
+            case HALF_HOUR:
+                timeToNotify = timeToNotify.minusMinutes(30);
+                break;
+            case TEN_MIN:
+                timeToNotify = timeToNotify.minusMinutes(10);
+                break;
+        }
+        return ZonedDateTime.now().plusHours(2).isAfter(timeToNotify);
     }
 }
