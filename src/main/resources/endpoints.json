@@ -1,0 +1,5 @@
+
+{
+  "ORGANIZER": ["/event/update/role/type", "/event/delete"],
+  "NOT_GUEST": ["/event/new/role", "/event/removeUser", "/event/update"]
+}
