@@ -2,10 +2,15 @@ package AwesomeCalendar.Services;
 
 import AwesomeCalendar.Entities.Event;
 import AwesomeCalendar.Entities.NotificationsSettings;
+import AwesomeCalendar.Entities.UpcomingEventNotification;
 import AwesomeCalendar.Entities.User;
+import AwesomeCalendar.Repositories.EventRepo;
+import AwesomeCalendar.Repositories.UpcomingEventNotificationRepository;
 import AwesomeCalendar.Repositories.UserRepo;
+import AwesomeCalendar.Utilities.Utility;
 import AwesomeCalendar.enums.NotificationHandler;
 import AwesomeCalendar.enums.NotificationType;
+import AwesomeCalendar.enums.NotificationsTiming;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.Optional;
 
 import static AwesomeCalendar.Utilities.messages.ExceptionMessage.invalidUserEmailMessage;
 
@@ -20,6 +26,12 @@ import static AwesomeCalendar.Utilities.messages.ExceptionMessage.invalidUserEma
 public class NotificationService {
     @Autowired
     private UserRepo userRepository;
+
+    @Autowired
+    private UpcomingEventNotificationRepository upcomingEventNotificationRepository;
+
+    @Autowired
+    private EventRepo eventRepository;
     @Autowired
     private EmailSender emailSender;
 
@@ -113,5 +125,25 @@ public class NotificationService {
                 emailSender.sendEmailNotification(user.getEmail(), message);
                 popUpSender.sendPopNotification(user.getEmail(), message);
         }
+    }
+
+    /**
+     * adds an upcomingEventNotification setting for the user.
+     * @param user the user that wants the notification
+     * @param eventId the event he wants the notification for.
+     * @param notificationsTiming the time before the event that he wants the notification.
+     * @return upcomingnotification with all the details.
+     * @throws IllegalArgumentException if any of the parameters are null or if the event id is invalid.
+     */
+    public UpcomingEventNotification addUpcomingEventNotification(User user, Long eventId, NotificationsTiming notificationsTiming) {
+        Utility.checkArgsNotNull(user, eventId, notificationsTiming);
+        Optional<Event> event = eventRepository.findById(eventId);
+        if (!event.isPresent()) {
+            throw new IllegalArgumentException("Event id incorrect");
+        }
+        UpcomingEventNotification upcomingEventNotification = new UpcomingEventNotification(event.get(), user, notificationsTiming);
+        upcomingEventNotificationRepository.save(upcomingEventNotification);
+
+        return upcomingEventNotification;
     }
 }
