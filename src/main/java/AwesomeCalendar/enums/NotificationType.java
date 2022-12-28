@@ -6,5 +6,6 @@ public enum NotificationType {
     EVENT_DATA_CHANGED,
     EVENT_CANCEL,
     USER_UNINVITED,
-    UPCOMING_EVENT
+    UPCOMING_EVENT,
+    SHARE_CALENDAR
 }

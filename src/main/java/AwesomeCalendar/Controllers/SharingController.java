@@ -3,8 +3,10 @@ package AwesomeCalendar.Controllers;
 import AwesomeCalendar.CustomEntities.CustomResponse;
 import AwesomeCalendar.CustomEntities.UserDTO;
 import AwesomeCalendar.Entities.User;
+import AwesomeCalendar.Services.NotificationService;
 import AwesomeCalendar.Services.SharingService;
 import AwesomeCalendar.Utilities.Validate;
+import AwesomeCalendar.enums.NotificationType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,9 @@ import static AwesomeCalendar.Utilities.messages.SuccessMessages.*;
 public class SharingController {
     @Autowired
     private SharingService sharingService;
+
+    @Autowired
+    private NotificationService notificationService;
 
     private static final Logger logger = LogManager.getLogger(SharingController.class);
 
@@ -45,6 +50,7 @@ public class SharingController {
         try {
             User sharedUser = sharingService.shareCalendar(user, userEmail);
             cResponse = new CustomResponse<>(UserDTO.convertUserToUserDTO(sharedUser), null, shareCalendarSuccessfullyMessage);
+            notificationService.sendNotifications(List.of(userEmail), NotificationType.SHARE_CALENDAR);
             logger.debug("successfully shared calendar");
             return ResponseEntity.ok().body(cResponse);
         } catch (IllegalArgumentException e) {

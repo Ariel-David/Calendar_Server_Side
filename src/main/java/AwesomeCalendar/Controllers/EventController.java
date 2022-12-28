@@ -166,7 +166,7 @@ public class EventController {
      * @return successResponse with OK status ,deleted event, a Message
      */
     @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
-    public ResponseEntity<CustomResponse<EventDTO>> deleteEvent(@RequestParam("eventId") Long eventId) {
+    public ResponseEntity<CustomResponse<EventDTO>> deleteEvent(@RequestAttribute("user") User user, @RequestParam("eventId") Long eventId) {
         logger.debug("Got request delete event:" + eventId);
         CustomResponse<EventDTO> cResponse;
         if (eventId == null) {
@@ -180,7 +180,7 @@ public class EventController {
                 return ResponseEntity.badRequest().body(cResponse);
             }
             cResponse = new CustomResponse<>(convertEventToEventDTO(deleted_event), null, deleteEventSuccessfullyMessage);
-            List<String> listUserInEvent = deleted_event.getUserRoles().stream().map(role -> role.getUser().getEmail()).collect(Collectors.toList());
+            List<String> listUserInEvent = deleted_event.getUserRoles().stream().map(role -> role.getUser().getEmail()).filter(email -> !email.equals(user.getEmail())).collect(Collectors.toList());
             notificationService.sendNotifications(listUserInEvent, NotificationType.EVENT_CANCEL);
             return ResponseEntity.ok().body(cResponse);
         } catch (IllegalArgumentException e) {
@@ -308,7 +308,8 @@ public class EventController {
      * @return successResponse with updated event,Message,OK status
      */
     @RequestMapping(value = "update", method = RequestMethod.PUT)
-    public ResponseEntity<CustomResponse<EventDTO>> updateEvent(@RequestAttribute("userType") Role.RoleType userType, @RequestParam("eventId") Long eventId, @RequestBody Event event) {
+    public ResponseEntity<CustomResponse<EventDTO>> updateEvent(@RequestAttribute("user") User user,
+                                                                @RequestAttribute("userType") Role.RoleType userType, @RequestParam("eventId") Long eventId, @RequestBody Event event) {
         logger.debug("Got request to update event:" + eventId);
         CustomResponse<EventDTO> cResponse;
         if (userType != null && userType.equals(Role.RoleType.ADMIN)) {
@@ -320,7 +321,8 @@ public class EventController {
         try {
             Event updateEvent = eventService.updateEvent(eventId, event);
             cResponse = new CustomResponse<>(convertEventToEventDTO(updateEvent), null, updateEventSuccessfullyMessage);
-            List<String> listUserInEvent = updateEvent.getUserRoles().stream().map(role -> role.getUser().getEmail()).collect(Collectors.toList());
+            List<String> listUserInEvent = updateEvent.getUserRoles().stream().map(role -> role.getUser().getEmail())
+                    .filter(email -> !email.equals(user.getEmail())).collect(Collectors.toList());
             notificationService.sendNotifications(listUserInEvent, NotificationType.EVENT_DATA_CHANGED);
             return ResponseEntity.ok().body(cResponse);
         } catch (IllegalArgumentException e) {
