@@ -1,11 +1,13 @@
 package AwesomeCalendar.CustomEntities;
 
-public class CustomResponse<T> {
+public class CustomLoginResponse<T> {
     private T response;
+    private String token;
     private String message;
 
-    public CustomResponse(T response, String message) {
+    public CustomLoginResponse(T response, String token, String message) {
         this.response = response;
+        this.token = token;
         this.message = message;
     }
 
@@ -15,6 +17,14 @@ public class CustomResponse<T> {
 
     public void setResponse(T response) {
         this.response = response;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 
     public String getMessage() {

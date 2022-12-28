@@ -44,17 +44,17 @@ public class SharingController {
         if (user == null) return ResponseEntity.badRequest().build();
         CustomResponse<UserDTO> cResponse;
         if (!Validate.email(userEmail)) {
-            cResponse = new CustomResponse<>(null, null, invalidEmailMessage);
+            cResponse = new CustomResponse<>(null, invalidEmailMessage);
             return ResponseEntity.badRequest().body(cResponse);
         }
         try {
             User sharedUser = sharingService.shareCalendar(user, userEmail);
-            cResponse = new CustomResponse<>(UserDTO.convertUserToUserDTO(sharedUser), null, shareCalendarSuccessfullyMessage);
+            cResponse = new CustomResponse<>(UserDTO.convertUserToUserDTO(sharedUser), shareCalendarSuccessfullyMessage);
             notificationService.sendNotifications(List.of(userEmail), NotificationType.SHARE_CALENDAR);
             logger.debug("successfully shared calendar");
             return ResponseEntity.ok().body(cResponse);
         } catch (IllegalArgumentException e) {
-            cResponse = new CustomResponse<>(null, null, e.getMessage());
+            cResponse = new CustomResponse<>(null, e.getMessage());
             return ResponseEntity.badRequest().body(cResponse);
         }
     }
@@ -73,7 +73,7 @@ public class SharingController {
         if (user == null) return ResponseEntity.badRequest().build();
         List<User> sharedWithMeCalendars = user.getSharedWithMeCalendars();
         sharedWithMeCalendars.add(user);
-        CustomResponse<List<UserDTO>> cResponse = new CustomResponse<>(UserDTO.convertUserListToUserDTOList(sharedWithMeCalendars), null, getSharedCalendarsSuccessfullyMessage);
+        CustomResponse<List<UserDTO>> cResponse = new CustomResponse<>(UserDTO.convertUserListToUserDTOList(sharedWithMeCalendars), getSharedCalendarsSuccessfullyMessage);
         return ResponseEntity.ok().body(cResponse);
     }
 }
