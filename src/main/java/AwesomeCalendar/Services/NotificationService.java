@@ -1,5 +1,6 @@
 package AwesomeCalendar.Services;
 
+import AwesomeCalendar.Entities.Event;
 import AwesomeCalendar.Entities.NotificationsSettings;
 import AwesomeCalendar.Entities.User;
 import AwesomeCalendar.Repositories.UserRepo;
@@ -10,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Calendar;
 import java.util.List;
 
 import static AwesomeCalendar.Utilities.messages.ExceptionMessage.invalidUserEmailMessage;
@@ -20,6 +22,9 @@ public class NotificationService {
     private UserRepo userRepository;
     @Autowired
     private EmailSender emailSender;
+
+    @Autowired
+    private RealTimeSender realTimeSender;
 
     @Autowired
     private PopUpSender popUpSender;
@@ -37,7 +42,7 @@ public class NotificationService {
     }
 
     public void sendNotifications(List<String> usersToSend, NotificationType notificationType) {
-        if(usersToSend == null){
+        if (usersToSend == null) {
             throw new IllegalArgumentException("List is null");
         }
         String message = "";
@@ -51,36 +56,46 @@ public class NotificationService {
                     message = "Event canceled";
                     NotificationHandler notificationHandler1 = userInDB.getNotificationsSettings().getEventCancel();
                     sendHelper(userInDB, notificationHandler1, message);
+                    realTimeSender.sendUpdate(userEmail, Event.class);
                     break;
 
                 case EVENT_INVITATION:
                     message = "You have a new event invitation";
                     NotificationHandler notificationHandler2 = userInDB.getNotificationsSettings().getEventInvitation();
-                    sendHelper(userInDB, notificationHandler2,message);
+                    sendHelper(userInDB, notificationHandler2, message);
+                    realTimeSender.sendUpdate(userEmail, Event.class);
                     break;
 
                 case USER_UNINVITED:
                     message = "You uninvited from event";
                     NotificationHandler notificationHandler3 = userInDB.getNotificationsSettings().getUserUninvited();
-                    sendHelper(userInDB, notificationHandler3,message);
+                    sendHelper(userInDB, notificationHandler3, message);
+                    realTimeSender.sendUpdate(userEmail, Event.class);
                     break;
 
                 case USER_STATUS_CHANGED:
                     message = "Your status changed";
                     NotificationHandler notificationHandler4 = userInDB.getNotificationsSettings().getUserStatusChanged();
-                    sendHelper(userInDB, notificationHandler4,message);
+                    sendHelper(userInDB, notificationHandler4, message);
+                    realTimeSender.sendUpdate(userEmail, Event.class);
                     break;
 
                 case EVENT_DATA_CHANGED:
                     message = "Event data changed";
                     NotificationHandler notificationHandler5 = userInDB.getNotificationsSettings().getEventDataChanged();
-                    sendHelper(userInDB, notificationHandler5,message);
+                    sendHelper(userInDB, notificationHandler5, message);
+                    realTimeSender.sendUpdate(userEmail, Event.class);
                     break;
 
                 case UPCOMING_EVENT:
                     message = "You have upcoming event!";
                     NotificationHandler notificationHandler6 = userInDB.getNotificationsSettings().getUpcomingEvent();
-                    sendHelper(userInDB, notificationHandler6,message);
+                    sendHelper(userInDB, notificationHandler6, message);
+                    realTimeSender.sendUpdate(userEmail, Event.class);
+                    break;
+
+                case SHARE_CALENDAR:
+                    realTimeSender.sendUpdate(userEmail, Calendar.class);
                     break;
             }
         }
