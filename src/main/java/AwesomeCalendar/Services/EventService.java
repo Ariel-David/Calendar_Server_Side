@@ -46,6 +46,14 @@ public class EventService {
 
 
     }
+
+    /**
+     * Update an event based on the given event and saves it in the database.
+     * @param event the event details from which to create the event.
+     * @param eventId the user that is creating the event.
+     * @return the created event.
+     * @throws IllegalArgumentException if the event or user are null
+     */
     public Event updateEvent(Long eventId, Event event) {
         logger.info("Updating event:" + eventId + " details to:" + event);
         Utility.checkArgsNotNull(eventId, event);
@@ -125,7 +133,7 @@ public class EventService {
         return events.stream()
                 .filter(event -> event.getUserRoles().stream().anyMatch(role -> calendars.contains(role.getUser()))
                         && (event.getEventAccess() == Event.EventAccess.PUBLIC
-                        || (event.getEventAccess() == Event.EventAccess.PRIVATE && event.getUserRoles().contains(user))))
+                        || (event.getEventAccess() == Event.EventAccess.PRIVATE && event.getUserRoles().stream().anyMatch(role -> role.getUser().equals(user)))))
                 .collect(Collectors.toList());
     }
 
