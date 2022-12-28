@@ -84,9 +84,4 @@ public class AuthControllerTests {
         given(authService.login(user1)).willThrow(IllegalArgumentException.class);
         assertEquals(somethingWrongMessage, authController.login(user1).getBody().getMessage());
     }
-
-    @Test
-    void registerWithGitHub_nullCode_null() {
-        assertEquals(somethingWrongMessage, authController.registerWithGitHub("undefined").getBody().getMessage());
-    }
 }
