@@ -33,13 +33,13 @@ public class NotificationsController {
         try {
             NotificationsSettings setNotifications = notificationService.setNotificationsSettings(user, notificationsSettings);
             if (setNotifications == null) {
-                cResponse = new CustomResponse<>(null, null, somethingWrongMessage);
+                cResponse = new CustomResponse<>(null, somethingWrongMessage);
                 return ResponseEntity.internalServerError().body(cResponse);
             }
-            cResponse = new CustomResponse<>(setNotifications, null, setNotificationsSuccessfullyMessage);
+            cResponse = new CustomResponse<>(setNotifications, setNotificationsSuccessfullyMessage);
             return ResponseEntity.ok().body(cResponse);
         } catch (IllegalArgumentException e) {
-            cResponse = new CustomResponse<>(null, null, e.getMessage());
+            cResponse = new CustomResponse<>(null, e.getMessage());
             return ResponseEntity.badRequest().body(cResponse);
         }
     }

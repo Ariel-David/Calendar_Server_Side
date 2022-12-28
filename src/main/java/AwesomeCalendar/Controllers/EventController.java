@@ -56,15 +56,15 @@ public class EventController {
         if (user == null) return ResponseEntity.badRequest().build();
         CustomResponse<EventDTO> cResponse;
         if (event.getStart() == null) {
-            cResponse = new CustomResponse<>(null, null, requiredFieldMessage);
+            cResponse = new CustomResponse<>(null, requiredFieldMessage);
             return ResponseEntity.badRequest().body(cResponse);
         }
         if (event.getEnd() == null) {
-            cResponse = new CustomResponse<>(null, null, requiredFieldMessage);
+            cResponse = new CustomResponse<>(null, requiredFieldMessage);
             return ResponseEntity.badRequest().body(cResponse);
         }
         if (event.getTitle() == null) {
-            cResponse = new CustomResponse<>(null, null, requiredFieldMessage);
+            cResponse = new CustomResponse<>(null, requiredFieldMessage);
             return ResponseEntity.badRequest().body(cResponse);
         }
         if (event.getEventAccess() == null) {
@@ -73,13 +73,13 @@ public class EventController {
         try {
             Event createdEvent = eventService.createEvent(event, user);
             if (createdEvent == null) {
-                cResponse = new CustomResponse<>(null, null, somethingWrongMessage);
+                cResponse = new CustomResponse<>(null, somethingWrongMessage);
                 return ResponseEntity.internalServerError().body(cResponse);
             }
-            cResponse = new CustomResponse<>(convertEventToEventDTO(createdEvent), null, eventCreatedSuccessfullyMessage);
+            cResponse = new CustomResponse<>(convertEventToEventDTO(createdEvent), eventCreatedSuccessfullyMessage);
             return ResponseEntity.ok().body(cResponse);
         } catch (IllegalArgumentException e) {
-            cResponse = new CustomResponse<>(null, null, e.getMessage());
+            cResponse = new CustomResponse<>(null, e.getMessage());
             return ResponseEntity.badRequest().body(cResponse);
         }
     }
@@ -96,16 +96,16 @@ public class EventController {
         logger.debug("Got request to add guest role to event:" + eventId + " for user:" + userEmail);
         CustomResponse<RoleDTO> cResponse;
         if (!Validate.email(userEmail)) {
-            cResponse = new CustomResponse<>(null, null, invalidEmailMessage);
+            cResponse = new CustomResponse<>(null, invalidEmailMessage);
             return ResponseEntity.badRequest().body(cResponse);
         }
         try {
             Role newRole = eventService.addGuestRole(eventId, userEmail);
-            cResponse = new CustomResponse<>(convertRoleToRoleDTO(newRole), null, roleCreatedSuccessfullyMessage);
+            cResponse = new CustomResponse<>(convertRoleToRoleDTO(newRole), roleCreatedSuccessfullyMessage);
             notificationService.sendNotifications(List.of(userEmail), NotificationType.EVENT_INVITATION);
             return ResponseEntity.ok().body(cResponse);
         } catch (IllegalArgumentException e) {
-            cResponse = new CustomResponse<>(null, null, e.getMessage());
+            cResponse = new CustomResponse<>(null, e.getMessage());
             return ResponseEntity.badRequest().body(cResponse);
         }
     }
@@ -123,10 +123,10 @@ public class EventController {
         CustomResponse<RoleDTO> cResponse;
         try {
             Role newRole = eventService.updateTypeUserRole(eventId, userId);
-            cResponse = new CustomResponse<>(convertRoleToRoleDTO(newRole), null, roleTypeChangedSuccessfullyMessage);
+            cResponse = new CustomResponse<>(convertRoleToRoleDTO(newRole), roleTypeChangedSuccessfullyMessage);
             return ResponseEntity.ok().body(cResponse);
         } catch (IllegalArgumentException e) {
-            cResponse = new CustomResponse<>(null, null, e.getMessage());
+            cResponse = new CustomResponse<>(null, e.getMessage());
             return ResponseEntity.badRequest().body(cResponse);
         }
 
@@ -147,14 +147,14 @@ public class EventController {
         try {
             if (status.equals("TENTATIVE") || status.equals("REJECTED") || status.equals("APPROVED")) {
                 Role newRole = eventService.updateStatusUserRole(eventId, user, status);
-                cResponse = new CustomResponse<>(convertRoleToRoleDTO(newRole), null, roleStatusChangedSuccessfullyMessage);
+                cResponse = new CustomResponse<>(convertRoleToRoleDTO(newRole), roleStatusChangedSuccessfullyMessage);
                 notificationService.sendNotifications(List.of(eventService.getEventOrganizer(eventId).get().getEmail()), NotificationType.USER_STATUS_CHANGED);
                 return ResponseEntity.ok().body(cResponse);
             }
-            cResponse = new CustomResponse<>(null, null, invalidStatusMessage);
+            cResponse = new CustomResponse<>(null, invalidStatusMessage);
             return ResponseEntity.badRequest().body(cResponse);
         } catch (IllegalArgumentException e) {
-            cResponse = new CustomResponse<>(null, null, e.getMessage());
+            cResponse = new CustomResponse<>(null, e.getMessage());
             return ResponseEntity.badRequest().body(cResponse);
         }
     }
@@ -170,21 +170,21 @@ public class EventController {
         logger.debug("Got request delete event:" + eventId);
         CustomResponse<EventDTO> cResponse;
         if (eventId == null) {
-            cResponse = new CustomResponse<>(null, null, invalidEventIdMessage);
+            cResponse = new CustomResponse<>(null, invalidEventIdMessage);
             return ResponseEntity.badRequest().body(cResponse);
         }
         try {
             Event deleted_event = eventService.deleteEvent(eventId);
             if (deleted_event == null) {
-                cResponse = new CustomResponse<>(null, null, somethingWrongMessage);
+                cResponse = new CustomResponse<>(null, somethingWrongMessage);
                 return ResponseEntity.badRequest().body(cResponse);
             }
-            cResponse = new CustomResponse<>(convertEventToEventDTO(deleted_event), null, deleteEventSuccessfullyMessage);
+            cResponse = new CustomResponse<>(convertEventToEventDTO(deleted_event), deleteEventSuccessfullyMessage);
             List<String> listUserInEvent = deleted_event.getUserRoles().stream().map(role -> role.getUser().getEmail()).filter(email -> !email.equals(user.getEmail())).collect(Collectors.toList());
             notificationService.sendNotifications(listUserInEvent, NotificationType.EVENT_CANCEL);
             return ResponseEntity.ok().body(cResponse);
         } catch (IllegalArgumentException e) {
-            cResponse = new CustomResponse<>(null, null, e.getMessage());
+            cResponse = new CustomResponse<>(null, e.getMessage());
             return ResponseEntity.badRequest().body(cResponse);
         }
     }
@@ -202,13 +202,13 @@ public class EventController {
         try {
             Optional<Event> found_event = eventService.getEvent(id);
             if (!found_event.isPresent()) {
-                cResponse = new CustomResponse<>(null, null, somethingWrongMessage);
+                cResponse = new CustomResponse<>(null, somethingWrongMessage);
                 return ResponseEntity.badRequest().body(cResponse);
             }
-            cResponse = new CustomResponse<>(convertEventToEventDTO(found_event.get()), null, getEventSuccessfullyMessage);
+            cResponse = new CustomResponse<>(convertEventToEventDTO(found_event.get()), getEventSuccessfullyMessage);
             return ResponseEntity.ok().body(cResponse);
         } catch (IllegalArgumentException e) {
-            cResponse = new CustomResponse<>(null, null, e.getMessage());
+            cResponse = new CustomResponse<>(null, e.getMessage());
             return ResponseEntity.badRequest().body(cResponse);
         }
     }
@@ -228,13 +228,13 @@ public class EventController {
         try {
             List<Event> eventList = eventService.getEventsBetweenDates(startDate, endDate);
             if (eventList == null) {
-                cResponse = new CustomResponse<>(null, null, somethingWrongMessage);
+                cResponse = new CustomResponse<>(null, somethingWrongMessage);
                 return ResponseEntity.badRequest().body(cResponse);
             }
-            cResponse = new CustomResponse<>(convertEventListToEventDTOList(eventList), null, getEventsBetweenDatesSuccessfullyMessage);
+            cResponse = new CustomResponse<>(convertEventListToEventDTOList(eventList), getEventsBetweenDatesSuccessfullyMessage);
             return ResponseEntity.ok().body(cResponse);
         } catch (IllegalArgumentException e) {
-            cResponse = new CustomResponse<>(null, null, e.getMessage());
+            cResponse = new CustomResponse<>(null, e.getMessage());
             return ResponseEntity.badRequest().body(cResponse);
         }
     }
@@ -257,13 +257,13 @@ public class EventController {
             List<User> shared = sharingService.isShared(user, usersEmails);
             List<Event> eventList = eventService.getEventsBetweenDates(user, startDate, endDate, shared);
             if (eventList == null) {
-                cResponse = new CustomResponse<>(null, null, somethingWrongMessage);
+                cResponse = new CustomResponse<>(null, somethingWrongMessage);
                 return ResponseEntity.badRequest().body(cResponse);
             }
-            cResponse = new CustomResponse<>(convertEventListToEventDTOList(eventList), null, getEventsBetweenDatesSuccessfullyMessage);
+            cResponse = new CustomResponse<>(convertEventListToEventDTOList(eventList), getEventsBetweenDatesSuccessfullyMessage);
             return ResponseEntity.ok().body(cResponse);
         } catch (IllegalArgumentException e) {
-            cResponse = new CustomResponse<>(null, null, e.getMessage());
+            cResponse = new CustomResponse<>(null, e.getMessage());
             return ResponseEntity.badRequest().body(cResponse);
         }
     }
@@ -280,21 +280,21 @@ public class EventController {
         logger.debug("Got request to remove user:" + userEmail + " from event:" + eventId);
         CustomResponse<RoleDTO> cResponse;
         if (eventId == null || userEmail == null) {
-            cResponse = new CustomResponse<>(null, null, somethingWrongMessage);
+            cResponse = new CustomResponse<>(null, somethingWrongMessage);
             return ResponseEntity.badRequest().body(cResponse);
         }
         try {
             Role isDeleted = eventService.deleteRole(eventId, userEmail);
             if (isDeleted != null) {
-                cResponse = new CustomResponse<>(convertRoleToRoleDTO(isDeleted), null, getEventsBetweenDatesSuccessfullyMessage);
+                cResponse = new CustomResponse<>(convertRoleToRoleDTO(isDeleted), getEventsBetweenDatesSuccessfullyMessage);
                 notificationService.sendNotifications(List.of(userEmail), NotificationType.USER_UNINVITED);
                 return ResponseEntity.ok().body(cResponse);
             } else {
-                cResponse = new CustomResponse<>(null, null, somethingWrongMessage);
+                cResponse = new CustomResponse<>(null, somethingWrongMessage);
                 return ResponseEntity.badRequest().body(cResponse);
             }
         } catch (IllegalArgumentException e) {
-            cResponse = new CustomResponse<>(null, null, e.getMessage());
+            cResponse = new CustomResponse<>(null, e.getMessage());
             return ResponseEntity.badRequest().body(cResponse);
         }
     }
@@ -314,19 +314,19 @@ public class EventController {
         CustomResponse<EventDTO> cResponse;
         if (userType != null && userType.equals(Role.RoleType.ADMIN)) {
             if (event.getTitle() != null || event.getStart() != null || event.getEnd() != null) {
-                cResponse = new CustomResponse<>(null, null, FieldsAdminCantUpdateMessage);
+                cResponse = new CustomResponse<>(null, FieldsAdminCantUpdateMessage);
                 return ResponseEntity.badRequest().body(cResponse);
             }
         }
         try {
             Event updateEvent = eventService.updateEvent(eventId, event);
-            cResponse = new CustomResponse<>(convertEventToEventDTO(updateEvent), null, updateEventSuccessfullyMessage);
+            cResponse = new CustomResponse<>(convertEventToEventDTO(updateEvent), updateEventSuccessfullyMessage);
             List<String> listUserInEvent = updateEvent.getUserRoles().stream().map(role -> role.getUser().getEmail())
                     .filter(email -> !email.equals(user.getEmail())).collect(Collectors.toList());
             notificationService.sendNotifications(listUserInEvent, NotificationType.EVENT_DATA_CHANGED);
             return ResponseEntity.ok().body(cResponse);
         } catch (IllegalArgumentException e) {
-            cResponse = new CustomResponse<>(null, null, e.getMessage());
+            cResponse = new CustomResponse<>(null, e.getMessage());
             return ResponseEntity.badRequest().body(cResponse);
         }
     }

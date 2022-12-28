@@ -47,20 +47,20 @@ public class AuthController {
         logger.debug("Got request for registering - " + user);
         CustomResponse<UserDTO> cResponse;
         if (!Validate.email(user.getEmail())) {
-            cResponse = new CustomResponse<>(null, null, invalidEmailMessage);
+            cResponse = new CustomResponse<>(null, invalidEmailMessage);
             return ResponseEntity.badRequest().body(cResponse);
         }
         if (!Validate.password(user.getPassword())) {
-            cResponse = new CustomResponse<>(null, null, invalidPasswordMessage);
+            cResponse = new CustomResponse<>(null, invalidPasswordMessage);
             return ResponseEntity.badRequest().body(cResponse);
         }
         try {
             UserDTO registerUserDTO = convertUserToUserDTO(authService.addUser(user));
-            cResponse = new CustomResponse<>(registerUserDTO, null, registerSuccessfullyMessage);
+            cResponse = new CustomResponse<>(registerUserDTO, registerSuccessfullyMessage);
             logger.debug("Successfully registered - " + user);
             return ResponseEntity.ok().body(cResponse);
         } catch (IllegalArgumentException e) {
-            cResponse = new CustomResponse<>(null, null, somethingWrongMessage);
+            cResponse = new CustomResponse<>(null, somethingWrongMessage);
             return ResponseEntity.badRequest().body(cResponse);
         }
     }
