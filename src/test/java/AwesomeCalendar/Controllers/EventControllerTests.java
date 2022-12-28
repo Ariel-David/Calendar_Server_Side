@@ -17,9 +17,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static AwesomeCalendar.Utilities.messages.ExceptionMessage.*;
 import static AwesomeCalendar.Utilities.messages.SuccessMessages.*;
@@ -256,7 +254,7 @@ public class EventControllerTests {
 
     @Test
     void getRolesOfEvent_okGetRolesOfEvent_200() {
-        List<Role> listRoles = new ArrayList<>();
+        Set<Role> listRoles = new HashSet<>();
         given(eventService.getRolesForEvent(0L)).willReturn(listRoles);
         assertEquals(200, eventController.getRolesOfEvent(0L).getStatusCodeValue());
     }

@@ -3,10 +3,9 @@ package AwesomeCalendar.Entities;
 import AwesomeCalendar.enums.NotificationsTiming;
 
 import javax.persistence.*;
-import java.time.Duration;
 
 @Entity
-public class TimingNotifications {
+public class UpcomingEventNotification {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "id", nullable = false)
@@ -16,8 +15,21 @@ public class TimingNotifications {
     @JoinColumn(name = "event_id")
     private Event event;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
     @Column(nullable = false)
     private NotificationsTiming NotificationTiming;
+
+    public UpcomingEventNotification() {
+    }
+
+    public UpcomingEventNotification(Event event, User user, NotificationsTiming notificationTiming) {
+        this.event = event;
+        this.user = user;
+        NotificationTiming = notificationTiming;
+    }
 
     public NotificationsTiming getNotificationTiming() {
         return NotificationTiming;
@@ -39,8 +51,11 @@ public class TimingNotifications {
         return id;
     }
 
-    public void setId(Long id) {
+    public User getUser() {
+        return user;
+    }
 
-        this.id = id;
+    public void setUser(User user) {
+        this.user = user;
     }
 }
