@@ -1,5 +1,6 @@
 package AwesomeCalendar.Controllers;
 
+import AwesomeCalendar.CustomEntities.CustomLoginResponse;
 import AwesomeCalendar.CustomEntities.CustomResponse;
 import AwesomeCalendar.CustomEntities.UserDTO;
 import AwesomeCalendar.Entities.GitHubEmail;
@@ -71,29 +72,29 @@ public class AuthController {
      * @return user with response body
      */
     @RequestMapping(value = "login", method = RequestMethod.POST)
-    public ResponseEntity<CustomResponse<UserDTO>> login(@RequestBody User user) {
+    public ResponseEntity<CustomLoginResponse<UserDTO>> login(@RequestBody User user) {
         logger.debug("Got request for login - " + user);
-        CustomResponse<UserDTO> cResponse;
+        CustomLoginResponse<UserDTO> cResponse;
         if (!Validate.email(user.getEmail())) {
-            cResponse = new CustomResponse<>(null, null, invalidEmailMessage);
+            cResponse = new CustomLoginResponse<>(null, null, invalidEmailMessage);
             return ResponseEntity.badRequest().body(cResponse);
         }
         if (!Validate.password(user.getPassword())) {
-            cResponse = new CustomResponse<>(null, null, invalidPasswordMessage);
+            cResponse = new CustomLoginResponse<>(null, null, invalidPasswordMessage);
             return ResponseEntity.badRequest().body(cResponse);
         }
         try {
             Pair<String, User> pair = authService.login(user);
             if (pair != null) {
-                cResponse = new CustomResponse<>(convertUserToUserDTO(pair.getSecond()), pair.getFirst(), loginSuccessfullyMessage);
+                cResponse = new CustomLoginResponse<>(convertUserToUserDTO(pair.getSecond()), pair.getFirst(), loginSuccessfullyMessage);
                 logger.debug("Successfully logged in - " + user);
                 return ResponseEntity.ok(cResponse); // 200
             }
         } catch (IllegalArgumentException e) {
-            cResponse = new CustomResponse<>(null, null, somethingWrongMessage);
+            cResponse = new CustomLoginResponse<>(null, null, somethingWrongMessage);
             return ResponseEntity.badRequest().body(cResponse);
         }
-        cResponse = new CustomResponse<>(null, null, somethingWrongMessage);
+        cResponse = new CustomLoginResponse<>(null, null, somethingWrongMessage);
         return ResponseEntity.badRequest().body(cResponse);
     }
 
@@ -104,10 +105,10 @@ public class AuthController {
      * @return a SuccessResponse - OK status, a message, the login data - user's DTO and the generated token
      */
     @RequestMapping(value = "gitHub", method = RequestMethod.POST)
-    public ResponseEntity<CustomResponse<UserDTO>> registerWithGitHub(@RequestParam String code) {
+    public ResponseEntity<CustomLoginResponse<UserDTO>> registerWithGitHub(@RequestParam String code) {
         logger.debug("Got request for login through github - " + code);
         if (code.equals("undefined")) {
-            return ResponseEntity.badRequest().body(new CustomResponse<UserDTO>(null, null, somethingWrongMessage));
+            return ResponseEntity.badRequest().body(new CustomLoginResponse<UserDTO>(null, null, somethingWrongMessage));
         }
         try {
             RestTemplate rest = new RestTemplate();
@@ -119,13 +120,13 @@ public class AuthController {
             ResponseEntity<GithubUser> exchange = rest.exchange("https://api.github.com/user", HttpMethod.GET, entity, GithubUser.class);
             GithubUser githubUser = exchange.getBody();
             if (githubUser == null) {
-                return ResponseEntity.badRequest().body(new CustomResponse<>(null, null, couldNotGetUserFromGithubMessage));
+                return ResponseEntity.badRequest().body(new CustomLoginResponse<>(null, null, couldNotGetUserFromGithubMessage));
             }
             githubUser.setAccessToken(token);
             ResponseEntity<GitHubEmail[]> exchange2 = rest.exchange("https://api.github.com/user/emails", HttpMethod.GET, entity, GitHubEmail[].class);
             GitHubEmail[] githubUserMail = exchange2.getBody();
             if (githubUserMail == null) {
-                return ResponseEntity.badRequest().body(new CustomResponse<>(null, null, couldNotGetUserFromGithubMessage));
+                return ResponseEntity.badRequest().body(new CustomLoginResponse<>(null, null, couldNotGetUserFromGithubMessage));
             }
             User user = new User(githubUserMail[githubUserMail.length - 1].getEmail(), githubUser.getName() + githubUserMail[githubUserMail.length - 1].getEmail());
             try {
@@ -136,9 +137,9 @@ public class AuthController {
             Pair<String, User> login = authService.login(user);
             String loginToken = login.getFirst();
             logger.debug("Successfully logged in through github - " + user);
-            return ResponseEntity.ok().body(new CustomResponse<UserDTO>(UserDTO.convertUserToUserDTO(login.getSecond()), loginToken, gitHubUserLoggedInSuccessfullyMessage));
+            return ResponseEntity.ok().body(new CustomLoginResponse<UserDTO>(UserDTO.convertUserToUserDTO(login.getSecond()), loginToken, gitHubUserLoggedInSuccessfullyMessage));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new CustomResponse<UserDTO>(null, null, somethingWrongMessage));
+            return ResponseEntity.badRequest().body(new CustomLoginResponse<UserDTO>(null, null, somethingWrongMessage));
         }
     }
 }
