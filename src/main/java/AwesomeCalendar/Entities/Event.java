@@ -2,9 +2,7 @@ package AwesomeCalendar.Entities;
 
 import javax.persistence.*;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Entity
 public class Event {
@@ -31,9 +29,9 @@ public class Event {
     private String description;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
-    List<Role> userRoles;
+    Set<Role> userRoles;
 
-    public List<Role> getUserRoles() {
+    public Set<Role> getUserRoles() {
         return userRoles;
     }
 
@@ -50,7 +48,7 @@ public class Event {
     }
 
     public Event() {
-        this.userRoles = new ArrayList<>();
+        this.userRoles = new HashSet<>();
     }
 
     public Event(Long id,EventAccess eventAccess, ZonedDateTime start, ZonedDateTime end, String location, String title, String description) {
@@ -61,7 +59,7 @@ public class Event {
         this.location = location;
         this.title = title;
         this.description = description;
-        this.userRoles = new ArrayList<>();
+        this.userRoles = new HashSet<>();
     }
 
     public Event(EventAccess eventAccess, ZonedDateTime start, ZonedDateTime end, String location, String title, String description) {

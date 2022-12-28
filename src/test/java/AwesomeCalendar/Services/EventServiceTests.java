@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
@@ -505,10 +506,10 @@ public class EventServiceTests {
         event.addUserRole(roleTwo);
         given(eventRepository.findById(event.getId())).willReturn(Optional.of(event));
 
-        List<Role> rolesForEvent = eventService.getRolesForEvent(event.getId());
+        Set<Role> rolesForEvent = eventService.getRolesForEvent(event.getId());
 
         assertEquals(2, rolesForEvent.size());
-        assertTrue(rolesForEvent.containsAll(List.of(roleOne, roleTwo)));
+        assertTrue(rolesForEvent.containsAll(Set.of(roleOne, roleTwo)));
     }
 
     @Test

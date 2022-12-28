@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -148,7 +149,7 @@ public class EventService {
         if (userInDB == null) {
             throw new IllegalArgumentException("Invalid user email");
         }
-        List<Role> userRoles = eventInDB.get().getUserRoles();
+        Set<Role> userRoles = eventInDB.get().getUserRoles();
         if (userRoles.stream().anyMatch((role) -> role.getUser() == userInDB)) {
             throw new IllegalArgumentException("Exist role");
         }
@@ -228,7 +229,7 @@ public class EventService {
         return userRole.get();
     }
 
-    public List<Role> getRolesForEvent(Long eventId) {
+    public Set<Role> getRolesForEvent(Long eventId) {
         Utility.checkArgsNotNull(eventId);
         logger.debug("getting roles for event:" + eventId);
         Optional<Event> eventInDB = eventRepository.findById(eventId);

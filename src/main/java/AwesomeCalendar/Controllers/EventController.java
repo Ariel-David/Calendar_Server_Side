@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static AwesomeCalendar.CustomEntities.EventDTO.*;
@@ -338,7 +339,7 @@ public class EventController {
      * @return successResponse with roles of the event, a Http-status
      */
     @RequestMapping(value = "/getUsers", method = RequestMethod.GET)
-    public ResponseEntity<List<Role>> getRolesOfEvent(@RequestParam Long eventId) {
+    public ResponseEntity<Set<Role>> getRolesOfEvent(@RequestParam Long eventId) {
         logger.debug("Got request to get roles of events:" + eventId);
         if (eventId == null) {
             return ResponseEntity.badRequest().build();

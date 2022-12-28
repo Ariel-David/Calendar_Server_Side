@@ -7,6 +7,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 public class EventDTO {
     private Long id;
@@ -16,7 +17,7 @@ public class EventDTO {
     private String location;
     private String title;
     private String description;
-    private List<Role> userRoles;
+    private Set<Role> userRoles;
 
     private EventDTO() {
     }
@@ -100,11 +101,11 @@ public class EventDTO {
         this.description = description;
     }
 
-    public List<Role> getUserRoles() {
+    public Set<Role> getUserRoles() {
         return userRoles;
     }
 
-    public void setUserRoles(List<Role> userRoles) {
+    public void setUserRoles(Set<Role> userRoles) {
         this.userRoles = userRoles;
     }
 
