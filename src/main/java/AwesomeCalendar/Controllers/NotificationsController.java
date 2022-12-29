@@ -10,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import static AwesomeCalendar.Utilities.messages.ExceptionMessage.mustSendTokenEventIdAndTimingMessage;
 import static AwesomeCalendar.Utilities.messages.ExceptionMessage.somethingWrongMessage;
+import static AwesomeCalendar.Utilities.messages.SuccessMessages.createdUpcomingNotificationSuccessfullyMessage;
 import static AwesomeCalendar.Utilities.messages.SuccessMessages.setNotificationsSuccessfullyMessage;
 
 @CrossOrigin
@@ -56,14 +58,13 @@ public class NotificationsController {
      * if there is a problem - return a code of bad request and the body will be null with an error message.
      */
     @RequestMapping(value = "/upcoming", method = RequestMethod.POST)
-    public ResponseEntity<CustomResponse<UpcomingEventNotification>> addUpcomingNotification(
-            @RequestAttribute("user") User user, @RequestParam Long eventId, @RequestParam NotificationsTiming timing) {
+    public ResponseEntity<CustomResponse<UpcomingEventNotification>> addUpcomingNotification(@RequestAttribute("user") User user, @RequestParam Long eventId, @RequestParam NotificationsTiming timing) {
         if (user == null || eventId == null || timing == null) {
-            return ResponseEntity.badRequest().body(new CustomResponse<>(null, "must send token event id and timing"));
+            return ResponseEntity.badRequest().body(new CustomResponse<>(null, mustSendTokenEventIdAndTimingMessage));
         }
         try {
             UpcomingEventNotification upcomingEventNotification = notificationService.addUpcomingEventNotification(user, eventId, timing);
-            return ResponseEntity.ok(new CustomResponse<>(upcomingEventNotification, "successfully created upcoming notification"));
+            return ResponseEntity.ok(new CustomResponse<>(upcomingEventNotification, createdUpcomingNotificationSuccessfullyMessage));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new CustomResponse<>(null, e.getMessage()));
         }
