@@ -6,6 +6,8 @@ import AwesomeCalendar.Entities.UpcomingEventNotification;
 import AwesomeCalendar.Entities.User;
 import AwesomeCalendar.Services.NotificationService;
 import AwesomeCalendar.enums.NotificationsTiming;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +23,9 @@ public class NotificationsController {
     @Autowired
     private NotificationService notificationService;
 
+    private static final Logger logger = LogManager.getLogger(NotificationsController.class);
+
+
     /**
      * Set all the notifications settings
      *
@@ -30,6 +35,7 @@ public class NotificationsController {
      */
     @RequestMapping(value = "/settings", method = RequestMethod.POST)
     public ResponseEntity<CustomResponse<NotificationsSettings>> setNotificationsSettings(@RequestAttribute("user") User user, @RequestBody NotificationsSettings notificationsSettings) {
+        System.out.println(notificationsSettings);
         if (user == null) return ResponseEntity.badRequest().build();
         CustomResponse<NotificationsSettings> cResponse;
         try {
@@ -43,6 +49,19 @@ public class NotificationsController {
         } catch (IllegalArgumentException e) {
             cResponse = new CustomResponse<>(null, e.getMessage());
             return ResponseEntity.badRequest().body(cResponse);
+        }
+    }
+
+    @RequestMapping(value = "/getNotificationsSettings", method = RequestMethod.GET)
+    public ResponseEntity<NotificationsSettings> getNotificationsSettings(@RequestAttribute("user") User user) {
+        logger.debug("Got request to get notifications of user:" + user.getEmail());
+        if (user == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        try {
+            return ResponseEntity.ok().body(notificationService.getNotificationsSettings(user));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
         }
     }
 
