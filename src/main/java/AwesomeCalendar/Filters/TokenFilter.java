@@ -16,7 +16,7 @@ public class TokenFilter implements Filter {
     private final AuthService authService;
 
     public static List<String> destinations = new ArrayList<>(List.of("/event/new", "/event/removeUser", "/event/update", "/event/new/role", "/event/update/role/type", "/event/getEvent", "/event/delete", "/event/getBetweenDates", "/event/update/role/status", "/event/getUsers",
-            "/sharing/share", "/sharing/sharedWithMe", "/event/getCalendarsBetweenDates","/notifications/settings", "/notifications/upcoming"));
+            "/sharing/share", "/sharing/sharedWithMe", "/event/getCalendarsBetweenDates","/notifications/settings", "/notifications/upcoming", "/notifications/getNotificationsSettings"));
 
     private static final Logger logger = LogManager.getLogger(TokenFilter.class);
 
