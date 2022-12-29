@@ -15,4 +15,6 @@ public class SuccessMessages {
     public static String getSharedCalendarsSuccessfullyMessage = "users list has returned successfully";
     public static String setNotificationsSuccessfullyMessage = "Notifications settings has been created successfully";
     public static String gitHubUserLoggedInSuccessfullyMessage = "GitHub user logged in";
+    public static String createdUpcomingNotificationSuccessfullyMessage = "successfully created upcoming notification";
+
 }

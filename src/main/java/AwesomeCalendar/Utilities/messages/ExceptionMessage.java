@@ -10,6 +10,6 @@ public class ExceptionMessage {
     public static String FieldsAdminCantUpdateMessage = "Admins can not update title, start date or end date";
     public static String couldNotGetUserFromGithubMessage = "Couldn't get user from github";
     public static String invalidUserEmailMessage = "Invalid user email";
-
+    public static String mustSendTokenEventIdAndTimingMessage = "Must send token event id and timing";
 
 }
