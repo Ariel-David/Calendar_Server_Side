@@ -8,6 +8,10 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * A configuration class for setting up beans for filters used in the application.
+ */
+
 @Configuration
 public class AppConfig {
 
@@ -23,6 +27,11 @@ public class AppConfig {
         this.eventService = eventService;
     }
 
+    /**
+     * Creates a bean for a CorsFilter.
+     *
+     * @return A {@link FilterRegistrationBean} containing the CorsFilter.
+     */
     @Bean
     public FilterRegistrationBean<CorsFilter> corsFilterBean() {
         FilterRegistrationBean<CorsFilter> corsBean = new FilterRegistrationBean<>();
@@ -33,6 +42,11 @@ public class AppConfig {
         return corsBean;
     }
 
+    /**
+     * Creates a bean for a TokenFilter.
+     *
+     * @return A {@link FilterRegistrationBean} containing the TokenFilter.
+     */
     @Bean
     public FilterRegistrationBean<TokenFilter> tokenFilterBean() {
         FilterRegistrationBean<TokenFilter> tokenBean = new FilterRegistrationBean<>();
@@ -43,6 +57,11 @@ public class AppConfig {
         return tokenBean;
     }
 
+    /**
+     * Creates a bean for a RoleFilter.
+     *
+     * @return A {@link FilterRegistrationBean} containing the RoleFilter.
+     */
     @Bean
     public FilterRegistrationBean<RoleFilter> roleFilterBean() {
         FilterRegistrationBean<RoleFilter> roleBean = new FilterRegistrationBean<>();

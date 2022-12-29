@@ -57,6 +57,12 @@ public class GithubController {
         }
     }
 
+    /**
+     * Gets user information from Github using a code, and creates a new user based on this information.
+     *
+     * @param code The code used to get the user information from Github.
+     * @return A {@link User} object containing the user information retrieved from Github, or throws an illegal argument exception if the user information could not be retrieved.
+     */
     private User githubConfig(String code) {
         RestTemplate rest = new RestTemplate();
         ResponseEntity<String> res = rest.postForEntity("https://github.com/login/oauth/access_token?code=" + code + "&client_id=2298388bcf5985aa7bcb" + "&client_secret=c50b29b012b0b535aa7d2f20627b8ebf790b390a" + "&scope=user:email", null, String.class);
@@ -78,6 +84,13 @@ public class GithubController {
         return newUser(githubUser, githubUserMail);
     }
 
+    /**
+     * Creates a new user based on information from Github.
+     *
+     * @param githubUser The Github user object containing the user information.
+     * @param githubUserMail An array of Github email objects containing the user's email addresses.
+     * @return A {@link User} object containing the user information from Github.
+     */
     private User newUser(GithubUser githubUser, GitHubEmail[] githubUserMail) {
         return new User(githubUserMail[githubUserMail.length - 1].getEmail(), githubUser.getName() + githubUserMail[githubUserMail.length - 1].getEmail());
     }

@@ -10,6 +10,10 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * A filter for handling Cross-Origin Resource Sharing (CORS) requests.
+ */
+
 public class CorsFilter implements Filter {
     private final Set<String> origins = new HashSet<>(Set.of("http://localhost:9000"));
 
@@ -19,6 +23,15 @@ public class CorsFilter implements Filter {
         Filter.super.init(filterConfig);
     }
 
+    /**
+     * Handles a CORS request by adding the necessary headers to the response. If the request is an HTTP OPTIONS request, sets the response status to ACCEPTED.
+     *
+     * @param servletRequest  The servlet request.
+     * @param servletResponse The servlet response.
+     * @param filterChain     The filter chain.
+     * @throws IOException      If an I/O error occurs.
+     * @throws ServletException If a servlet error occurs.
+     */
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         logger.debug("Applying cors filter");

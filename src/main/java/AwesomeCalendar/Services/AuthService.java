@@ -12,6 +12,15 @@ import java.util.*;
 
 import static AwesomeCalendar.Utilities.Utility.*;
 
+/**
+ A service for handling authentication tasks such as login and token validation.
+
+ @implNote The service uses a repository to store and retrieve user data and a map to store and validate session tokens. The service provides methods for
+
+ adding a new user, logging in an existing user, and validating a session token. The service also has a constructor that initializes the map of session tokens
+
+ and a method for checking the validity of function arguments.
+ */
 @Service
 public class AuthService {
     @Autowired
@@ -62,6 +71,15 @@ public class AuthService {
         return userRepository.save(registeredUser);
     }
 
+    /**
+     Attempts to log in a user by checking their email and password against the repository.
+     @param user the user object containing the email and password to be checked
+     @return a pair containing the session token and the user object if the login is successful, or an IllegalArgumentException if the login fails
+     @implNote The method first checks that the user object and its email and password fields are not null. It then retrieves the user object from the repository
+     by email. If the user object is not found, an IllegalArgumentException is thrown. If the user object is found, the method checks if the provided password
+     matches the one stored in the repository. If the passwords do not match, an IllegalArgumentException is thrown. If the passwords match, the method generates
+     a session token and stores it in a map along with the user's email. The method returns a pair containing the session token and the user object.
+     */
     public Pair<String, User> login(User user) {
         checkArgsNotNull(user);
         checkArgsNotNull(user.getEmail(), user.getPassword());
@@ -78,6 +96,13 @@ public class AuthService {
         return Pair.of(sessionToken, dbUser);
     }
 
+    /**
+     Checks the validity of a session token by checking if it is stored in a map.
+     @param token the session token to be checked
+     @return the user object corresponding to the session token if the token is valid, or an IllegalArgumentException if the token is invalid
+     @implNote The method first checks if the token is stored in a map. If it is not, an IllegalArgumentException is thrown. If it is, the method retrieves the
+     user object corresponding to the token by email and returns it.
+     */
     public User checkToken(String token) {
         logger.info("checking token:" + token);
         if (!keyTokensValEmails.containsKey(token)) {

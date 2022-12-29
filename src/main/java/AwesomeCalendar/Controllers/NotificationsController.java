@@ -17,6 +17,9 @@ import static AwesomeCalendar.Utilities.messages.ExceptionMessage.somethingWrong
 import static AwesomeCalendar.Utilities.messages.SuccessMessages.createdUpcomingNotificationSuccessfullyMessage;
 import static AwesomeCalendar.Utilities.messages.SuccessMessages.setNotificationsSuccessfullyMessage;
 
+/**
+ * A RestController for handling notifications-related requests.
+ */
 @CrossOrigin
 @RestController
 @RequestMapping("/notifications")
@@ -53,6 +56,13 @@ public class NotificationsController {
             return ResponseEntity.badRequest().body(cResponse);
         }
     }
+
+    /**
+     * Gets the notification settings for a user.
+     *
+     * @param user The user whose notification settings will be retrieved.
+     * @return A {@link ResponseEntity} containing the notification settings of the user, or a bad request status if the user is null or if there is an illegal argument exception.
+     */
 
     @RequestMapping(value = "/getNotificationsSettings", method = RequestMethod.GET)
     public ResponseEntity<NotificationsSettings> getNotificationsSettings(@RequestAttribute("user") User user) {

@@ -47,6 +47,13 @@ public class NotificationService {
 
     private static final Logger logger = LogManager.getLogger(NotificationService.class.getName());
 
+    /**
+     This method updates the notification settings for a given user.
+     @param user the user whose notification settings are being updated
+     @param notificationsSettings the new notification settings for the user
+     @return the updated notification settings for the user
+     @throws IllegalArgumentException if the user email is invalid
+     */
     public NotificationsSettings setNotificationsSettings(User user, NotificationsSettings notificationsSettings) {
         User userInDB = userRepository.findByEmail(user.getEmail());
         if (userInDB == null) {
@@ -57,6 +64,13 @@ public class NotificationService {
         return userInDB.getNotificationsSettings();
     }
 
+    /**
+     Sends a notification to the specified user with the specified notification type and event information.
+     @param usersToSend list of user emails to send the notification to
+     @param notificationType the type of notification to send
+     @param event the event for which the notification is being sent
+     @throws IllegalArgumentException if the list of user emails is null, or if an invalid user email is provided
+     */
     public void sendNotifications(List<String> usersToSend, NotificationType notificationType, Event event) {
         if (usersToSend == null) {
             throw new IllegalArgumentException("List is null");
@@ -159,6 +173,12 @@ public class NotificationService {
         }
     }
 
+    /**
+     Sends a notification to the given user according to the specified notification handler.
+     @param user the user to send the notification to
+     @param notificationHandler the notification handler to use for sending the notification
+     @param message the message to include in the notification
+     */
     public void sendHelper(User user, NotificationHandler notificationHandler, String message) {
         switch (notificationHandler) {
             case Email:
@@ -219,6 +239,11 @@ public class NotificationService {
         }
     }
 
+    /**
+     Determines whether a notification for an upcoming event should be sent or not based on the notification timing.
+     @param notification the notification for an upcoming event
+     @return true if the notification should be sent, false otherwise
+     */
     private boolean shouldNotify(UpcomingEventNotification notification) {
         if (notification == null) {
             return false;
