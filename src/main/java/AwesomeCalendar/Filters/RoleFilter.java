@@ -22,6 +22,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * A filter for handling role-based authorization for certain endpoints.
+ */
 public class RoleFilter implements Filter {
     private final EventRepo eventRepo;
 
@@ -50,6 +53,15 @@ public class RoleFilter implements Filter {
         Filter.super.init(filterConfig);
     }
 
+    /**
+     * Handles role-based authorization for certain endpoints. If the user's role is not sufficient for the requested endpoint, sets the response status to FORBIDDEN.
+     *
+     * @param servletRequest  The servlet request.
+     * @param servletResponse The servlet response.
+     * @param filterChain     The filter chain.
+     * @throws IOException      If an I/O error occurs.
+     * @throws ServletException If a servlet error occurs.
+     */
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         logger.debug("Applying Role filter");

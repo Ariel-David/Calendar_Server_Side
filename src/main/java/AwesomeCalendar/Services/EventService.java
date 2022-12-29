@@ -16,7 +16,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+/**
 
+ A service for managing events and their related data.
+
+ @implNote The service uses an EventRepo and UserRepo to access and manipulate events and users in the database. The service provides methods for creating, updating, and deleting events, as well as for retrieving the organizer of an event, a specific event, and all events between two dates.
+ */
 @Service
 public class EventService {
 
@@ -84,6 +89,12 @@ public class EventService {
         return eventInDB.get();
     }
 
+    /**
+     Deletes an event from the database.
+     @param eventId the id of the event to delete.
+     @return the deleted event.
+     @throws IllegalArgumentException if the eventId is null or if the event with the given id does not exist in the database.
+     */
     public Event deleteEvent(Long eventId) {
         Utility.checkArgsNotNull(eventId);
         logger.debug("Check if the event exist in DB");
@@ -96,6 +107,12 @@ public class EventService {
         return eventInDB.get();
     }
 
+    /**
+     Retrieves the organizer of an event from the database.
+     @param eventId the id of the event for which to retrieve the organizer.
+     @return an optional containing the organizer of the event, or an empty optional if no such event exists or if the event has no organizer.
+     @throws IllegalArgumentException if the eventId is null.
+     */
     public Optional<User> getEventOrganizer(Long eventId){
         logger.debug("Get the organizer of the event");
         Optional<Event> eventInDB = eventRepository.findById(eventId);
@@ -106,6 +123,12 @@ public class EventService {
         return eventInDB.get().getUserRoles().stream().filter(role -> role.getRoleType().equals(Role.RoleType.ORGANIZER)).map(role -> role.getUser()).findFirst();
     }
 
+    /**
+     * Retrieves an event by id.
+     * @param id the id of the event to retrieve.
+     * @return the event with the given id, if it exists. Returns an empty Optional if the event does not exist.
+     * @throws IllegalArgumentException if the event id is null.
+     */
     public Optional<Event> getEvent(Long id){
         Utility.checkArgsNotNull(id);
         logger.debug("Check if the event exist in DB");
@@ -138,6 +161,14 @@ public class EventService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     Adds a guest role to the specified event for the user with the given email.
+     @param eventId the id of the event to add the guest role to
+     @param userEmail the email of the user to add the guest role for
+     @return the created guest role
+     @throws IllegalArgumentException if the event id or user email are null, or if an invalid event id or user email is provided
+     @throws IllegalArgumentException if the user already has a role in the event
+     */
     public Role addGuestRole(Long eventId, String userEmail) {
         Utility.checkArgsNotNull(eventId, userEmail);
         logger.info("Adding guest role for user:" + userEmail + " in event:" + eventId);
@@ -159,6 +190,13 @@ public class EventService {
         return role;
     }
 
+    /**
+     Update the type of the role of the user in the event
+     @param eventId the id of the event
+     @param userId the id of the user
+     @return the updated role of the user
+     @throws IllegalArgumentException if the event id, user id or role type are null or if the event id or user id are invalid
+     */
     public Role updateTypeUserRole(Long eventId, Long userId) {
         Utility.checkArgsNotNull(eventId, userId);
         logger.info("Updating user role for user:" + userId + " in event:" + eventId);
@@ -184,6 +222,15 @@ public class EventService {
         return userRole.get();
     }
 
+    /**
+     Updates the status of the role of the given user in the given event.
+     @param eventId the id of the event whose role's status is to be updated
+     @param user the user whose role's status is to be updated
+     @param status the new status to be set for the role
+     @return the updated role
+     @throws IllegalArgumentException if any of the arguments are null or if the event id or user are invalid
+     @throws IllegalArgumentException if the user has not received an invitation to the event
+     */
     public Role updateStatusUserRole(Long eventId, User user, String status) {
         Utility.checkArgsNotNull(eventId, user, status);
         logger.info("Updating user status for user:" + user.getEmail() + " in event:" + eventId);
@@ -207,6 +254,13 @@ public class EventService {
         return userRole.get();
     }
 
+    /**
+     Deletes a role for a user in an event.
+     @param eventId the id of the event
+     @param userEmail the email of the user
+     @return the deleted role
+     @throws IllegalArgumentException if the event id is invalid or if the user id is invalid or if the user is not in the guest list or if the user is the organizer
+     */
     public Role deleteRole(Long eventId, String userEmail) {
         Utility.checkArgsNotNull(eventId, userEmail);
         logger.info("deleting role for user:" + userEmail + " in event:" + eventId);
@@ -229,6 +283,12 @@ public class EventService {
         return userRole.get();
     }
 
+    /**
+     Gets the roles for an event.
+     @param eventId the id of the event
+     @return the set of roles for the event
+     @throws IllegalArgumentException if the event id is invalid
+     */
     public Set<Role> getRolesForEvent(Long eventId) {
         Utility.checkArgsNotNull(eventId);
         logger.debug("getting roles for event:" + eventId);
@@ -239,6 +299,13 @@ public class EventService {
         return eventInDB.get().getUserRoles();
     }
 
+    /**
+     Gets the role of a user in an event.
+     @param eventId the id of the event
+     @param user the user
+     @return the role of the user in the event
+     @throws IllegalArgumentException if the event id is invalid or if the user is not in the guest list
+     */
     public Role getRoleByEventAndUSer(Long eventId, User user) {
         Utility.checkArgsNotNull(eventId, user);
         logger.info("getting role for user:" + user.getEmail() + " in event:" + eventId);
@@ -252,6 +319,13 @@ public class EventService {
         }
         return userRole.get();
     }
+
+    /**
+     Retrieves an event by its ID.
+     @param eventId The ID of the event to retrieve.
+     @return The event with the specified ID.
+     @throws IllegalArgumentException if the event ID is invalid or the event does not exist.
+     */
     public Event getEventById(Long eventId) {
         logger.info("getting event by id " + eventId);
         Optional<Event> eventInDB = eventRepository.findById(eventId);
